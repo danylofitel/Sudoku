@@ -2586,6 +2586,30 @@ namespace Sudoku_3_0
 			}
 		}
 
+		// Prompt the user to save if a saveable game is in progress.
+		// Returns true if the action should proceed, false if it was cancelled.
+		private: bool promptSaveIfNeeded()
+		{
+			if (this->gameMode >= 0 && this->gameMode <= 2)
+			{
+				System::Windows::Forms::DialogResult result = MessageBox::Show(
+					"Do you want to save the current game?",
+					"Save Game",
+					MessageBoxButtons::YesNoCancel,
+					MessageBoxIcon::Question);
+
+				if (result == System::Windows::Forms::DialogResult::Yes)
+				{
+					this->saveGameDialog->ShowDialog();
+				}
+				else if (result == System::Windows::Forms::DialogResult::Cancel)
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+
 		// Close the numbers form if it is open
 		private: void closeHelperForms()
 		{
@@ -2643,6 +2667,7 @@ namespace Sudoku_3_0
 
 		private: void newGameButton_Click(System::Object^  sender, System::EventArgs^  e)
 		{
+			if (!this->promptSaveIfNeeded()) return;
 			this->closeHelperForms();
 			this->disableHint();
 
@@ -2770,6 +2795,7 @@ namespace Sudoku_3_0
 
 		private: void newCombinationButton_Click(System::Object^  sender, System::EventArgs^  e)
 		{
+			if (!this->promptSaveIfNeeded()) return;
 			this->closeHelperForms();
 			this->disableHint();
 
@@ -2786,6 +2812,7 @@ namespace Sudoku_3_0
 
 		private: void customPuzzleButton_Click(System::Object^  sender, System::EventArgs^  e)
 		{
+			if (!this->promptSaveIfNeeded()) return;
 			this->closeHelperForms();
 			this->disableHint();
 
@@ -2861,6 +2888,7 @@ namespace Sudoku_3_0
 
 		private: void openToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
 		{
+			if (!this->promptSaveIfNeeded()) return;
 			this->openGameDialog->ShowDialog();
 		}
 
@@ -3457,6 +3485,7 @@ namespace Sudoku_3_0
 
 		private: void buttonClose_Click(System::Object^  sender, System::EventArgs^  e)
 		{
+			if (!this->promptSaveIfNeeded()) return;
 			this->closeHelperForms();
 
 			this->Close();
