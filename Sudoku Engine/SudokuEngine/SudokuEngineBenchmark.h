@@ -4,6 +4,7 @@
 #define _SUDOKU_ENGINE_BENCHMARK_H_
 
 #include <iostream>
+#include <chrono>
 #include <time.h>
 
 #include "SudokuEngine.h"
@@ -24,7 +25,7 @@ namespace SudokuGameEngine
 			SudokuEngine<IndexType, BooleanType, sizeFactor> engine;
 
 			// Save start time
-			time_t start = time(nullptr);
+			auto totalStart = std::chrono::high_resolution_clock::now();
 
 			std::cout << "Sudoku Engine Board Generation Benchmark Started" << std::endl << std::endl;
 			std::cout << "Iterations per loop: " << iterationsPerLoop << std::endl;
@@ -35,24 +36,30 @@ namespace SudokuGameEngine
 			{
 				std::cout << "Running loop #" << loop << " ... ";
 
+				auto loopStart = std::chrono::high_resolution_clock::now();
+
 				//Run all iterations in a loop
 				for (unsigned int iteration = 0; iteration < iterationsPerLoop; ++iteration)
 				{
 					engine.newCombination();
 				}
 
-				std::cout << "loop finished" << std::endl;
+				auto loopEnd = std::chrono::high_resolution_clock::now();
+				auto loopElapsed = std::chrono::duration_cast<std::chrono::microseconds>(loopEnd - loopStart).count();
+
+				std::cout << "loop finished in " << loopElapsed << " microseconds" << std::endl;
 			}
 
 			// Save finish time
-			time_t finish = time(nullptr);
+			auto totalEnd = std::chrono::high_resolution_clock::now();
+			auto totalElapsed = std::chrono::duration_cast<std::chrono::microseconds>(totalEnd - totalStart).count();
 
 			// Report the result
 			std::cout << std::endl << iterationsPerLoop * loops << " iterations finished in " <<
-				(finish - start) << " seconds!" << std::endl << std::endl;
+				totalElapsed << " microseconds (" << (totalElapsed / 1000000.0) << " seconds)" << std::endl << std::endl;
 
-			// Return time spent
-			return static_cast<unsigned int>(finish - start);
+			// Return time spent in seconds
+			return static_cast<unsigned int>(totalElapsed / 1000000);
 		}
 
 		// Benchmark game generation speed
@@ -65,7 +72,7 @@ namespace SudokuGameEngine
 			SudokuEngine<IndexType, BooleanType, sizeFactor> engine;
 
 			// Save start time
-			time_t start = time(nullptr);
+			auto totalStart = std::chrono::high_resolution_clock::now();
 
 			std::cout << "Sudoku Engine Game Generation Benchmark Started" << std::endl << std::endl;
 			std::cout << "Difficulty level: " << difficulty << std::endl;
@@ -77,24 +84,30 @@ namespace SudokuGameEngine
 			{
 				std::cout << "Running loop #" << loop << " ... ";
 
+				auto loopStart = std::chrono::high_resolution_clock::now();
+
 				//Run all iterations in a loop
 				for (unsigned int iteration = 0; iteration < iterationsPerLoop; ++iteration)
 				{
 					engine.newGame(difficulty);
 				}
 
-				std::cout << "loop finished" << std::endl;
+				auto loopEnd = std::chrono::high_resolution_clock::now();
+				auto loopElapsed = std::chrono::duration_cast<std::chrono::microseconds>(loopEnd - loopStart).count();
+
+				std::cout << "loop finished in " << loopElapsed << " microseconds" << std::endl;
 			}
 
 			// Save finish time
-			time_t finish = time(nullptr);
+			auto totalEnd = std::chrono::high_resolution_clock::now();
+			auto totalElapsed = std::chrono::duration_cast<std::chrono::microseconds>(totalEnd - totalStart).count();
 
 			// Report the result
 			std::cout << std::endl << iterationsPerLoop * loops << " iterations finished in " <<
-				(finish - start) << " seconds!" << std::endl << std::endl;
+				totalElapsed << " microseconds (" << (totalElapsed / 1000000.0) << " seconds)" << std::endl << std::endl;
 
-			// Return time spent
-			return static_cast<unsigned int>(finish - start);
+			// Return time spent in seconds
+			return static_cast<unsigned int>(totalElapsed / 1000000);
 		}
 
 		// Benchmark game solution speed
@@ -110,7 +123,7 @@ namespace SudokuGameEngine
 			SudokuEngine<IndexType, BooleanType, sizeFactor> sourceEngine;
 
 			// Total time elapsed
-			time_t timeElapsed = 0;
+			long long totalElapsedMicros = 0;
 
 			std::cout << "Sudoku Engine Game Solving Benchmark Started" << std::endl << std::endl;
 			std::cout << "Difficulty level: " << difficulty << std::endl;
@@ -121,9 +134,10 @@ namespace SudokuGameEngine
 			for (unsigned int loop = 1; loop <= loops; ++loop)
 			{
 				sourceEngine.newGame(difficulty);
-				time_t start = time(nullptr);
 
 				std::cout << "Running loop #" << loop << " ... ";
+
+				auto loopStart = std::chrono::high_resolution_clock::now();
 
 				//Run all iterations in a loop
 				for (unsigned int iteration = 0; iteration < iterationsPerLoop; ++iteration)
@@ -156,18 +170,19 @@ namespace SudokuGameEngine
 				}
 
 				// Calculate the loop was executing
-				time_t finish = time(nullptr);
-				timeElapsed += finish - start;
+				auto loopEnd = std::chrono::high_resolution_clock::now();
+				auto loopElapsed = std::chrono::duration_cast<std::chrono::microseconds>(loopEnd - loopStart).count();
+				totalElapsedMicros += loopElapsed;
 
-				std::cout << "loop finished" << std::endl;
+				std::cout << "loop finished in " << loopElapsed << " microseconds" << std::endl;
 			}
 
 			// Report the result
 			std::cout << std::endl << iterationsPerLoop * loops << " iterations finished in " <<
-				timeElapsed << " seconds!" << std::endl << std::endl;
+				totalElapsedMicros << " microseconds (" << (totalElapsedMicros / 1000000.0) << " seconds)" << std::endl << std::endl;
 
-			// Return time spent
-			return static_cast<unsigned int>(timeElapsed);
+			// Return time spent in seconds
+			return static_cast<unsigned int>(totalElapsedMicros / 1000000);
 		}
 	};
 }
