@@ -9,9 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Header Files\SudokuEngine">
-      <UniqueIdentifier>{ee27f123-d9e8-40b9-8c37-d61ec6828605}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{10a92be6-c1af-4ba3-ae57-75f937ffa57e}</UniqueIdentifier>
     </Filter>
@@ -26,25 +23,7 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="About.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Notification.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Numbers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Rules.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Features.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Keyboard.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HintsAndTips.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -61,32 +40,11 @@
     <ClInclude Include="Numbers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="About.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SudokuEngine.h">
-      <Filter>Header Files\SudokuEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="Notification.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SavedGame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Rules.h">
+    <ClInclude Include="SudokuEngine.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Features.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HintsAndTips.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Keyboard.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SudokuEngineOptimized.h">
-      <Filter>Header Files\SudokuEngine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

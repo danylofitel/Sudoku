@@ -1,3 +1,5 @@
+// Danylo Fitel 2013
+
 #include "stdafx.h"
 
 using namespace System;
@@ -16,7 +18,7 @@ using namespace System::Security::Permissions;
 [assembly:AssemblyConfigurationAttribute("")];
 [assembly:AssemblyCompanyAttribute("")];
 [assembly:AssemblyProductAttribute("Sudoku_3_0")];
-[assembly:AssemblyCopyrightAttribute("Copyright (c)  2013")];
+[assembly:AssemblyCopyrightAttribute("Copyright (c) Danylo Fitel 2013")];
 [assembly:AssemblyTrademarkAttribute("")];
 [assembly:AssemblyCultureAttribute("")];
 

@@ -1,4 +1,4 @@
-// Sudoku 3.0.cpp : main project file.
+// Danylo Fitel 2013
 
 #include "stdafx.h"
 #include "Sudoku 3.0.h"
@@ -10,7 +10,7 @@ int main(array<System::String ^> ^args)
 {
 	// Enabling Windows XP visual effects before any controls are created
 	Application::EnableVisualStyles();
-	Application::SetCompatibleTextRenderingDefault(false); 
+	Application::SetCompatibleTextRenderingDefault(false);
 
 	// Create the main window and run it
 	Application::Run(gcnew SudokuForm());

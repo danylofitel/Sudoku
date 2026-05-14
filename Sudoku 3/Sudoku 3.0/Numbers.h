@@ -1,3 +1,5 @@
+// Danylo Fitel 2013
+
 #pragma once
 
 namespace Sudoku_3_0 {
@@ -473,5 +475,5 @@ namespace Sudoku_3_0 {
 		{
 			this->Numbers_KeyPress(sender, e);
 		}
-};
+	};
 }

@@ -1,3 +1,5 @@
+// Danylo Fitel 2013
+
 #pragma once
 
 using namespace System;

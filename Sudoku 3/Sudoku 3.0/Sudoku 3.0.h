@@ -1,14 +1,10 @@
+// Danylo Fitel 2013
+
 #pragma once
 
-#include "About.h"
-#include "Features.h"
-#include "HintsAndTips.h"
-#include "Keyboard.h"
-#include "Notification.h"
 #include "Numbers.h"
-#include "Rules.h"
 #include "SavedGame.h"
-#include "SudokuEngineOptimized.h"
+#include "SudokuEngine.h"
 
 namespace Sudoku_3_0
 {
@@ -61,7 +57,7 @@ namespace Sudoku_3_0
 	private: const unsigned int numberOfCells;
 
 	// Sudoku engine
-	private: SudokuGameEngine::SudokuEngineOptimized<>* engine;
+	private: SudokuGameEngine::SudokuEngine<>* engine;
 
 	// Access to buttons by their numbers
 	private: array<System::Windows::Forms::Button^>^ cells;
@@ -200,23 +196,8 @@ namespace Sudoku_3_0
 	// Numbers form
 	private: Sudoku_3_0::Numbers^ numbersForm;
 
-	// Notifications form
-	private: Sudoku_3_0::Notification^ notificationForm;
 
-	// About form
-	private: Sudoku_3_0::About^ aboutForm;
 
-	// Rules form
-	private: Sudoku_3_0::Rules^ rulesForm;
-
-	// Features form
-	private: Sudoku_3_0::Features^ featuresForm;
-
-	// HintsAndTips form
-	private: Sudoku_3_0::HintsAndTips^ hintsAndTipsForm;
-
-	// Keyboard form
-	private: Sudoku_3_0::Keyboard^ keyboardForm;
 
 	// Numbers form active
 	private: bool numbersFormActive;
@@ -2241,22 +2222,14 @@ namespace Sudoku_3_0
 		// Show notification
 		private: void showNotification(System::String^ message)
 		{
-			// Location of the form
-			int left = this->Left + (this->Width - this->notificationForm->Width) / 2;
-			int top = this->Top + (this->Height - this->notificationForm->Height) / 2;
-
-			this->notificationForm->Left = left;
-			this->notificationForm->Top = top;
-			this->notificationForm->setMessage(message);
-			this->notificationForm->Visible = true;
-			this->notificationForm->Activate();
+			MessageBox::Show(message, "Sudoku", MessageBoxButtons::OK, MessageBoxIcon::Information);
 		}
 		
 		// Initialize sudoku engine
 		private: void initialize()
 		{
 			// Initialize engine
-			this->engine = new SudokuGameEngine::SudokuEngineOptimized<>();
+			this->engine = new SudokuGameEngine::SudokuEngine<>();
 
 			// Initialize numbers form
 			this->numbersForm = gcnew Sudoku_3_0::Numbers();
@@ -2265,15 +2238,6 @@ namespace Sudoku_3_0
 			this->numbersForm->setChoiceDelegate(gcnew choiceAction(this, &SudokuForm::choiceMade));
 			this->numbersForm->Visible = true;
 			this->numbersForm->Visible = false;
-
-			// Create notifications form
-			this->notificationForm = gcnew Sudoku_3_0::Notification();
-			this->notificationForm->Visible = true;
-			this->notificationForm->Visible = false;
-
-			// About and Rules forms will be created on demand
-			this->aboutForm = nullptr;
-			this->rulesForm = nullptr;
 
 			// Initialize dragging state
 			this->dragging = false;
@@ -2834,39 +2798,7 @@ namespace Sudoku_3_0
 			this->numbersForm->Visible = false;
 			this->numbersFormActive = false;
 
-			// Close notifications form
-			this->notificationForm->Visible = false;
-
-			// Close about form
-			if (this->aboutForm != nullptr)
-			{
-				this->aboutForm->Visible = false;
 			}
-
-			// Close rules form
-			if (this->rulesForm != nullptr)
-			{
-				this->rulesForm->Visible = false;
-			}
-
-			// Close features form
-			if (this->featuresForm != nullptr)
-			{
-				this->featuresForm->Visible = false;
-			}
-
-			// Close hints and tips form
-			if (this->hintsAndTipsForm != nullptr)
-			{
-				this->hintsAndTipsForm->Visible = false;
-			}
-
-			// Close keyboard form
-			if (this->keyboardForm != nullptr)
-			{
-				this->keyboardForm->Visible = false;
-			}
-		}
 
 		// Enable hint mode
 		private: void enableHint()
@@ -3217,70 +3149,71 @@ namespace Sudoku_3_0
 
 		private: void aboutToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
 		{
-			if (this->aboutForm == nullptr)
-			{
-				this->aboutForm = gcnew Sudoku_3_0::About();
-				this->aboutForm->Visible = true;
-				this->aboutForm->Visible = false;
-			}
-
-			this->initializeForm(this->aboutForm);
+			MessageBox::Show(
+				"SUDOKU 3.0\n\nAll rights reserved",
+				"About",
+				MessageBoxButtons::OK,
+				MessageBoxIcon::Information);
 		}
 
 		private: void rulesToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
 		{
-			if (this->rulesForm == nullptr)
-			{
-				this->rulesForm = gcnew Sudoku_3_0::Rules();
-				this->rulesForm->Visible = true;
-				this->rulesForm->Visible = false;
-			}
-
-			this->initializeForm(this->rulesForm);
+			MessageBox::Show(
+				"Solving a sudoku puzzle can be rather tricky, but the rules of the game are quite simple.\n\n"
+				"A sudoku puzzle is a grid of nine by nine squares or cells, that has been subdivided into "
+				"nine subgrids or \"regions\" of three by three cells.\n\n"
+				"The objective of sudoku is to enter a digit from 1 through 9 in each cell, in such a way "
+				"that each horizontal row, vertical column and region contains each digit exactly once.\n\n"
+				"A sudoku puzzle has only one solution.",
+				"Rules",
+				MessageBoxButtons::OK,
+				MessageBoxIcon::Information);
 		}
 
 		private: void featuresToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
 		{
-			if (this->featuresForm == nullptr)
-			{
-				this->featuresForm = gcnew Sudoku_3_0::Features();
-				this->featuresForm->Visible = true;
-				this->featuresForm->Visible = false;
-			}
-
-			this->initializeForm(this->featuresForm);
+			MessageBox::Show(
+				"New Game - create a new sudoku game\n"
+				"Restart - restart current puzzle\n"
+				"Hint - activate hint mode to open selected cells\n"
+				"Fix - remove all wrong numbers\n"
+				"Give Up - show solution of current puzzle\n"
+				"New Combo - create a new valid 9x9 combination\n"
+				"Custom Puzzle - enter a custom sudoku puzzle\n"
+				"Solve - solve custom sudoku puzzle",
+				"Features",
+				MessageBoxButtons::OK,
+				MessageBoxIcon::Information);
 		}
 
 		private: void hintsAndTipsToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
 		{
-			if (this->hintsAndTipsForm == nullptr)
-			{
-				this->hintsAndTipsForm = gcnew Sudoku_3_0::HintsAndTips();
-				this->hintsAndTipsForm->Visible = true;
-				this->hintsAndTipsForm->Visible = false;
-			}
-
-			this->initializeForm(this->hintsAndTipsForm);
+			MessageBox::Show(
+				"You can save the game anytime and open it later\n\n"
+				"Click on any cell you want to fill to see a choice menu\n\n"
+				"If the number you have entered blinks in red,\n"
+				"    it conflicts with existing numbers\n\n"
+				"Click the Hint button to enable hint mode\n"
+				"Click it again to go back to game mode\n\n"
+				"Press and hold anywhere to drag the window",
+				"Hints And Tips",
+				MessageBoxButtons::OK,
+				MessageBoxIcon::Information);
 		}
 
 		private: void keyboardToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
 		{
-			if (this->keyboardForm == nullptr)
-			{
-				this->keyboardForm = gcnew Sudoku_3_0::Keyboard();
-				this->keyboardForm->Visible = true;
-				this->keyboardForm->Visible = false;
-			}
-
-			this->initializeForm(this->keyboardForm);
-		}
-
-		private: void initializeForm(Form^ form)
-		{
-			form->Left = this->Left + (this->Width - form->Width) / 2;
-			form->Top = this->Top + (this->Height - form->Height) / 2;
-			form->Visible = true;
-			form->Activate();
+			MessageBox::Show(
+				"The game has full keyboard support\n\n"
+				"Press Tab to select cells\n"
+				"Use Tab or arrow keys to navigate between cells\n"
+				"Press Enter or Space to click selected cell\n"
+				"Press the number key to quickly fill the cell\n\n"
+				"All buttons have hotkeys\n"
+				"You can see the list of hotkeys in the main menu",
+				"Keyboard",
+				MessageBoxButtons::OK,
+				MessageBoxIcon::Information);
 		}
 
 		private: void button1_Click(System::Object^  sender, System::EventArgs^  e)
