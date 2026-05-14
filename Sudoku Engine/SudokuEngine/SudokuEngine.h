@@ -4,7 +4,7 @@
 #define _SUDOKU_ENGINE_H_
 
 // Use iterative algorithm to solve puzzles
-#undef USE_ITERATIVE_SOLVING_ALGORITHM
+#define USE_ITERATIVE_SOLVING_ALGORITHM
 
 #include <algorithm>
 #include <cassert>

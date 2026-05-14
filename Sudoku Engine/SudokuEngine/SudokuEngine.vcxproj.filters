@@ -26,5 +26,11 @@
     <ClInclude Include="SudokuEngineBenchmark.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SudokuEngineOptimized.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SudokuEngineOptimizedBenchmark.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

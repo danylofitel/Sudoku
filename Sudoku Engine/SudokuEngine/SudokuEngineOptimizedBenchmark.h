@@ -1,19 +1,20 @@
 // Danylo Fitel 2013
+// Benchmark for optimized Sudoku engine
 
-#ifndef _SUDOKU_ENGINE_BENCHMARK_H_
-#define _SUDOKU_ENGINE_BENCHMARK_H_
+#ifndef _SUDOKU_ENGINE_OPTIMIZED_BENCHMARK_H_
+#define _SUDOKU_ENGINE_OPTIMIZED_BENCHMARK_H_
 
 #include <iostream>
 #include <chrono>
 #include <time.h>
 
-#include "SudokuEngine.h"
+#include "SudokuEngineOptimized.h"
 
 namespace SudokuGameEngine
 {
-	// Benchmark for SudokuEngine class
-	template <typename IndexType = unsigned char, typename BooleanType = unsigned char, IndexType sizeFactor = 3>
-	class SudokuEngineBenchmark
+	// Benchmark for SudokuEngineOptimized class
+	template <typename IndexType = unsigned char, IndexType sizeFactor = 3>
+	class SudokuEngineOptimizedBenchmark
 	{
 	public:
 		// Benchmark filled board generation speed
@@ -22,12 +23,12 @@ namespace SudokuGameEngine
 			const unsigned int loops = 1)
 		{
 			// Create Sudoku engine
-			SudokuEngine<IndexType, BooleanType, sizeFactor> engine;
+			SudokuEngineOptimized<IndexType, sizeFactor> engine;
 
 			// Save start time
 			auto totalStart = std::chrono::high_resolution_clock::now();
 
-			std::cout << "Sudoku Engine Board Generation Benchmark Started" << std::endl << std::endl;
+			std::cout << "Sudoku Engine OPTIMIZED Board Generation Benchmark Started" << std::endl << std::endl;
 			std::cout << "Iterations per loop: " << iterationsPerLoop << std::endl;
 			std::cout << "Loops: " << loops << std::endl << std::endl;
 
@@ -69,12 +70,12 @@ namespace SudokuGameEngine
 			const unsigned int loops = 1)
 		{
 			// Create Sudoku engine
-			SudokuEngine<IndexType, BooleanType, sizeFactor> engine;
+			SudokuEngineOptimized<IndexType, sizeFactor> engine;
 
 			// Save start time
 			auto totalStart = std::chrono::high_resolution_clock::now();
 
-			std::cout << "Sudoku Engine Game Generation Benchmark Started" << std::endl << std::endl;
+			std::cout << "Sudoku Engine OPTIMIZED Game Generation Benchmark Started" << std::endl << std::endl;
 			std::cout << "Difficulty level: " << difficulty << std::endl;
 			std::cout << "Iterations per loop: " << iterationsPerLoop << std::endl;
 			std::cout << "Loops: " << loops << std::endl << std::endl;
@@ -117,15 +118,15 @@ namespace SudokuGameEngine
 			const unsigned int loops = 1)
 		{
 			// Create Sudoku engine
-			SudokuEngine<IndexType, BooleanType, sizeFactor> engine;
+			SudokuEngineOptimized<IndexType, sizeFactor> engine;
 
 			// Generate a new game
-			SudokuEngine<IndexType, BooleanType, sizeFactor> sourceEngine;
+			SudokuEngineOptimized<IndexType, sizeFactor> sourceEngine;
 
 			// Total time elapsed
 			long long totalElapsedMicros = 0;
 
-			std::cout << "Sudoku Engine Game Solving Benchmark Started" << std::endl << std::endl;
+			std::cout << "Sudoku Engine OPTIMIZED Game Solving Benchmark Started" << std::endl << std::endl;
 			std::cout << "Difficulty level: " << difficulty << std::endl;
 			std::cout << "Iterations per loop: " << iterationsPerLoop << std::endl;
 			std::cout << "Loops: " << loops << std::endl << std::endl;

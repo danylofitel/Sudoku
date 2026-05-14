@@ -4,6 +4,8 @@
 #include <string>
 #include "SudokuEngine.h"
 #include "SudokuEngineBenchmark.h"
+#include "SudokuEngineOptimized.h"
+#include "SudokuEngineOptimizedBenchmark.h"
 
 typedef unsigned char IndexType;
 typedef unsigned char BooleanType;
@@ -12,9 +14,11 @@ const IndexType sizeFactor = 3;
 int main()
 {
 	SudokuGameEngine::SudokuEngine<IndexType, BooleanType, sizeFactor> engine;
+	SudokuGameEngine::SudokuEngineOptimized<IndexType, sizeFactor> optimizedEngine;
 
 	char input(0);
 	char activityChoice(0);
+	char engineChoice(0);
 	std::string numberInput("");
 	SudokuGameEngine::DifficultyLevel difficulty(SudokuGameEngine::DifficultyLevel::VeryEasy);
 	unsigned int iterations(0);
@@ -30,6 +34,7 @@ int main()
 			std::cout << "3. Run solving benchmark" << std::endl;
 			std::cout << "4. Generate new combination" << std::endl;
 			std::cout << "5. Generate new game" << std::endl;
+			std::cout << "6. Compare original vs optimized (solving benchmark)" << std::endl;
 			std::cout << "E. Exit" << std::endl;
 			std::cout << "->";
 			std::cin >> input;
@@ -37,7 +42,7 @@ int main()
 
 			switch (input)
 			{
-			case '1': case '2': case '3': case '4': case '5':
+			case '1': case '2': case '3': case '4': case '5': case '6':
 				activityChoice = input;
 				break;
 			case 'E': case 'e':
@@ -47,6 +52,40 @@ int main()
 				input = 0;
 			}
 		} while (input == 0);
+
+		if (activityChoice != '1' && activityChoice != '4' && activityChoice != '6')
+		{
+			do
+			{
+				std::cout << "Choose engine version" << std::endl;
+				std::cout << "1. Original engine" << std::endl;
+				std::cout << "2. Optimized engine" << std::endl;
+				std::cout << "B. Back" << std::endl;
+				std::cout << "E. Exit" << std::endl;
+				std::cout << "->";
+				std::cin >> input;
+				std::cout << std::endl;
+
+				switch (input)
+				{
+				case '1': case '2':
+					engineChoice = input;
+					break;
+				case 'B': case 'b':
+					break;
+				case 'E': case 'e':
+					return 0;
+				default:
+					input = 0;
+					break;
+				}
+			} while (input == 0);
+
+			if (input == 'B' || input == 'b')
+			{
+				continue;
+			}
+		}
 
 		if (activityChoice != '1' && activityChoice != '4')
 		{
@@ -100,13 +139,84 @@ int main()
 
 		if (activityChoice == '4')
 		{
-			engine.newCombination();
-			std::cout << engine << std::endl;
+			if (engineChoice == '1')
+			{
+				engine.newCombination();
+				std::cout << engine << std::endl;
+			}
+			else
+			{
+				optimizedEngine.newCombination();
+				std::cout << optimizedEngine << std::endl;
+			}
 		}
 		else if (activityChoice == '5')
 		{
-			engine.newGame(difficulty);
-			std::cout << engine << std::endl;
+			if (engineChoice == '1')
+			{
+				engine.newGame(difficulty);
+				std::cout << engine << std::endl;
+			}
+			else
+			{
+				optimizedEngine.newGame(difficulty);
+				std::cout << optimizedEngine << std::endl;
+			}
+		}
+		else if (activityChoice == '6')
+		{
+			// Comparison benchmark
+			do
+			{
+				std::cout << "Number of iterations per loop" << std::endl;
+				std::cout << "->";
+				std::cin >> numberInput;
+				try
+				{
+					iterations = std::stoi(numberInput);
+				}
+				catch (...)
+				{
+					std::cout << "Try again" << std::endl;
+					iterations = 0;
+				}
+				std::cout << std::endl;
+			} while (iterations <= 0);
+
+			do
+			{
+				std::cout << "Number of loops" << std::endl;
+				std::cout << "->";
+				std::cin >> numberInput;
+				try
+				{
+					loops = std::stoi(numberInput);
+				}
+				catch (...)
+				{
+					std::cout << "Try again" << std::endl;
+					loops = 0;
+				}
+				std::cout << std::endl;
+			} while (loops <= 0);
+
+			std::cout << "========== ORIGINAL ENGINE ==========" << std::endl;
+			long long originalTimeMicros = SudokuGameEngine::SudokuEngineBenchmark<IndexType, BooleanType, sizeFactor>::benchmarkGameSolving(difficulty, iterations, loops);
+			std::cout << std::endl;
+
+			std::cout << "========== OPTIMIZED ENGINE ==========" << std::endl;
+			long long optimizedTimeMicros = SudokuGameEngine::SudokuEngineOptimizedBenchmark<IndexType, sizeFactor>::benchmarkGameSolving(difficulty, iterations, loops);
+			std::cout << std::endl;
+
+			std::cout << "========== COMPARISON ==========" << std::endl;
+			std::cout << "Original time:  " << originalTimeMicros << " microseconds (" << (originalTimeMicros / 1000000.0) << " seconds)" << std::endl;
+			std::cout << "Optimized time: " << optimizedTimeMicros << " microseconds (" << (optimizedTimeMicros / 1000000.0) << " seconds)" << std::endl;
+			if (optimizedTimeMicros > 0)
+			{
+				double speedup = static_cast<double>(originalTimeMicros) / static_cast<double>(optimizedTimeMicros);
+				std::cout << "Speedup: " << speedup << "x faster" << std::endl;
+			}
+			std::cout << std::endl;
 		}
 		else
 		{
@@ -147,13 +257,22 @@ int main()
 			switch (activityChoice)
 			{
 			case '1':
-				SudokuGameEngine::SudokuEngineBenchmark<IndexType, BooleanType, sizeFactor>::benchmarkCombinationGeneration(iterations, loops);
+				if (engineChoice == '1')
+					SudokuGameEngine::SudokuEngineBenchmark<IndexType, BooleanType, sizeFactor>::benchmarkCombinationGeneration(iterations, loops);
+				else
+					SudokuGameEngine::SudokuEngineOptimizedBenchmark<IndexType, sizeFactor>::benchmarkCombinationGeneration(iterations, loops);
 				break;
 			case '2':
-				SudokuGameEngine::SudokuEngineBenchmark<IndexType, BooleanType, sizeFactor>::benchmarkGameGeneration(difficulty, iterations, loops);
+				if (engineChoice == '1')
+					SudokuGameEngine::SudokuEngineBenchmark<IndexType, BooleanType, sizeFactor>::benchmarkGameGeneration(difficulty, iterations, loops);
+				else
+					SudokuGameEngine::SudokuEngineOptimizedBenchmark<IndexType, sizeFactor>::benchmarkGameGeneration(difficulty, iterations, loops);
 				break;
 			case '3':
-				SudokuGameEngine::SudokuEngineBenchmark<IndexType, BooleanType, sizeFactor>::benchmarkGameSolving(difficulty, iterations, loops);
+				if (engineChoice == '1')
+					SudokuGameEngine::SudokuEngineBenchmark<IndexType, BooleanType, sizeFactor>::benchmarkGameSolving(difficulty, iterations, loops);
+				else
+					SudokuGameEngine::SudokuEngineOptimizedBenchmark<IndexType, sizeFactor>::benchmarkGameSolving(difficulty, iterations, loops);
 				break;
 			default:
 				break;
