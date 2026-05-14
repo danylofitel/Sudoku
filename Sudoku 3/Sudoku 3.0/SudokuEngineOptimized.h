@@ -41,7 +41,7 @@ inline int CTZ64(uint64_t x)
 #define CTZ(x)      __builtin_ctz(x)
 #define CTZ64(x)    __builtin_ctzll(x)
 #else
-inline int POPCOUNT(uint32_t x) { int n = 0; while (x) { ++n; x &= x-1; } return n; }
+inline int POPCOUNT(uint32_t x) { int n = 0; while (x) { ++n; x &= x - 1; } return n; }
 inline int CTZ(uint32_t x) { int n = 0; while (!(x & 1)) { x >>= 1; ++n; } return n; }
 inline int CTZ64(uint64_t x) { int n = 0; while (!(x & 1)) { x >>= 1; ++n; } return n; }
 #endif
@@ -89,27 +89,27 @@ namespace SudokuGameEngine
     template <typename IndexType = unsigned char, IndexType sizeFactor = 3>
     class SudokuEngineOptimized
     {
-        static const IndexType   boardSize      = sizeFactor * sizeFactor;
-        static const IndexType   numberOfCells  = boardSize * boardSize;
-        static const uint16_t    allValuesMask  = static_cast<uint16_t>((1u << boardSize) - 1u);
+        static const IndexType   boardSize = sizeFactor * sizeFactor;
+        static const IndexType   numberOfCells = boardSize * boardSize;
+        static const uint16_t    allValuesMask = static_cast<uint16_t>((1u << boardSize) - 1u);
         static const std::size_t emptyMaskWords = (static_cast<std::size_t>(boardSize) * boardSize + 63) / 64;
 
     public:
-        static const IndexType sizeOfTheBlock()     { return sizeFactor;    }
-        static const IndexType sizeOfTheBoard()     { return boardSize;     }
+        static const IndexType sizeOfTheBlock() { return sizeFactor; }
+        static const IndexType sizeOfTheBoard() { return boardSize; }
         static const IndexType numberOfBoardCells() { return numberOfCells; }
 
         SudokuEngineOptimized()
             : _filledCount(0), _solutions(0), _state(SudokuEngineState::Empty),
-              _capturedFirst(false), _rng(detail::makeSeed(this))
+            _capturedFirst(false), _rng(detail::makeSeed(this))
         {
-            static_assert(std::numeric_limits<IndexType>::is_integer,  "IndexType must be integer");
-            static_assert(!std::numeric_limits<IndexType>::is_signed,  "IndexType must be unsigned");
-            static_assert(sizeFactor > 1,                              "sizeFactor must be > 1");
+            static_assert(std::numeric_limits<IndexType>::is_integer, "IndexType must be integer");
+            static_assert(!std::numeric_limits<IndexType>::is_signed, "IndexType must be unsigned");
+            static_assert(sizeFactor > 1, "sizeFactor must be > 1");
             // Catch numberOfCells overflow: e.g. sizeFactor=5 with unsigned char wraps from 625 to 113.
             static_assert(
                 static_cast<std::size_t>(sizeFactor) * sizeFactor * sizeFactor * sizeFactor
-                    == static_cast<std::size_t>(numberOfCells),
+                == static_cast<std::size_t>(numberOfCells),
                 "IndexType too small: numberOfCells overflows");
             static_assert(boardSize > sizeFactor && numberOfCells > boardSize, "IndexType too small");
             static_assert(static_cast<unsigned>(boardSize) <= 16,
@@ -206,7 +206,7 @@ namespace SudokuGameEngine
             {
                 _capturedFirst = false;
                 const IndexType sol = countSolutionsImpl(2, nullptr);
-                if      (sol == 0) _state = SudokuEngineState::HasNoSolution;
+                if (sol == 0) _state = SudokuEngineState::HasNoSolution;
                 else if (sol == 1) _state = SudokuEngineState::HasUniqueSolution;
                 else               _state = SudokuEngineState::HasMultipleSolutions;
             }
@@ -280,12 +280,12 @@ namespace SudokuGameEngine
             IndexType minHide, maxHide;
             switch (difficulty)
             {
-                case DifficultyLevel::VeryEasy: minHide = 20; maxHide = 30; break;
-                case DifficultyLevel::Easy:     minHide = 30; maxHide = 40; break;
-                case DifficultyLevel::Medium:   minHide = 40; maxHide = 50; break;
-                case DifficultyLevel::Hard:     minHide = 50; maxHide = 55; break;
-                case DifficultyLevel::VeryHard: minHide = 55; maxHide = 60; break;
-                default:                        minHide = 40; maxHide = 50; break;
+            case DifficultyLevel::VeryEasy: minHide = 20; maxHide = 30; break;
+            case DifficultyLevel::Easy:     minHide = 30; maxHide = 40; break;
+            case DifficultyLevel::Medium:   minHide = 40; maxHide = 50; break;
+            case DifficultyLevel::Hard:     minHide = 50; maxHide = 55; break;
+            case DifficultyLevel::VeryHard: minHide = 55; maxHide = 60; break;
+            default:                        minHide = 40; maxHide = 50; break;
             }
             const IndexType toHide = static_cast<IndexType>(
                 _rng.bounded(static_cast<uint32_t>(maxHide - minHide + 1)) + minHide);
@@ -314,7 +314,7 @@ namespace SudokuGameEngine
                         t.data[i][j] = static_cast<IndexType>(
                             (i / sizeFactor) * sizeFactor + (j / sizeFactor));
                 return t;
-            }();
+                }();
             return lut;
         }
 
@@ -386,7 +386,7 @@ namespace SudokuGameEngine
             for (std::size_t w = 0; w < emptyMaskWords; ++w) _emptyMask[w] = ~uint64_t(0);
             // Mask off bits beyond numberOfCells.
             const std::size_t totalBits = emptyMaskWords * 64;
-            const std::size_t cellBits  = static_cast<std::size_t>(numberOfCells);
+            const std::size_t cellBits = static_cast<std::size_t>(numberOfCells);
             if (totalBits > cellBits)
                 _emptyMask[emptyMaskWords - 1] &= (~uint64_t(0) >> (totalBits - cellBits));
             _filledCount = 0;
@@ -690,7 +690,7 @@ namespace SudokuGameEngine
 
         // Count solutions up to `limit`. If `capture` is non-null, the first solution
         // found is written to it (subsequent ones are not). Board restored on return.
-        IndexType countSolutionsImpl(IndexType limit, IndexType (*capture)[boardSize])
+        IndexType countSolutionsImpl(IndexType limit, IndexType(*capture)[boardSize])
         {
             uint16_t placed[numberOfCells];
             std::size_t placedCount = 0;
@@ -745,7 +745,7 @@ namespace SudokuGameEngine
                 return true;
             }
             std::size_t idx = start;
-            while (idx < numberOfCells && _board[idx / boardSize][idx % boardSize] != 0) ++idx;
+            while (idx < numberOfCells&& _board[idx / boardSize][idx % boardSize] != 0) ++idx;
             if (idx >= numberOfCells) return false;
             const IndexType r = static_cast<IndexType>(idx / boardSize);
             const IndexType c = static_cast<IndexType>(idx % boardSize);
@@ -817,9 +817,9 @@ namespace SudokuGameEngine
     std::ostream& operator<<(std::ostream& os, const SudokuEngineOptimized<IndexType, sizeFactor>& e)
     {
         os << "Current state: " << e.getCurrentState() << "\n"
-           << "Total number of cells: "  << (unsigned int)e.numberOfBoardCells()  << "\n"
-           << "Number of filled cells: " << (unsigned int)e.numberOfFilledCells() << "\n"
-           << "Number of free cells: "   << (unsigned int)e.numberOfFreeCells()   << "\n\n";
+            << "Total number of cells: " << (unsigned int)e.numberOfBoardCells() << "\n"
+            << "Number of filled cells: " << (unsigned int)e.numberOfFilledCells() << "\n"
+            << "Number of free cells: " << (unsigned int)e.numberOfFreeCells() << "\n\n";
         for (IndexType i = 0; i < e.sizeOfTheBoard(); ++i)
         {
             for (IndexType j = 0; j < e.sizeOfTheBoard(); ++j)

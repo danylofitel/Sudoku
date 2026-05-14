@@ -8,7 +8,7 @@
 #include "Numbers.h"
 #include "Rules.h"
 #include "SavedGame.h"
-#include "SudokuEngine.h"
+#include "SudokuEngineOptimized.h"
 
 namespace Sudoku_3_0
 {
@@ -61,7 +61,7 @@ namespace Sudoku_3_0
 	private: const unsigned int numberOfCells;
 
 	// Sudoku engine
-	private: SudokuGameEngine::SudokuEngine<>* engine;
+	private: SudokuGameEngine::SudokuEngineOptimized<>* engine;
 
 	// Access to buttons by their numbers
 	private: array<System::Windows::Forms::Button^>^ cells;
@@ -2094,7 +2094,7 @@ namespace Sudoku_3_0
 		private: void initialize()
 		{
 			// Initialize engine
-			this->engine = new SudokuGameEngine::SudokuEngine<>();
+			this->engine = new SudokuGameEngine::SudokuEngineOptimized<>();
 
 			// Initialize numbers form
 			this->numbersForm = gcnew Sudoku_3_0::Numbers();

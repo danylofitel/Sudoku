@@ -64,9 +64,6 @@
     <ClInclude Include="About.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SudokuEngineBenchmark.h">
-      <Filter>Header Files\SudokuEngine</Filter>
-    </ClInclude>
     <ClInclude Include="SudokuEngine.h">
       <Filter>Header Files\SudokuEngine</Filter>
     </ClInclude>
@@ -87,6 +84,9 @@
     </ClInclude>
     <ClInclude Include="Keyboard.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SudokuEngineOptimized.h">
+      <Filter>Header Files\SudokuEngine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

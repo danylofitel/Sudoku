@@ -134,7 +134,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SudokuEngine.h" />
-    <ClInclude Include="SudokuEngineBenchmark.h" />
+    <ClInclude Include="SudokuEngineOptimized.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="app.rc" />
