@@ -1711,7 +1711,7 @@ namespace Sudoku_3_0
 			this->difficultyComboBox->Name = L"difficultyComboBox";
 			this->difficultyComboBox->Size = System::Drawing::Size(160, 31);
 			this->difficultyComboBox->TabIndex = 86;
-			this->difficultyComboBox->TabStop = false;
+			this->difficultyComboBox->TabStop = true;
 			this->difficultyComboBox->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &SudokuForm::difficultyComboBox_MouseDown);
 			// 
 			// newCombinationButton
@@ -1725,7 +1725,7 @@ namespace Sudoku_3_0
 			this->newCombinationButton->Name = L"newCombinationButton";
 			this->newCombinationButton->Size = System::Drawing::Size(160, 28);
 			this->newCombinationButton->TabIndex = 92;
-			this->newCombinationButton->TabStop = false;
+			this->newCombinationButton->TabStop = true;
 			this->newCombinationButton->Text = L"New Combo";
 			this->newCombinationButton->UseVisualStyleBackColor = false;
 			this->newCombinationButton->Click += gcnew System::EventHandler(this, &SudokuForm::newCombinationButton_Click);
@@ -1741,7 +1741,7 @@ namespace Sudoku_3_0
 			this->newGameButton->Name = L"newGameButton";
 			this->newGameButton->Size = System::Drawing::Size(160, 28);
 			this->newGameButton->TabIndex = 87;
-			this->newGameButton->TabStop = false;
+			this->newGameButton->TabStop = true;
 			this->newGameButton->Text = L"New Game";
 			this->newGameButton->UseVisualStyleBackColor = false;
 			this->newGameButton->Click += gcnew System::EventHandler(this, &SudokuForm::newGameButton_Click);
@@ -1757,7 +1757,7 @@ namespace Sudoku_3_0
 			this->RestartButton->Name = L"RestartButton";
 			this->RestartButton->Size = System::Drawing::Size(160, 28);
 			this->RestartButton->TabIndex = 88;
-			this->RestartButton->TabStop = false;
+			this->RestartButton->TabStop = true;
 			this->RestartButton->Text = L"Restart";
 			this->RestartButton->UseVisualStyleBackColor = false;
 			this->RestartButton->Click += gcnew System::EventHandler(this, &SudokuForm::RestartButton_Click);
@@ -1773,7 +1773,7 @@ namespace Sudoku_3_0
 			this->hintButton->Name = L"hintButton";
 			this->hintButton->Size = System::Drawing::Size(160, 28);
 			this->hintButton->TabIndex = 89;
-			this->hintButton->TabStop = false;
+			this->hintButton->TabStop = true;
 			this->hintButton->Text = L"Hint";
 			this->hintButton->UseVisualStyleBackColor = false;
 			this->hintButton->Click += gcnew System::EventHandler(this, &SudokuForm::hintButton_Click);
@@ -1789,7 +1789,7 @@ namespace Sudoku_3_0
 			this->fixButton->Name = L"fixButton";
 			this->fixButton->Size = System::Drawing::Size(160, 28);
 			this->fixButton->TabIndex = 90;
-			this->fixButton->TabStop = false;
+			this->fixButton->TabStop = true;
 			this->fixButton->Text = L"Fix";
 			this->fixButton->UseVisualStyleBackColor = false;
 			this->fixButton->Click += gcnew System::EventHandler(this, &SudokuForm::fixButton_Click);
@@ -1805,7 +1805,7 @@ namespace Sudoku_3_0
 			this->giveUpButton->Name = L"giveUpButton";
 			this->giveUpButton->Size = System::Drawing::Size(160, 28);
 			this->giveUpButton->TabIndex = 91;
-			this->giveUpButton->TabStop = false;
+			this->giveUpButton->TabStop = true;
 			this->giveUpButton->Text = L"Give Up";
 			this->giveUpButton->UseVisualStyleBackColor = false;
 			this->giveUpButton->Click += gcnew System::EventHandler(this, &SudokuForm::giveUpButton_Click);
@@ -1821,7 +1821,7 @@ namespace Sudoku_3_0
 			this->customPuzzleButton->Name = L"customPuzzleButton";
 			this->customPuzzleButton->Size = System::Drawing::Size(160, 28);
 			this->customPuzzleButton->TabIndex = 93;
-			this->customPuzzleButton->TabStop = false;
+			this->customPuzzleButton->TabStop = true;
 			this->customPuzzleButton->Text = L"Custom Puzzle";
 			this->customPuzzleButton->UseVisualStyleBackColor = false;
 			this->customPuzzleButton->Click += gcnew System::EventHandler(this, &SudokuForm::customPuzzleButton_Click);
@@ -1837,7 +1837,7 @@ namespace Sudoku_3_0
 			this->solveButton->Name = L"solveButton";
 			this->solveButton->Size = System::Drawing::Size(160, 28);
 			this->solveButton->TabIndex = 94;
-			this->solveButton->TabStop = false;
+			this->solveButton->TabStop = true;
 			this->solveButton->Text = L"Solve";
 			this->solveButton->UseVisualStyleBackColor = false;
 			this->solveButton->Click += gcnew System::EventHandler(this, &SudokuForm::solveButton_Click);
@@ -1866,6 +1866,7 @@ namespace Sudoku_3_0
 			this->menuStrip->Name = L"menuStrip";
 			this->menuStrip->Size = System::Drawing::Size(660, 24);
 			this->menuStrip->TabIndex = 0;
+			this->menuStrip->TabStop = false;
 			this->menuStrip->Text = L"menuStrip";
 			this->menuStrip->ItemClicked += gcnew System::Windows::Forms::ToolStripItemClickedEventHandler(this, &SudokuForm::menuStrip_ItemClicked);
 			this->menuStrip->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &SudokuForm::menuStrip_MouseDown);
@@ -2255,8 +2256,6 @@ namespace Sudoku_3_0
 			this->gameMode = 3;
 			this->currentDifficulty = 2;
 			this->difficultyComboBox->SelectedIndex = currentDifficulty;
-			this->difficultyComboBox->Select();
-			this->newGameButton->Select();
 
 			// Start a new game
 			this->newGame(SudokuGameEngine::DifficultyLevel::Medium);
@@ -2456,15 +2455,25 @@ namespace Sudoku_3_0
 			}
 
 			// Prepare the board
-			this->fillBoardFromEngine(false);
-			this->gameMode = 1;
-			this->numberOfHints = 0;
-			this->RestartButton->Enabled = true;
-			this->hintButton->Enabled = true;
-			this->fixButton->Enabled = true;
-			this->giveUpButton->Enabled = true;
-			this->solveButton->Enabled = false;
-		}
+				this->fillBoardFromEngine(false);
+				this->gameMode = 1;
+				this->numberOfHints = 0;
+				this->RestartButton->Enabled = true;
+				this->hintButton->Enabled = true;
+				this->fixButton->Enabled = true;
+				this->giveUpButton->Enabled = true;
+				this->solveButton->Enabled = false;
+
+				// Move focus to the first editable cell
+				for each (Button^ cell in this->cells)
+				{
+					if (cell->Enabled)
+					{
+						cell->Focus();
+						break;
+					}
+				}
+			}
 
 		// Check if the solution is correct
 		private: const bool checkSolution()
@@ -2763,6 +2772,15 @@ namespace Sudoku_3_0
 			case Keys::Right:
 				this->navigateCell(index, 0, 1);
 				e->Handled = true;
+				break;
+			case Keys::Delete:
+				if (!this->isHint)
+				{
+					Button^ btn = safe_cast<Button^>(sender);
+					bool changed = btn->Text->Length != 0;
+					this->choiceMade(index + 1, changed, 0);
+					e->Handled = true;
+				}
 				break;
 			}
 		}
@@ -3207,8 +3225,9 @@ namespace Sudoku_3_0
 				"The game has full keyboard support\n\n"
 				"Press Tab to select cells\n"
 				"Use Tab or arrow keys to navigate between cells\n"
-				"Press Enter or Space to click selected cell\n"
-				"Press the number key to quickly fill the cell\n\n"
+				"Press Enter or Space to open the number selection for a cell\n"
+				"Press Backspace or Delete to clear the selected cell\n"
+				"Press a number key to quickly fill the cell\n\n"
 				"All buttons have hotkeys\n"
 				"You can see the list of hotkeys in the main menu",
 				"Keyboard",
@@ -3698,17 +3717,21 @@ namespace Sudoku_3_0
 		{
 			if (!this->isHint)
 			{
-				int buttonIndex = array<Button^>::IndexOf(this->cells, ((Button^) sender)) + 1;
-
 				unsigned int choice = 0;
-				if (e->KeyChar >= '0' && e->KeyChar <= '9')
+				if (e->KeyChar >= '1' && e->KeyChar <= '9')
 				{
 					choice = e->KeyChar - '0';
 				}
-				else if (e->KeyChar == 'c')
+				else if (e->KeyChar == '')
 				{
 					choice = 0;
 				}
+				else
+				{
+					return;
+				}
+
+				int buttonIndex = array<Button^>::IndexOf(this->cells, ((Button^) sender)) + 1;
 
 				bool changed = false;
 				if (((Button^) sender)->Text->Length == 0 && choice != 0 ||

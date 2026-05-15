@@ -103,6 +103,10 @@ namespace Sudoku_3_0 {
 			this->button1->UseVisualStyleBackColor = false;
 			this->button1->Click += gcnew System::EventHandler(this, &Numbers::button1_Click);
 			this->button1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button1_KeyPress);
+			this->button1->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
+			this->button1->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
+			this->button1->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
+			this->button1->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
 			// 
 			// button2
 			// 
@@ -119,6 +123,10 @@ namespace Sudoku_3_0 {
 			this->button2->UseVisualStyleBackColor = false;
 			this->button2->Click += gcnew System::EventHandler(this, &Numbers::button2_Click);
 			this->button2->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button2_KeyPress);
+			this->button2->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
+			this->button2->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
+			this->button2->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
+			this->button2->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
 			// 
 			// button3
 			// 
@@ -135,6 +143,10 @@ namespace Sudoku_3_0 {
 			this->button3->UseVisualStyleBackColor = false;
 			this->button3->Click += gcnew System::EventHandler(this, &Numbers::button3_Click);
 			this->button3->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button3_KeyPress);
+			this->button3->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
+			this->button3->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
+			this->button3->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
+			this->button3->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
 			// 
 			// button4
 			// 
@@ -151,6 +163,10 @@ namespace Sudoku_3_0 {
 			this->button4->UseVisualStyleBackColor = false;
 			this->button4->Click += gcnew System::EventHandler(this, &Numbers::button4_Click);
 			this->button4->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button4_KeyPress);
+			this->button4->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
+			this->button4->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
+			this->button4->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
+			this->button4->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
 			// 
 			// button5
 			// 
@@ -167,6 +183,10 @@ namespace Sudoku_3_0 {
 			this->button5->UseVisualStyleBackColor = false;
 			this->button5->Click += gcnew System::EventHandler(this, &Numbers::button5_Click);
 			this->button5->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button5_KeyPress);
+			this->button5->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
+			this->button5->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
+			this->button5->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
+			this->button5->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
 			// 
 			// button6
 			// 
@@ -183,6 +203,10 @@ namespace Sudoku_3_0 {
 			this->button6->UseVisualStyleBackColor = false;
 			this->button6->Click += gcnew System::EventHandler(this, &Numbers::button6_Click);
 			this->button6->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button6_KeyPress);
+			this->button6->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
+			this->button6->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
+			this->button6->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
+			this->button6->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
 			// 
 			// button7
 			// 
@@ -199,6 +223,10 @@ namespace Sudoku_3_0 {
 			this->button7->UseVisualStyleBackColor = false;
 			this->button7->Click += gcnew System::EventHandler(this, &Numbers::button7_Click);
 			this->button7->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button7_KeyPress);
+			this->button7->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
+			this->button7->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
+			this->button7->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
+			this->button7->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
 			// 
 			// button8
 			// 
@@ -215,6 +243,10 @@ namespace Sudoku_3_0 {
 			this->button8->UseVisualStyleBackColor = false;
 			this->button8->Click += gcnew System::EventHandler(this, &Numbers::button8_Click);
 			this->button8->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button8_KeyPress);
+			this->button8->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
+			this->button8->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
+			this->button8->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
+			this->button8->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
 			// 
 			// button9
 			// 
@@ -231,6 +263,10 @@ namespace Sudoku_3_0 {
 			this->button9->UseVisualStyleBackColor = false;
 			this->button9->Click += gcnew System::EventHandler(this, &Numbers::button9_Click);
 			this->button9->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button9_KeyPress);
+			this->button9->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
+			this->button9->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
+			this->button9->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
+			this->button9->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
 			// 
 			// buttonClear
 			// 
@@ -248,6 +284,10 @@ namespace Sudoku_3_0 {
 			this->buttonClear->UseVisualStyleBackColor = false;
 			this->buttonClear->Click += gcnew System::EventHandler(this, &Numbers::buttonClear_Click);
 			this->buttonClear->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::buttonClear_KeyPress);
+			this->buttonClear->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
+			this->buttonClear->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
+			this->buttonClear->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
+			this->buttonClear->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
 			// 
 			// buttonCancel
 			// 
@@ -265,12 +305,16 @@ namespace Sudoku_3_0 {
 			this->buttonCancel->UseVisualStyleBackColor = false;
 			this->buttonCancel->Click += gcnew System::EventHandler(this, &Numbers::buttonCancel_Click);
 			this->buttonCancel->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::buttonCancel_KeyPress);
+			this->buttonCancel->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
+			this->buttonCancel->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
+			this->buttonCancel->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
+			this->buttonCancel->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
 			// 
 			// Numbers
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->CancelButton = this->buttonClear;
+			this->CancelButton = this->buttonCancel;
 			this->ClientSize = System::Drawing::Size(150, 200);
 			this->Controls->Add(this->buttonCancel);
 			this->Controls->Add(this->buttonClear);
@@ -299,6 +343,76 @@ namespace Sudoku_3_0 {
 		}
 #pragma endregion
 
+		// Navigate the numbers grid using arrow keys.
+		// Layout: buttons 1-9 occupy a 3x3 grid (tab indices 0-8),
+		// Clear and Cancel sit in a bottom row (tab indices 9-10).
+		private: void button_PreviewKeyDown(System::Object^ sender, System::Windows::Forms::PreviewKeyDownEventArgs^ e)
+		{
+			if (e->KeyCode == Keys::Up || e->KeyCode == Keys::Down ||
+				e->KeyCode == Keys::Left || e->KeyCode == Keys::Right)
+			{
+				e->IsInputKey = true;
+			}
+		}
+
+		private: void button_KeyDown(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e)
+		{
+			// Build the ordered button list matching the visual layout
+			array<System::Windows::Forms::Button^>^ btns = gcnew array<System::Windows::Forms::Button^>(11) {
+				button1, button2, button3,
+				button4, button5, button6,
+				button7, button8, button9,
+				buttonClear, buttonCancel
+			};
+
+			// 3 columns; bottom row (Clear/Cancel) treated as row 3
+			constexpr int cols = 3;
+			System::Windows::Forms::Button^ current = safe_cast<System::Windows::Forms::Button^>(sender);
+			int idx = array<System::Windows::Forms::Button^>::IndexOf(btns, current);
+			if (idx < 0) return;
+
+			int row = idx / cols;
+			int col = idx % cols;
+
+			switch (e->KeyCode)
+			{
+			case Keys::Up:
+				row = (row + 3) % 4; // 4 rows total (rows 0-2 = 1-9, row 3 = Clear/Cancel)
+				break;
+			case Keys::Down:
+				row = (row + 1) % 4;
+				break;
+			case Keys::Left:
+				col = (col + cols - 1) % cols;
+				break;
+			case Keys::Right:
+				col = (col + 1) % cols;
+				break;
+			default:
+				return;
+			}
+
+			int newIdx = row * cols + col;
+			// Bottom row only has 2 buttons; clamp col to 1 if we land on the missing slot
+			if (newIdx >= btns->Length) newIdx = btns->Length - 1;
+			btns[newIdx]->Focus();
+			e->Handled = true;
+		}
+
+		private: System::Void button_GotFocus(System::Object^ sender, System::EventArgs^ e)
+		{
+			System::Windows::Forms::Button^ btn = safe_cast<System::Windows::Forms::Button^>(sender);
+			btn->BackColor = SystemColors::Highlight;
+			btn->ForeColor = SystemColors::ControlText;
+		}
+
+		private: System::Void button_LostFocus(System::Object^ sender, System::EventArgs^ e)
+		{
+			System::Windows::Forms::Button^ btn = safe_cast<System::Windows::Forms::Button^>(sender);
+			btn->BackColor = SystemColors::Menu;
+			btn->ForeColor = SystemColors::ControlText;
+		}
+
 		// Set the delegate from the main form to atc when the choice has been made
 		public: void setChoiceDelegate(choiceAction^ choiceActionDelegate)
 		{
@@ -311,6 +425,16 @@ namespace Sudoku_3_0 {
 			this->Activate();
 			this->currentCellNumber = cellNumber;
 			this->choiceMade = false;
+		}
+
+	protected:
+		virtual void OnVisibleChanged(System::EventArgs^ e) override
+		{
+			Form::OnVisibleChanged(e);
+			if (this->Visible)
+			{
+				this->ActiveControl = this->buttonCancel;
+			}
 		}
 
 		// Perform action when a choice has been made
@@ -385,9 +509,6 @@ namespace Sudoku_3_0 {
 		{
 			switch (e->KeyChar)
 			{
-			case '0': case 'c':
-				this->buttonClear_Click(sender, e);
-				break;
 			case '1':
 				this->button1_Click(sender, e);
 				break;
@@ -414,9 +535,6 @@ namespace Sudoku_3_0 {
 				break;
 			case '9':
 				this->button9_Click(sender, e);
-				break;
-			default:
-				this->buttonCancel_Click(sender, e);
 				break;
 			}
 		}
