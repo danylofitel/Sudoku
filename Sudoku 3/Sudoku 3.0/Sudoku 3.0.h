@@ -2520,7 +2520,7 @@ namespace Sudoku_3_0
 					}
 					else
 					{
-						this->showNotification("You completed the game using " + this->numberOfHints + " hints!");
+						this->showNotification("You beat the game using " + this->numberOfHints + " hints!");
 					}
 				}
 			}
