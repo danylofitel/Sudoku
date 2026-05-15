@@ -22,7 +22,7 @@ namespace Sudoku_3_0 {
 	public ref class Numbers : public System::Windows::Forms::Form
 	{
 	public:
-		Numbers(void) : currentCellNumber(0), choiceMade(false), choice(0)
+		Numbers(void) : currentCellNumber(0), choiceMade(false), choice(0), lastGridCol(0)
 		{
 			InitializeComponent();
 		}
@@ -58,6 +58,9 @@ namespace Sudoku_3_0 {
 
 	// The number that was chosen
 	private: unsigned int choice;
+
+	// Last column active in the 3x3 grid, used to restore position when leaving the bottom row
+	private: int lastGridCol;
 
 	// Action delegate from the father form
 	private: choiceAction^ choiceDelegate;
@@ -377,10 +380,14 @@ namespace Sudoku_3_0 {
 			switch (e->KeyCode)
 			{
 			case Keys::Up:
-				row = (row + 3) % 4; // 4 rows total (rows 0-2 = 1-9, row 3 = Clear/Cancel)
+				row = (row + 3) % 4;
+				// Restore saved column only when leaving Cancel (col 1) back into the grid for cols 1 or 2
+				if (row < 3 && current == buttonCancel && this->lastGridCol > 0) col = this->lastGridCol;
 				break;
 			case Keys::Down:
 				row = (row + 1) % 4;
+				// Restore saved column only when leaving Cancel (col 1) back into the grid for cols 1 or 2
+				if (row < 3 && current == buttonCancel && this->lastGridCol > 0) col = this->lastGridCol;
 				break;
 			case Keys::Left:
 				col = (col + cols - 1) % cols;
@@ -393,8 +400,18 @@ namespace Sudoku_3_0 {
 			}
 
 			int newIdx = row * cols + col;
-			// Bottom row only has 2 buttons; clamp col to 1 if we land on the missing slot
-			if (newIdx >= btns->Length) newIdx = btns->Length - 1;
+			// Bottom row only has 2 buttons; col 2 wraps to Clear on Right, lands on Cancel otherwise
+			if (newIdx >= btns->Length)
+			{
+				if (e->KeyCode == Keys::Right)
+					newIdx = row * cols;      // wrap around to Clear
+				else
+					newIdx = btns->Length - 1; // Left / arriving from above → Cancel
+			}
+
+			// Save the column whenever we are in the 3x3 grid
+			if (row < 3) this->lastGridCol = col;
+
 			btns[newIdx]->Focus();
 			e->Handled = true;
 		}
