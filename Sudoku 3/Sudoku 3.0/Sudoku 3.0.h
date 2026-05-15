@@ -2222,7 +2222,7 @@ namespace Sudoku_3_0
 		// Show notification
 		private: void showNotification(System::String^ message)
 		{
-			MessageBox::Show(message, "Sudoku", MessageBoxButtons::OK, MessageBoxIcon::Information);
+			MessageBox::Show(message, "Sudoku", MessageBoxButtons::OK, MessageBoxIcon::None);
 		}
 		
 		// Initialize sudoku engine
@@ -3153,7 +3153,7 @@ namespace Sudoku_3_0
 				"SUDOKU 3.0\n\nAll rights reserved",
 				"About",
 				MessageBoxButtons::OK,
-				MessageBoxIcon::Information);
+				MessageBoxIcon::None);
 		}
 
 		private: void rulesToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
@@ -3167,7 +3167,7 @@ namespace Sudoku_3_0
 				"A sudoku puzzle has only one solution.",
 				"Rules",
 				MessageBoxButtons::OK,
-				MessageBoxIcon::Information);
+				MessageBoxIcon::None);
 		}
 
 		private: void featuresToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
@@ -3183,7 +3183,7 @@ namespace Sudoku_3_0
 				"Solve - solve custom sudoku puzzle",
 				"Features",
 				MessageBoxButtons::OK,
-				MessageBoxIcon::Information);
+				MessageBoxIcon::None);
 		}
 
 		private: void hintsAndTipsToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
@@ -3198,7 +3198,7 @@ namespace Sudoku_3_0
 				"Press and hold anywhere to drag the window",
 				"Hints And Tips",
 				MessageBoxButtons::OK,
-				MessageBoxIcon::Information);
+				MessageBoxIcon::None);
 		}
 
 		private: void keyboardToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
@@ -3213,7 +3213,7 @@ namespace Sudoku_3_0
 				"You can see the list of hotkeys in the main menu",
 				"Keyboard",
 				MessageBoxButtons::OK,
-				MessageBoxIcon::Information);
+				MessageBoxIcon::None);
 		}
 
 		private: void button1_Click(System::Object^  sender, System::EventArgs^  e)
