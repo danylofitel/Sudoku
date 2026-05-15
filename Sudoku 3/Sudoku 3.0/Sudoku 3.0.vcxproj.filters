@@ -60,8 +60,5 @@
   <ItemGroup>
     <EmbeddedResource Include="Sudoku 3.0.resx" />
     <EmbeddedResource Include="Numbers.resx" />
-    <EmbeddedResource Include="About.resx" />
-    <EmbeddedResource Include="Notification.resx" />
-    <EmbeddedResource Include="Rules.resx" />
   </ItemGroup>
 </Project>

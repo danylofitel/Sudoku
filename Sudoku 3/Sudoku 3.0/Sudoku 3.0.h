@@ -3191,8 +3191,8 @@ namespace Sudoku_3_0
 			MessageBox::Show(
 				"You can save the game anytime and open it later\n\n"
 				"Click on any cell you want to fill to see a choice menu\n\n"
-				"If the number you have entered blinks in red,\n"
-				"    it conflicts with existing numbers\n\n"
+				"If the number you have entered blinks in red -\n"
+				"it conflicts with existing numbers\n\n"
 				"Click the Hint button to enable hint mode\n"
 				"Click it again to go back to game mode\n\n"
 				"Press and hold anywhere to drag the window",

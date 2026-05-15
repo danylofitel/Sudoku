@@ -3,11 +3,12 @@
 #ifndef _SUDOKU_ENGINE_H_
 #define _SUDOKU_ENGINE_H_
 
-// Use iterative algorithm to solve puzzles
-#undef USE_ITERATIVE_SOLVING_ALGORITHM
+// Use iterative algorithm instead of recursive one
+#define USE_ITERATIVE_SOLVING_ALGORITHM
 
 #include <algorithm>
 #include <cassert>
+#include <random>
 #include <exception>
 #include <iostream>
 #include <limits>
@@ -1425,7 +1426,10 @@ namespace SudokuGameEngine
 			assert(numberOfCellsToHideFirst <= numberOfCellsToHide);
 
 			// Randomly shuffle the sequence of numbers to hide
-			std::random_shuffle<IndexType*>(&(this->_numbersToHide[0]), &(this->_numbersToHide[this->numberOfCells]));
+			std::shuffle(
+				&(this->_numbersToHide[0]),
+				&(this->_numbersToHide[this->numberOfCells]),
+				std::mt19937(static_cast<unsigned int>(time(nullptr))));
 
 			// Number of hidden cells
 			IndexType hidden(0);
@@ -1436,7 +1440,7 @@ namespace SudokuGameEngine
 			IndexType column(0);
 			IndexType index(0);
 
-			// Hide the first block of cells without checking for unique solution
+			// Hide the first batch of cells without checking for unique solution
 			for (index = 0; hidden < numberOfCellsToHideFirst && index < this->numberOfCells; ++index)
 			{
 				// Get index of next random cell
