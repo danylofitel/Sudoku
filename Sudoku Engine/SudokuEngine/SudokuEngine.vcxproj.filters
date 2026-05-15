@@ -20,16 +20,25 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Sudoku.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SudokuBenchmark.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SudokuDistribution.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SudokuStressTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SudokuTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="SudokuEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SudokuEngineBenchmark.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SudokuEngineOptimized.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SudokuEngineOptimizedBenchmark.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

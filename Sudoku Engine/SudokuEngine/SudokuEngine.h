@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <random>
 #include <exception>
 #include <iostream>
 #include <limits>
@@ -1425,7 +1426,7 @@ namespace SudokuGameEngine
 			assert(numberOfCellsToHideFirst <= numberOfCellsToHide);
 
 			// Randomly shuffle the sequence of numbers to hide
-			std::random_shuffle<IndexType*>(&(this->_numbersToHide[0]), &(this->_numbersToHide[this->numberOfCells]));
+			std::shuffle(&(this->_numbersToHide[0]), &(this->_numbersToHide[this->numberOfCells]), std::mt19937(static_cast<unsigned int>(time(nullptr))));
 
 			// Number of hidden cells
 			IndexType hidden(0);
