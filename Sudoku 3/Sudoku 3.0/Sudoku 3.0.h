@@ -355,6 +355,7 @@ namespace Sudoku_3_0
                this->fileToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->saveToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->openToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+               this->toolStripSeparator1 = (gcnew System::Windows::Forms::ToolStripSeparator());
                this->minimizeToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->gameToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -380,7 +381,6 @@ namespace Sudoku_3_0
                this->featuresToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->hintsAndTipsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->keyboardToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-               this->toolStripSeparator1 = (gcnew System::Windows::Forms::ToolStripSeparator());
                this->menuStrip->SuspendLayout();
                this->SuspendLayout();
                // 
@@ -1919,7 +1919,7 @@ namespace Sudoku_3_0
                this->customPuzzleButton->Name = L"customPuzzleButton";
                this->customPuzzleButton->Size = System::Drawing::Size(240, 43);
                this->customPuzzleButton->TabIndex = 93;
-               this->customPuzzleButton->Text = L"Custom Puzzle";
+               this->customPuzzleButton->Text = L"Enter Puzzle";
                this->customPuzzleButton->UseVisualStyleBackColor = false;
                this->customPuzzleButton->Click += gcnew System::EventHandler(this, &SudokuForm::customPuzzleButton_Click);
                // 
@@ -1987,6 +1987,7 @@ namespace Sudoku_3_0
                this->menuStrip->AccessibleRole = System::Windows::Forms::AccessibleRole::MenuBar;
                this->menuStrip->AllowMerge = false;
                this->menuStrip->BackColor = System::Drawing::SystemColors::ButtonFace;
+               this->menuStrip->GripMargin = System::Windows::Forms::Padding(2, 2, 0, 2);
                this->menuStrip->ImageScalingSize = System::Drawing::Size(24, 24);
                this->menuStrip->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
                    this->fileToolStripMenuItem,
@@ -2028,6 +2029,11 @@ namespace Sudoku_3_0
                this->openToolStripMenuItem->Text = L"Open";
                this->openToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::openToolStripMenuItem_Click);
                // 
+               // toolStripSeparator1
+               // 
+               this->toolStripSeparator1->Name = L"toolStripSeparator1";
+               this->toolStripSeparator1->Size = System::Drawing::Size(297, 6);
+               // 
                // minimizeToolStripMenuItem
                // 
                this->minimizeToolStripMenuItem->Name = L"minimizeToolStripMenuItem";
@@ -2061,7 +2067,7 @@ namespace Sudoku_3_0
                // 
                this->newGameToolStripMenuItem->Name = L"newGameToolStripMenuItem";
                this->newGameToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::N));
-               this->newGameToolStripMenuItem->Size = System::Drawing::Size(290, 34);
+               this->newGameToolStripMenuItem->Size = System::Drawing::Size(287, 34);
                this->newGameToolStripMenuItem->Text = L"New Game";
                this->newGameToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::newGameToolStripMenuItem_Click);
                // 
@@ -2069,7 +2075,7 @@ namespace Sudoku_3_0
                // 
                this->restartToolStripMenuItem->Name = L"restartToolStripMenuItem";
                this->restartToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::R));
-               this->restartToolStripMenuItem->Size = System::Drawing::Size(290, 34);
+               this->restartToolStripMenuItem->Size = System::Drawing::Size(287, 34);
                this->restartToolStripMenuItem->Text = L"Restart";
                this->restartToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::restartToolStripMenuItem_Click);
                // 
@@ -2077,7 +2083,7 @@ namespace Sudoku_3_0
                // 
                this->pencilToolStripMenuItem->Name = L"pencilToolStripMenuItem";
                this->pencilToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::P));
-               this->pencilToolStripMenuItem->Size = System::Drawing::Size(290, 34);
+               this->pencilToolStripMenuItem->Size = System::Drawing::Size(287, 34);
                this->pencilToolStripMenuItem->Text = L"Pencil";
                this->pencilToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::pencilToolStripMenuItem_Click);
                // 
@@ -2085,7 +2091,7 @@ namespace Sudoku_3_0
                // 
                this->hintToolStripMenuItem->Name = L"hintToolStripMenuItem";
                this->hintToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::H));
-               this->hintToolStripMenuItem->Size = System::Drawing::Size(290, 34);
+               this->hintToolStripMenuItem->Size = System::Drawing::Size(287, 34);
                this->hintToolStripMenuItem->Text = L"Hint";
                this->hintToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::hintToolStripMenuItem_Click);
                // 
@@ -2093,7 +2099,7 @@ namespace Sudoku_3_0
                // 
                this->fixToolStripMenuItem->Name = L"fixToolStripMenuItem";
                this->fixToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::F));
-               this->fixToolStripMenuItem->Size = System::Drawing::Size(290, 34);
+               this->fixToolStripMenuItem->Size = System::Drawing::Size(287, 34);
                this->fixToolStripMenuItem->Text = L"Fix";
                this->fixToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::fixToolStripMenuItem_Click);
                // 
@@ -2102,7 +2108,7 @@ namespace Sudoku_3_0
                this->giveUpToolStripMenuItem->Name = L"giveUpToolStripMenuItem";
                this->giveUpToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>(((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Shift)
                    | System::Windows::Forms::Keys::G));
-               this->giveUpToolStripMenuItem->Size = System::Drawing::Size(290, 34);
+               this->giveUpToolStripMenuItem->Size = System::Drawing::Size(287, 34);
                this->giveUpToolStripMenuItem->Text = L"Give Up";
                this->giveUpToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::giveUpToolStripMenuItem_Click);
                // 
@@ -2110,8 +2116,8 @@ namespace Sudoku_3_0
                // 
                this->customPuzzleToolStripMenuItem->Name = L"customPuzzleToolStripMenuItem";
                this->customPuzzleToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::E));
-               this->customPuzzleToolStripMenuItem->Size = System::Drawing::Size(290, 34);
-               this->customPuzzleToolStripMenuItem->Text = L"Custom Puzzle";
+               this->customPuzzleToolStripMenuItem->Size = System::Drawing::Size(287, 34);
+               this->customPuzzleToolStripMenuItem->Text = L"Enter Puzzle";
                this->customPuzzleToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::customPuzzleToolStripMenuItem_Click);
                // 
                // solveToolStripMenuItem
@@ -2119,7 +2125,7 @@ namespace Sudoku_3_0
                this->solveToolStripMenuItem->Name = L"solveToolStripMenuItem";
                this->solveToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>(((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Shift)
                    | System::Windows::Forms::Keys::S));
-               this->solveToolStripMenuItem->Size = System::Drawing::Size(290, 34);
+               this->solveToolStripMenuItem->Size = System::Drawing::Size(287, 34);
                this->solveToolStripMenuItem->Text = L"Solve";
                this->solveToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::solveToolStripMenuItem_Click);
                // 
@@ -2127,7 +2133,7 @@ namespace Sudoku_3_0
                // 
                this->undoToolStripMenuItem->Name = L"undoToolStripMenuItem";
                this->undoToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Z));
-               this->undoToolStripMenuItem->Size = System::Drawing::Size(290, 34);
+               this->undoToolStripMenuItem->Size = System::Drawing::Size(287, 34);
                this->undoToolStripMenuItem->Text = L"Undo";
                this->undoToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::undoToolStripMenuItem_Click);
                // 
@@ -2237,11 +2243,6 @@ namespace Sudoku_3_0
                this->keyboardToolStripMenuItem->Size = System::Drawing::Size(218, 34);
                this->keyboardToolStripMenuItem->Text = L"Keyboard";
                this->keyboardToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::keyboardToolStripMenuItem_Click);
-               // 
-               // toolStripSeparator1
-               // 
-               this->toolStripSeparator1->Name = L"toolStripSeparator1";
-               this->toolStripSeparator1->Size = System::Drawing::Size(297, 6);
                // 
                // SudokuForm
                // 
@@ -3735,13 +3736,15 @@ namespace Sudoku_3_0
     private: void featuresToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
         MessageBox::Show(
-            "New Game - create a new sudoku game\n"
-            "Restart - restart current puzzle\n"
-            "Hint - activate hint mode to open selected cells\n"
-            "Fix - remove all wrong numbers\n"
-            "Give Up - show solution of current puzzle\n"
-            "Custom Puzzle - enter a custom sudoku puzzle\n"
-            "Solve - solve custom sudoku puzzle",
+            "New Game - start a new game\n"
+            "Restart - restart the current game\n"
+            "Pencil - toggle pencil mode to add or remove pencil marks\n"
+            "Hint - toggle hint mode to reveal hidden cells\n"
+            "Fix - remove all incorrect guesses\n"
+            "Give Up - show the solution to the current puzzle\n"
+            "Enter Puzzle - enter a custom sudoku puzzle\n"
+            "Solve - solve a custom sudoku puzzle\n"
+            "Undo - undo the last move or batch of moves",
             "Features",
             MessageBoxButtons::OK,
             MessageBoxIcon::None);
@@ -3751,11 +3754,10 @@ namespace Sudoku_3_0
     {
         MessageBox::Show(
             "You can save the game anytime and open it later\n\n"
-            "Click on any cell you want to fill to see a choice menu\n\n"
-            "If the number you have entered blinks in red -\n"
+            "Click on any cell you want to fill to see the options\n\n"
+            "If the number you entered is highlighted in red -\n"
             "it conflicts with existing numbers\n\n"
-            "Click the Hint button to enable hint mode\n"
-            "Click it again to go back to game mode\n\n"
+            "Click the Hint button to toggle hint mode\n"
             "Press and hold anywhere to drag the window",
             "Hints And Tips",
             MessageBoxButtons::OK,
