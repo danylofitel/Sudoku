@@ -44,6 +44,7 @@ namespace Sudoku_3_0
     private: static const System::Drawing::Color solveColor = Color::BlueViolet;
     private: static const System::Drawing::Color defaultBackColor = SystemColors::Menu;
     private: static const System::Drawing::Color conflictBackColor = Color::Red;
+    private: static const System::Drawing::Color conflictBackColorImmutable = Color::LightCoral;
 
            // Size of the board
     private: const unsigned int sizeFactor;
@@ -2463,6 +2464,7 @@ namespace Sudoku_3_0
                 System::Windows::Forms::Button^ cell = this->cells[index];
                 cell->Text = String::Empty;
                 cell->ForeColor = defaultColor;
+                cell->BackColor = defaultBackColor;
                 cell->Enabled = enableCells;
                 ++index;
             }
@@ -2693,9 +2695,11 @@ namespace Sudoku_3_0
                 ((int)this->engine->getCellValue(
                     ((number - 1) / this->boardSize),
                     ((number - 1) % this->boardSize))).ToString();
+            currentButton->BackColor = defaultBackColor;
             currentButton->Enabled = false;
             currentButton->ForeColor = hintColor;
             ++(this->numberOfHints);
+            this->revalidatePeers(number - 1);
 
             this->checkGameState();
         }
@@ -2751,6 +2755,7 @@ namespace Sudoku_3_0
                     cell->Text = choice.ToString();
                     ++(this->numberOfFilledCells);
                     this->highlightCellConflict(cellNumber - 1);
+                    this->revalidatePeers(cellNumber - 1);
                 }
             }
             else
@@ -2759,11 +2764,14 @@ namespace Sudoku_3_0
                 {
                     cell->Text = String::Empty;
                     --(this->numberOfFilledCells);
+                    cell->BackColor = defaultBackColor;
+                    this->revalidatePeers(cellNumber - 1);
                 }
                 else
                 {
                     cell->Text = choice.ToString();
                     this->highlightCellConflict(cellNumber - 1);
+                    this->revalidatePeers(cellNumber - 1);
                 }
             }
 
@@ -2796,6 +2804,9 @@ namespace Sudoku_3_0
 
         cell->Text = previousText;
         cell->ForeColor = defaultColor;
+        cell->BackColor = defaultBackColor;
+        this->highlightCellConflict(index);
+        this->revalidatePeers(index);
         cell->Focus();
 
         this->undoToolStripMenuItem->Enabled = this->undoStack->Count > 0;
@@ -2806,84 +2817,117 @@ namespace Sudoku_3_0
         this->performUndo();
     }
 
+           // Returns true if cellNumber has a conflict with any peer in its row, column, or block
+    private: bool cellHasConflict(const unsigned int cellNumber)
+    {
+        if (this->cells[cellNumber]->Text->Length == 0)
+        {
+            return false;
+        }
+
+        const unsigned int rowIndex = cellNumber / this->boardSize;
+        const unsigned int columnIndex = cellNumber % this->boardSize;
+
+        unsigned int row = rowIndex * this->boardSize;
+        unsigned int column = columnIndex;
+
+        while (row < this->numberOfCells && column < this->numberOfCells)
+        {
+            if (row != cellNumber && this->cells[row]->Text->Equals(this->cells[cellNumber]->Text))
+            {
+                return true;
+            }
+
+            if (column != cellNumber && this->cells[column]->Text->Equals(this->cells[cellNumber]->Text))
+            {
+                return true;
+            }
+
+            row += 1;
+            column += this->boardSize;
+        }
+
+        const unsigned int rBegin((rowIndex / this->sizeFactor) * this->sizeFactor);
+        const unsigned int cBegin((columnIndex / this->sizeFactor) * this->sizeFactor);
+        const unsigned int rEnd(rBegin + this->sizeFactor);
+        const unsigned int cEnd(cBegin + this->sizeFactor);
+
+        for (unsigned int i = rBegin; i < rEnd; ++i)
+        {
+            for (unsigned int j = cBegin; j < cEnd; ++j)
+            {
+                const unsigned int peer = i * this->boardSize + j;
+                if (peer != cellNumber && this->cells[peer]->Text->Equals(this->cells[cellNumber]->Text))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+           // Updates the background color of cellNumber to reflect its current conflict state
     private: void highlightCellConflict(const unsigned int cellNumber)
     {
+        if (this->cellHasConflict(cellNumber))
         {
-            // Coordinates of the cell
-            const unsigned int rowIndex = cellNumber / this->boardSize;
-            const unsigned int columnIndex = cellNumber % this->boardSize;;
+            this->cells[cellNumber]->BackColor = this->cells[cellNumber]->Enabled ? conflictBackColor : conflictBackColorImmutable;
+        }
+        else
+        {
+            this->cells[cellNumber]->BackColor = defaultBackColor;
+        }
+    }
 
-            // First cells in the cell's row and column respectively
-            unsigned int row = rowIndex * this->boardSize;
-            unsigned int column = columnIndex;
+           // Re-evaluates conflict highlighting for every cell on the board
+    private: void revalidateAllCells()
+    {
+        for (unsigned int i = 0; i < this->numberOfCells; ++i)
+        {
+            this->highlightCellConflict(i);
+        }
+    }
 
-            // No conflicts have been found yet
-            bool conflict = false;
+           // Re-evaluates conflict highlighting for all peers of cellNumber
+    private: void revalidatePeers(const unsigned int cellNumber)
+    {
+        const unsigned int rowIndex = cellNumber / this->boardSize;
+        const unsigned int columnIndex = cellNumber % this->boardSize;
 
-            // Check row and column
-            while (row < this->numberOfCells && column < this->numberOfCells)
+        unsigned int row = rowIndex * this->boardSize;
+        unsigned int column = columnIndex;
+
+        while (row < this->numberOfCells && column < this->numberOfCells)
+        {
+            if (row != cellNumber)
             {
-                if (row != cellNumber)
-                {
-                    if (this->cells[row]->Text->Equals(this->cells[cellNumber]->Text))
-                    {
-                        conflict = true;
-                        break;
-                    }
-                }
-
-                if (column != cellNumber)
-                {
-                    if (this->cells[column]->Text->Equals(this->cells[cellNumber]->Text))
-                    {
-                        conflict = true;
-                        break;
-                    }
-                }
-
-                row += 1;
-                column += this->boardSize;
+                this->highlightCellConflict(row);
             }
 
-            // Check block if no conflicts have been found in row and column
-            if (!conflict)
+            if (column != cellNumber && column != row)
             {
-                // Row number of the first cell in the block
-                const unsigned int rBegin((rowIndex / this->sizeFactor) * this->sizeFactor);
-
-                // Column number of the first cell in the block
-                const unsigned int cBegin((columnIndex / this->sizeFactor) * this->sizeFactor);
-
-                // Row number after the last cell in the block
-                const unsigned int rEnd(rBegin + this->sizeFactor);
-
-                // Column number after the last cell in the block
-                const unsigned int cEnd(cBegin + this->sizeFactor);
-
-                // Iterate through each cell in the block
-                for (unsigned int i = rBegin; i < rEnd; ++i)
-                {
-                    for (unsigned int j = cBegin; j < cEnd && !conflict; ++j)
-                    {
-                        if (i * this->boardSize + j != cellNumber)
-                        {
-                            // Check if it contains the value
-                            if (this->cells[i * this->boardSize + j]->Text->Equals(this->cells[cellNumber]->Text))
-                            {
-                                conflict = true;
-                                break;
-                            }
-                        }
-                    }
-                }
+                this->highlightCellConflict(column);
             }
 
-            if (conflict)
+            row += 1;
+            column += this->boardSize;
+        }
+
+        const unsigned int rBegin((rowIndex / this->sizeFactor) * this->sizeFactor);
+        const unsigned int cBegin((columnIndex / this->sizeFactor) * this->sizeFactor);
+        const unsigned int rEnd(rBegin + this->sizeFactor);
+        const unsigned int cEnd(cBegin + this->sizeFactor);
+
+        for (unsigned int i = rBegin; i < rEnd; ++i)
+        {
+            for (unsigned int j = cBegin; j < cEnd; ++j)
             {
-                this->cells[cellNumber]->BackColor = conflictBackColor;
-                this->Refresh();
-                System::Threading::Thread::Sleep(100);
-                this->cells[cellNumber]->BackColor = defaultBackColor;
+                const unsigned int peer = i * this->boardSize + j;
+                if (peer != cellNumber)
+                {
+                    this->highlightCellConflict(peer);
+                }
             }
         }
     }
@@ -3049,6 +3093,7 @@ namespace Sudoku_3_0
             {
                 cell->Text = System::String::Empty;
                 cell->ForeColor = defaultColor;
+                cell->BackColor = defaultBackColor;
                 cell->Enabled = true;
             }
         }
@@ -3104,11 +3149,14 @@ namespace Sudoku_3_0
                     !this->cells[index]->Text->Equals(((int)this->engine->getCellValue(i, j)).ToString()))
                 {
                     this->cells[index]->Text = "";
+                    this->cells[index]->BackColor = defaultBackColor;
                     --(this->numberOfFilledCells);
                 }
 
                 ++index;
             }
+
+        this->revalidateAllCells();
     }
 
     private: void giveUpButton_Click(System::Object^ sender, System::EventArgs^ e)
@@ -3147,6 +3195,7 @@ namespace Sudoku_3_0
                     }
 
                     cell->Text = ((int)engine->getCellValue(i, j)).ToString();
+                    cell->BackColor = defaultBackColor;
                     cell->ForeColor = giveUpColor;
                     cell->Enabled = false;
                 }
@@ -3159,6 +3208,7 @@ namespace Sudoku_3_0
         this->setGameControls(false, false, false, false);
         this->undoStack->Clear();
         this->undoToolStripMenuItem->Enabled = false;
+        this->revalidateAllCells();
     }
 
     private: void customPuzzleButton_Click(System::Object^ sender, System::EventArgs^ e)
