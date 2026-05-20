@@ -25,7 +25,7 @@ public:
     // Whether the user has used Fix at least once on this puzzle
     bool hasUsedFix;
 
-    // State of the game: 0 - combination, 1 - game, 2 - solver
+    // State of the game: 1 - game, 2 - solver
     unsigned int gameMode;
 
     // The game has been finished

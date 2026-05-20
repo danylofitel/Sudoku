@@ -1,4 +1,4 @@
-// Danylo Fitel 2013
+﻿// Danylo Fitel 2013
 
 #pragma once
 
@@ -13,6 +13,14 @@ namespace Sudoku_3_0
     using namespace System::Drawing;
     using namespace System::Runtime::Serialization::Formatters::Binary;
     using namespace System::Windows::Forms;
+
+    // Active game mode
+    enum class GameMode : unsigned int
+    {
+        None = 0, // No active game (initial state or finished)
+        Game = 1, // Standard puzzle game session
+        Solver = 2, // Custom puzzle solver session
+    };
 
     /// <summary>
     /// Sudoku game form
@@ -209,8 +217,8 @@ namespace Sudoku_3_0
            // Number of times Fix was used so far
     private: unsigned int numberOfFixes;
 
-           // Game mode: 0 - combination, 1 - game, 2 - solver, 3 - other
-    private: unsigned int gameMode;
+           // Active game mode
+    private: GameMode gameMode;
 
            // Difficulty level of current puzzle
     private: unsigned int currentDifficulty;
@@ -2378,6 +2386,7 @@ namespace Sudoku_3_0
         {
         case 0: return "Very Easy";
         case 1: return "Easy";
+        case 2: return "Medium";
         case 3: return "Hard";
         case 4: return "Very Hard";
         default: return "Medium";
@@ -2418,12 +2427,12 @@ namespace Sudoku_3_0
         this->pencilMarks = gcnew array<int>(this->numberOfCells);
         this->pencilMode = false;
         this->undoStack = gcnew System::Collections::Generic::Stack<System::Tuple<unsigned int, System::String^, int>^>();
-        this->gameMode = 3;
+        this->gameMode = GameMode::None;
         this->currentDifficulty = 2;
         this->difficultyComboBox->SelectedIndex = currentDifficulty;
 
         // Wire Paint events for pencil marks on each cell
-        for each(System::Windows::Forms::Button ^ cell in this->cells)
+        for each (System::Windows::Forms::Button ^ cell in this->cells)
         {
             cell->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &SudokuForm::cell_Paint);
         }
@@ -2568,6 +2577,7 @@ namespace Sudoku_3_0
                     else
                     {
                         cell->Text = String::Empty;
+                        cell->Invalidate(); // clear any stale pencil marks painted by cell_Paint
                     }
                 }
 
@@ -2629,7 +2639,7 @@ namespace Sudoku_3_0
 
         // Prepare the board
         this->fillBoardFromEngine(false);
-        this->gameMode = 1;
+        this->gameMode = GameMode::Game;
         this->numberOfHints = 0;
         this->numberOfFixes = 0;
         this->hasGivenUp = false;
@@ -2639,11 +2649,15 @@ namespace Sudoku_3_0
         this->undoButton->Enabled = false;
         this->restartButton->Enabled = true;
         this->setGameControls(true, true, true, false);
-        for (unsigned int i = 0; i < this->numberOfCells; ++i) this->pencilMarks[i] = 0;
+        for (unsigned int i = 0; i < this->numberOfCells; ++i)
+        {
+            this->pencilMarks[i] = 0;
+        }
+
         this->setPencilMode(false);
 
         // Move focus to the first editable cell
-        for each(Button ^ cell in this->cells)
+        for each (Button ^ cell in this->cells)
         {
             if (cell->Enabled)
             {
@@ -2943,6 +2957,12 @@ namespace Sudoku_3_0
 
     private: void setPencilMode(bool active)
     {
+        if (active)
+        {
+            // Deactivate hint mode so both modes cannot be active simultaneously
+            this->isHint = false;
+            this->hintButton->ForeColor = defaultColor;
+        }
         this->pencilMode = active;
         this->pencilButton->ForeColor = active ? hintButtonColor : defaultColor;
     }
@@ -3221,7 +3241,7 @@ namespace Sudoku_3_0
            // Returns true if the action should proceed, false if it was cancelled.
     private: bool promptSaveIfNeeded()
     {
-        if (this->gameMode >= 0 && this->gameMode <= 2)
+        if (this->gameMode == GameMode::Game || this->gameMode == GameMode::Solver)
         {
             System::Windows::Forms::DialogResult result = MessageBox::Show(
                 "Do you want to save the current game?",
@@ -3250,14 +3270,15 @@ namespace Sudoku_3_0
 
     }
 
-           // Enable hint mode
+           // Enable hint mode (deactivates pencil mode so both cannot be active simultaneously)
     private: void enableHint()
     {
+        this->setPencilMode(false);
         this->isHint = true;
         this->hintButton->ForeColor = hintButtonColor;
     }
 
-           // Enable hint mode
+           // Disable hint mode
     private: void disableHint()
     {
         this->isHint = false;
@@ -3314,23 +3335,32 @@ namespace Sudoku_3_0
         this->undoButton->Enabled = false;
         this->numberOfFilledCells = 0;
 
-        // Fill the board
-        for (unsigned int index = 0; index < this->boardSize * this->boardSize; ++index)
+        // Fill the board, using the engine as the authoritative source for which cells are clues
+        unsigned int index = 0;
+        for (unsigned char i = 0; i < boardSize; ++i)
         {
-            Button^ cell = this->cells[index];
-            if (!cell->Enabled && cell->ForeColor == defaultColor)
+            for (unsigned char j = 0; j < boardSize; ++j)
             {
-                ++this->numberOfFilledCells;
-                cell->BackColor = defaultBackColor;  // clear any conflict highlight
-            }
-            else
-            {
-                cell->Text = System::String::Empty;
-                cell->ForeColor = defaultColor;
-                cell->BackColor = defaultBackColor;
-                cell->Enabled = true;
-                this->pencilMarks[index] = 0;
-                cell->Invalidate();
+                Button^ cell = this->cells[index];
+                if (this->engine->getFilled(i, j))
+                {
+                    // Clue cell: keep text, restore clean appearance
+                    ++this->numberOfFilledCells;
+                    cell->Enabled = false;
+                    cell->ForeColor = defaultColor;
+                    cell->BackColor = defaultBackColor;
+                }
+                else
+                {
+                    // User cell: clear everything
+                    cell->Text = System::String::Empty;
+                    cell->ForeColor = defaultColor;
+                    cell->BackColor = defaultBackColor;
+                    cell->Enabled = true;
+                    this->pencilMarks[index] = 0;
+                    cell->Invalidate();
+                }
+                ++index;
             }
         }
 
@@ -3456,7 +3486,7 @@ namespace Sudoku_3_0
         this->engine->clear();
         this->clearBoard(true);
 
-        this->gameMode = 2;
+        this->gameMode = GameMode::Solver;
         this->restartButton->Enabled = false;
         this->undoStack->Clear();
         this->undoToolStripMenuItem->Enabled = false;
@@ -3518,7 +3548,7 @@ namespace Sudoku_3_0
 
     private: void saveToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        if (this->gameMode >= 0 && this->gameMode <= 2)
+        if (this->gameMode == GameMode::Game || this->gameMode == GameMode::Solver)
         {
             this->saveGameDialog->ShowDialog();
         }
@@ -3631,7 +3661,7 @@ namespace Sudoku_3_0
     private: void aboutToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
         MessageBox::Show(
-            "SUDOKU 3.0\n\nAll rights reserved",
+            "Sudoku 3.0\n\nAll rights reserved",
             "About",
             MessageBoxButtons::OK,
             MessageBoxIcon::None);
@@ -4224,12 +4254,8 @@ namespace Sudoku_3_0
         save->numberOfFixes = this->numberOfFixes;
         save->hasGivenUp = this->hasGivenUp;
         save->hasUsedFix = this->hasUsedFix;
-        save->gameMode = this->gameMode;
-        if (this->gameMode == 0)
-        {
-            save->gameFinished = true;
-        }
-        else if (this->gameMode == 1)
+        save->gameMode = static_cast<unsigned int>(this->gameMode);
+        if (this->gameMode == GameMode::Game)
         {
             save->gameFinished = !this->giveUpButton->Enabled;
         }
@@ -4362,13 +4388,13 @@ namespace Sudoku_3_0
             this->numberOfFixes = save->numberOfFixes;
             this->hasGivenUp = save->hasGivenUp;
             this->hasUsedFix = save->hasUsedFix;
-            this->gameMode = save->gameMode;
-            this->restartButton->Enabled = save->gameMode == 1;
+            this->gameMode = static_cast<GameMode>(save->gameMode);
+            this->restartButton->Enabled = this->gameMode == GameMode::Game;
             this->setGameControls(
-                save->gameMode == 1 && !save->gameFinished,
-                save->gameMode == 1 && !save->gameFinished,
-                save->gameMode == 1 && !save->gameFinished,
-                save->gameMode == 2 && !save->gameFinished);
+                this->gameMode == GameMode::Game && !save->gameFinished,
+                this->gameMode == GameMode::Game && !save->gameFinished,
+                this->gameMode == GameMode::Game && !save->gameFinished,
+                this->gameMode == GameMode::Solver && !save->gameFinished);
 
             // Fill each cell
             unsigned int index = 0;
@@ -4397,31 +4423,18 @@ namespace Sudoku_3_0
                         throw "Invalid cell state " + state;
                     }
 
-                    // Check if cell value dows not conflict with cell state
+                    // Check if cell value does not conflict with cell state
                     if (value->Equals("0") != state->Equals("1"))
                     {
                         throw "Invalid cell value and cell state pair";
                     }
 
-                    // Fill the engine
-                    if (save->gameMode == 0)
+                    // Fill the engine based on game mode
+                    if (this->gameMode == GameMode::Game)
                     {
+                        // If the cell was filled by the engine (immutable clue)
                         if (state->Equals("0"))
                         {
-                            this->engine->setFilled(i, j, true);
-                            this->engine->setCellValue(i, j, value[0] - '0');
-                        }
-                        else
-                        {
-                            throw "Invalid cell state value " + state + " for game mode " + save->gameMode.ToString();
-                        }
-                    }
-                    else if (save->gameMode == 1)
-                    {
-                        // If the cell was filled by the engine
-                        if (state->Equals("0"))
-                        {
-                            // Fill the engine with it
                             this->engine->setFilled(i, j, true);
                             this->engine->setCellValue(i, j, value[0] - '0');
                         }
@@ -4431,7 +4444,7 @@ namespace Sudoku_3_0
                             this->engine->setFilled(i, j, false);
                         }
                     }
-                    else if (save->gameMode == 2)
+                    else if (this->gameMode == GameMode::Solver)
                     {
                         if (state->Equals("0") || state->Equals("6"))
                         {
@@ -4473,14 +4486,7 @@ namespace Sudoku_3_0
                     }
 
                     // Change cell color if needed
-                    if (save->gameMode == 0)
-                    {
-                        if (!state->Equals("0"))
-                        {
-                            throw "Invalid state " + state + " in game mode " + save->gameMode.ToString();
-                        }
-                    }
-                    else if (save->gameMode == 1)
+                    if (this->gameMode == GameMode::Game)
                     {
                         if (state->Equals("3"))
                         {
@@ -4499,7 +4505,7 @@ namespace Sudoku_3_0
                             throw "Invalid state " + state + " in game mode " + save->gameMode.ToString();
                         }
                     }
-                    else if (save->gameMode == 2)
+                    else if (this->gameMode == GameMode::Solver)
                     {
                         if (state->Equals("6"))
                         {
@@ -4533,22 +4539,27 @@ namespace Sudoku_3_0
                         this->pencilMarks[i] = mark;
                 }
                 // Repaint all cells to show loaded marks
-                for each(Button ^ cell in this->cells)
+                for each (Button ^ cell in this->cells)
                 {
                     cell->Invalidate();
                 }
             }
 
-            // The engine needs to solve the puzzle for 2 reasons
-            // 1) It needs them to check the solution later in case of game mode
-            // 2) It allows to check if the game save has not been corrupted
-            if (save->gameMode == 0 || save->gameMode == 1 || (save->gameMode == 2 && engine->numberOfFilledCells() > 0))
+            // The engine needs to solve the puzzle for 2 reasons:
+            // 1) It needs the solution to validate hints/check progress later (game mode)
+            // 2) It allows detection of corrupted saves
+            if (this->gameMode == GameMode::Game || (this->gameMode == GameMode::Solver && engine->numberOfFilledCells() > 0))
             {
                 this->engine->trySolve();
                 if (engine->currentState() != SudokuGameEngine::SudokuEngineState::FilledValid)
                 {
                     throw "Invalid cell values";
                 }
+            }
+            else
+            {
+                // Solver mode with an empty board: resolve BeingEdited state without solving
+                this->engine->updateState();
             }
         }
         catch (...)
