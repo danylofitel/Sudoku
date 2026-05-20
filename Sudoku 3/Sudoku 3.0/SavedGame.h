@@ -13,8 +13,11 @@ public:
 	// Game difficulty level
 	unsigned int difficulty;
 
-	// Number of used hints
+	// Number of used hints (cumulative across restarts)
 	unsigned int numberOfHints;
+
+	// Whether the user has given up at least once on this puzzle
+	bool hasGivenUp;
 
 	// State of the game: 0 - combination, 1 - game, 2 - solver
 	unsigned int gameMode;

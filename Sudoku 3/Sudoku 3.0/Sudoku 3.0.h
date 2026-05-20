@@ -213,6 +213,12 @@ namespace Sudoku_3_0
 	// Difficulty level of current puzzle
 	private: unsigned int currentDifficulty;
 
+	// Whether the user has given up at least once on this puzzle
+	private: bool hasGivenUp;
+
+	// Session-only win streak (resets to zero on give-up or start of new game)
+	private: unsigned int winStreak;
+
 	// Dragging state
 	private: bool dragging;
 	private: Point offset;
@@ -2278,6 +2284,18 @@ namespace Sudoku_3_0
 		{
 			MessageBox::Show(message, "Sudoku", MessageBoxButtons::OK, MessageBoxIcon::None);
 		}
+
+		private: System::String^ difficultyName(unsigned int d)
+		{
+			switch (d)
+			{
+			case 0: return "Very Easy";
+			case 1: return "Easy";
+			case 3: return "Hard";
+			case 4: return "Very Hard";
+			default: return "Medium";
+			}
+		}
 		
 		// Initialize sudoku engine
 		private: void initialize()
@@ -2306,6 +2324,8 @@ namespace Sudoku_3_0
 			this->numberOfFilledCells = 0;
 			this->isHint = false;
 			this->numberOfHints = 0;
+			this->hasGivenUp = false;
+			this->winStreak = 0;
 			this->gameMode = 3;
 			this->currentDifficulty = 2;
 			this->difficultyComboBox->SelectedIndex = currentDifficulty;
@@ -2511,6 +2531,7 @@ namespace Sudoku_3_0
 			this->fillBoardFromEngine(false);
 			this->gameMode = 1;
 			this->numberOfHints = 0;
+			this->hasGivenUp = false;
 			this->RestartButton->Enabled = true;
 			this->hintButton->Enabled = true;
 			this->fixButton->Enabled = true;
@@ -2572,18 +2593,49 @@ namespace Sudoku_3_0
 					this->fixButton->Enabled = false;
 					this->giveUpButton->Enabled = false;
 
-					if (this->numberOfHints == 0)
+					if (!this->hasGivenUp)
 					{
-						this->showNotification("Congratulations! You won without hints!");
-					}
-					else if (this->numberOfHints == 1)
-					{
-						this->showNotification("Congratulations! You only used one hint!");
+						++this->winStreak;
 					}
 					else
 					{
-						this->showNotification("You beat the game using " + this->numberOfHints + " hints!");
+						this->winStreak = 0;
 					}
+
+					System::String^ msg = "";
+
+						if (!this->hasGivenUp && this->numberOfHints == 0)
+						{
+							msg += "Congratulations! You won without any hints!";
+						}
+						else if (!this->hasGivenUp && this->numberOfHints == 1)
+						{
+							msg += "Congratulations! You only used one hint!";
+						}
+						else if (!this->hasGivenUp && this->numberOfHints > 1)
+						{
+							msg += "You beat the game using " + this->numberOfHints + " hints!";
+						}
+						else if (this->hasGivenUp && this->numberOfHints == 0)
+						{
+							msg += "You completed the puzzle after giving up.";
+						}
+						else if (this->hasGivenUp && this->numberOfHints == 1)
+						{
+							msg += "You completed the puzzle after giving up, using 1 hint.";
+						}
+						else
+						{
+							msg += "You completed the puzzle after giving up, using " + this->numberOfHints + " hints.";
+						}
+
+					msg += "\n\nDifficulty: " + this->difficultyName(this->currentDifficulty);
+					if (this->winStreak > 1)
+					{
+						msg += "\nWin streak: " + this->winStreak;
+					}
+
+					this->showNotification(msg);
 				}
 			}
 		}
@@ -2920,7 +2972,6 @@ namespace Sudoku_3_0
 			this->disableHint();
 
 			this->numberOfFilledCells = 0;
-			this->numberOfHints = 0;
 
 			// Fill the board
 			for (unsigned int index = 0; index < this->boardSize * this->boardSize; ++index)
@@ -2982,8 +3033,25 @@ namespace Sudoku_3_0
 
 		private: void giveUpButton_Click(System::Object^  sender, System::EventArgs^  e)
 		{
+			if (!this->hasGivenUp)
+			{
+				System::Windows::Forms::DialogResult confirm = MessageBox::Show(
+					"Are you sure you want to give up?\nThis will disqualify you from a clean win on this puzzle.",
+					"Give Up",
+					MessageBoxButtons::YesNo,
+					MessageBoxIcon::None);
+
+				if (confirm != System::Windows::Forms::DialogResult::Yes)
+				{
+					return;
+				}
+			}
+
 			this->closeHelperForms();
 			this->disableHint();
+
+			this->hasGivenUp = true;
+			this->winStreak = 0;
 
 			unsigned int index = 0;
 			for (unsigned char i = 0; i < boardSize; ++i)
@@ -3776,9 +3844,10 @@ namespace Sudoku_3_0
 		{
 			SavedGame^ save = gcnew SavedGame();
 			save->sizeFactor = this->engine->sizeOfTheBlock();
-			save->difficulty = this->currentDifficulty;
-			save->numberOfHints = this->numberOfHints;
-			save->gameMode = this->gameMode;
+				save->difficulty = this->currentDifficulty;
+				save->numberOfHints = this->numberOfHints;
+				save->hasGivenUp = this->hasGivenUp;
+				save->gameMode = this->gameMode;
 			if (this->gameMode == 0)
 			{
 				save->gameFinished = true;
@@ -3905,6 +3974,7 @@ namespace Sudoku_3_0
 				this->difficultyComboBox->SelectedIndex = save->difficulty;
 				this->numberOfFilledCells = 0;
 				this->numberOfHints = save->numberOfHints;
+				this->hasGivenUp = save->hasGivenUp;
 				this->gameMode = save->gameMode;
 				this->RestartButton->Enabled = save->gameMode == 1;
 				this->hintButton->Enabled = save->gameMode == 1 && !save->gameFinished;
