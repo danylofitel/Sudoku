@@ -2423,7 +2423,7 @@ namespace Sudoku_3_0
         this->difficultyComboBox->SelectedIndex = currentDifficulty;
 
         // Wire Paint events for pencil marks on each cell
-        for each (System::Windows::Forms::Button ^ cell in this->cells)
+        for each(System::Windows::Forms::Button ^ cell in this->cells)
         {
             cell->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &SudokuForm::cell_Paint);
         }
@@ -2643,7 +2643,7 @@ namespace Sudoku_3_0
         this->setPencilMode(false);
 
         // Move focus to the first editable cell
-        for each (Button ^ cell in this->cells)
+        for each(Button ^ cell in this->cells)
         {
             if (cell->Enabled)
             {
@@ -4184,7 +4184,7 @@ namespace Sudoku_3_0
             {
                 choice = e->KeyChar - '0';
             }
-            else if (e->KeyChar == '')
+            else if (e->KeyChar == '\b')
             {
                 choice = 0;
             }
@@ -4533,8 +4533,10 @@ namespace Sudoku_3_0
                         this->pencilMarks[i] = mark;
                 }
                 // Repaint all cells to show loaded marks
-                for each (Button ^ cell in this->cells)
+                for each(Button ^ cell in this->cells)
+                {
                     cell->Invalidate();
+                }
             }
 
             // The engine needs to solve the puzzle for 2 reasons
