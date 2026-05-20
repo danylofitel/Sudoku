@@ -2764,6 +2764,12 @@ namespace Sudoku_3_0
         // If this is a hint option, show the cell value
         if (this->isHint)
         {
+            // Push undo entry before applying hint (saves text, marks, and hints delta)
+            this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
+                number - 1, currentButton->Text, this->pencilMarks[number - 1]));
+            this->undoToolStripMenuItem->Enabled = true;
+            this->undoButton->Enabled = true;
+
             if (currentButton->Text->Length == 0)
             {
                 ++(this->numberOfFilledCells);

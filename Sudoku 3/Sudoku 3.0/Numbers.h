@@ -28,16 +28,8 @@ namespace Sudoku_3_0 {
         }
 
     protected:
-        /// <summary>
-        /// Clean up any resources being used
-        /// </summary>
         ~Numbers()
-        {
-            if (components)
-            {
-                delete components;
-            }
-        }
+        {}
     private: System::Windows::Forms::Button^ button1;
     private: System::Windows::Forms::Button^ button2;
     private: System::Windows::Forms::Button^ button3;
@@ -68,290 +60,284 @@ namespace Sudoku_3_0 {
            // Action delegate from the father form
     private: choiceAction^ choiceDelegate;
 
-    private:
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
-        System::ComponentModel::Container^ components;
-
 #pragma region Windows Form Designer generated code
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
-        void InitializeComponent(void)
-        {
-            this->button1 = (gcnew System::Windows::Forms::Button());
-            this->button2 = (gcnew System::Windows::Forms::Button());
-            this->button3 = (gcnew System::Windows::Forms::Button());
-            this->button4 = (gcnew System::Windows::Forms::Button());
-            this->button5 = (gcnew System::Windows::Forms::Button());
-            this->button6 = (gcnew System::Windows::Forms::Button());
-            this->button7 = (gcnew System::Windows::Forms::Button());
-            this->button8 = (gcnew System::Windows::Forms::Button());
-            this->button9 = (gcnew System::Windows::Forms::Button());
-            this->buttonClear = (gcnew System::Windows::Forms::Button());
-            this->buttonCancel = (gcnew System::Windows::Forms::Button());
-            this->SuspendLayout();
-            // 
-            // button1
-            // 
-            this->button1->BackColor = System::Drawing::SystemColors::Menu;
-            this->button1->FlatAppearance->BorderSize = 0;
-            this->button1->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-            this->button1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                static_cast<System::Byte>(204)));
-            this->button1->Location = System::Drawing::Point(0, 0);
-            this->button1->Name = L"button1";
-            this->button1->Size = System::Drawing::Size(50, 50);
-            this->button1->TabIndex = 0;
-            this->button1->Text = L"1";
-            this->button1->UseVisualStyleBackColor = false;
-            this->button1->Click += gcnew System::EventHandler(this, &Numbers::button1_Click);
-            this->button1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button1_KeyPress);
-            this->button1->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
-            this->button1->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
-            this->button1->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
-            this->button1->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
-            // 
-            // button2
-            // 
-            this->button2->BackColor = System::Drawing::SystemColors::Menu;
-            this->button2->FlatAppearance->BorderSize = 0;
-            this->button2->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-            this->button2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                static_cast<System::Byte>(204)));
-            this->button2->Location = System::Drawing::Point(50, 0);
-            this->button2->Name = L"button2";
-            this->button2->Size = System::Drawing::Size(50, 50);
-            this->button2->TabIndex = 1;
-            this->button2->Text = L"2";
-            this->button2->UseVisualStyleBackColor = false;
-            this->button2->Click += gcnew System::EventHandler(this, &Numbers::button2_Click);
-            this->button2->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button2_KeyPress);
-            this->button2->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
-            this->button2->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
-            this->button2->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
-            this->button2->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
-            // 
-            // button3
-            // 
-            this->button3->BackColor = System::Drawing::SystemColors::Menu;
-            this->button3->FlatAppearance->BorderSize = 0;
-            this->button3->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-            this->button3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                static_cast<System::Byte>(204)));
-            this->button3->Location = System::Drawing::Point(100, 0);
-            this->button3->Name = L"button3";
-            this->button3->Size = System::Drawing::Size(50, 50);
-            this->button3->TabIndex = 2;
-            this->button3->Text = L"3";
-            this->button3->UseVisualStyleBackColor = false;
-            this->button3->Click += gcnew System::EventHandler(this, &Numbers::button3_Click);
-            this->button3->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button3_KeyPress);
-            this->button3->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
-            this->button3->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
-            this->button3->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
-            this->button3->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
-            // 
-            // button4
-            // 
-            this->button4->BackColor = System::Drawing::SystemColors::Menu;
-            this->button4->FlatAppearance->BorderSize = 0;
-            this->button4->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-            this->button4->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                static_cast<System::Byte>(204)));
-            this->button4->Location = System::Drawing::Point(0, 50);
-            this->button4->Name = L"button4";
-            this->button4->Size = System::Drawing::Size(50, 50);
-            this->button4->TabIndex = 3;
-            this->button4->Text = L"4";
-            this->button4->UseVisualStyleBackColor = false;
-            this->button4->Click += gcnew System::EventHandler(this, &Numbers::button4_Click);
-            this->button4->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button4_KeyPress);
-            this->button4->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
-            this->button4->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
-            this->button4->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
-            this->button4->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
-            // 
-            // button5
-            // 
-            this->button5->BackColor = System::Drawing::SystemColors::Menu;
-            this->button5->FlatAppearance->BorderSize = 0;
-            this->button5->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-            this->button5->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                static_cast<System::Byte>(204)));
-            this->button5->Location = System::Drawing::Point(50, 50);
-            this->button5->Name = L"button5";
-            this->button5->Size = System::Drawing::Size(50, 50);
-            this->button5->TabIndex = 4;
-            this->button5->Text = L"5";
-            this->button5->UseVisualStyleBackColor = false;
-            this->button5->Click += gcnew System::EventHandler(this, &Numbers::button5_Click);
-            this->button5->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button5_KeyPress);
-            this->button5->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
-            this->button5->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
-            this->button5->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
-            this->button5->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
-            // 
-            // button6
-            // 
-            this->button6->BackColor = System::Drawing::SystemColors::Menu;
-            this->button6->FlatAppearance->BorderSize = 0;
-            this->button6->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-            this->button6->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                static_cast<System::Byte>(204)));
-            this->button6->Location = System::Drawing::Point(100, 50);
-            this->button6->Name = L"button6";
-            this->button6->Size = System::Drawing::Size(50, 50);
-            this->button6->TabIndex = 5;
-            this->button6->Text = L"6";
-            this->button6->UseVisualStyleBackColor = false;
-            this->button6->Click += gcnew System::EventHandler(this, &Numbers::button6_Click);
-            this->button6->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button6_KeyPress);
-            this->button6->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
-            this->button6->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
-            this->button6->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
-            this->button6->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
-            // 
-            // button7
-            // 
-            this->button7->BackColor = System::Drawing::SystemColors::Menu;
-            this->button7->FlatAppearance->BorderSize = 0;
-            this->button7->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-            this->button7->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                static_cast<System::Byte>(204)));
-            this->button7->Location = System::Drawing::Point(0, 100);
-            this->button7->Name = L"button7";
-            this->button7->Size = System::Drawing::Size(50, 50);
-            this->button7->TabIndex = 6;
-            this->button7->Text = L"7";
-            this->button7->UseVisualStyleBackColor = false;
-            this->button7->Click += gcnew System::EventHandler(this, &Numbers::button7_Click);
-            this->button7->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button7_KeyPress);
-            this->button7->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
-            this->button7->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
-            this->button7->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
-            this->button7->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
-            // 
-            // button8
-            // 
-            this->button8->BackColor = System::Drawing::SystemColors::Menu;
-            this->button8->FlatAppearance->BorderSize = 0;
-            this->button8->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-            this->button8->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                static_cast<System::Byte>(204)));
-            this->button8->Location = System::Drawing::Point(50, 100);
-            this->button8->Name = L"button8";
-            this->button8->Size = System::Drawing::Size(50, 50);
-            this->button8->TabIndex = 7;
-            this->button8->Text = L"8";
-            this->button8->UseVisualStyleBackColor = false;
-            this->button8->Click += gcnew System::EventHandler(this, &Numbers::button8_Click);
-            this->button8->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button8_KeyPress);
-            this->button8->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
-            this->button8->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
-            this->button8->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
-            this->button8->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
-            // 
-            // button9
-            // 
-            this->button9->BackColor = System::Drawing::SystemColors::Menu;
-            this->button9->FlatAppearance->BorderSize = 0;
-            this->button9->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-            this->button9->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                static_cast<System::Byte>(204)));
-            this->button9->Location = System::Drawing::Point(100, 100);
-            this->button9->Name = L"button9";
-            this->button9->Size = System::Drawing::Size(50, 50);
-            this->button9->TabIndex = 8;
-            this->button9->Text = L"9";
-            this->button9->UseVisualStyleBackColor = false;
-            this->button9->Click += gcnew System::EventHandler(this, &Numbers::button9_Click);
-            this->button9->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button9_KeyPress);
-            this->button9->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
-            this->button9->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
-            this->button9->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
-            this->button9->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
-            // 
-            // buttonClear
-            // 
-            this->buttonClear->BackColor = System::Drawing::SystemColors::Menu;
-            this->buttonClear->DialogResult = System::Windows::Forms::DialogResult::Cancel;
-            this->buttonClear->FlatAppearance->BorderSize = 0;
-            this->buttonClear->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-            this->buttonClear->Font = (gcnew System::Drawing::Font(L"Arial Narrow", 14.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                static_cast<System::Byte>(0)));
-            this->buttonClear->Location = System::Drawing::Point(0, 150);
-            this->buttonClear->Name = L"buttonClear";
-            this->buttonClear->Size = System::Drawing::Size(67, 50);
-            this->buttonClear->TabIndex = 9;
-            this->buttonClear->Text = L"Clear";
-            this->buttonClear->UseVisualStyleBackColor = false;
-            this->buttonClear->Click += gcnew System::EventHandler(this, &Numbers::buttonClear_Click);
-            this->buttonClear->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::buttonClear_KeyPress);
-            this->buttonClear->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
-            this->buttonClear->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
-            this->buttonClear->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
-            this->buttonClear->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
-            // 
-            // buttonCancel
-            // 
-            this->buttonCancel->BackColor = System::Drawing::SystemColors::Menu;
-            this->buttonCancel->DialogResult = System::Windows::Forms::DialogResult::Cancel;
-            this->buttonCancel->FlatAppearance->BorderSize = 0;
-            this->buttonCancel->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-            this->buttonCancel->Font = (gcnew System::Drawing::Font(L"Arial Narrow", 14.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                static_cast<System::Byte>(0)));
-            this->buttonCancel->Location = System::Drawing::Point(67, 150);
-            this->buttonCancel->Name = L"buttonCancel";
-            this->buttonCancel->Size = System::Drawing::Size(83, 50);
-            this->buttonCancel->TabIndex = 10;
-            this->buttonCancel->Text = L"Cancel";
-            this->buttonCancel->UseVisualStyleBackColor = false;
-            this->buttonCancel->Click += gcnew System::EventHandler(this, &Numbers::buttonCancel_Click);
-            this->buttonCancel->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::buttonCancel_KeyPress);
-            this->buttonCancel->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
-            this->buttonCancel->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
-            this->buttonCancel->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
-            this->buttonCancel->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
-            // 
-            // Numbers
-            // 
-            this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
-            this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-            this->CancelButton = this->buttonCancel;
-            this->ClientSize = System::Drawing::Size(150, 200);
-            this->Controls->Add(this->buttonCancel);
-            this->Controls->Add(this->buttonClear);
-            this->Controls->Add(this->button9);
-            this->Controls->Add(this->button8);
-            this->Controls->Add(this->button7);
-            this->Controls->Add(this->button6);
-            this->Controls->Add(this->button5);
-            this->Controls->Add(this->button4);
-            this->Controls->Add(this->button3);
-            this->Controls->Add(this->button2);
-            this->Controls->Add(this->button1);
-            this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::None;
-            this->MaximizeBox = false;
-            this->MaximumSize = System::Drawing::Size(150, 200);
-            this->MinimizeBox = false;
-            this->MinimumSize = System::Drawing::Size(150, 200);
-            this->Name = L"Numbers";
-            this->ShowIcon = false;
-            this->ShowInTaskbar = false;
-            this->StartPosition = System::Windows::Forms::FormStartPosition::CenterParent;
-            this->TransparencyKey = System::Drawing::Color::White;
-            this->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::Numbers_KeyPress);
-            this->ResumeLayout(false);
+           /// <summary>
+           /// Required method for Designer support - do not modify
+           /// the contents of this method with the code editor.
+           /// </summary>
+           void InitializeComponent(void)
+           {
+               this->button1 = (gcnew System::Windows::Forms::Button());
+               this->button2 = (gcnew System::Windows::Forms::Button());
+               this->button3 = (gcnew System::Windows::Forms::Button());
+               this->button4 = (gcnew System::Windows::Forms::Button());
+               this->button5 = (gcnew System::Windows::Forms::Button());
+               this->button6 = (gcnew System::Windows::Forms::Button());
+               this->button7 = (gcnew System::Windows::Forms::Button());
+               this->button8 = (gcnew System::Windows::Forms::Button());
+               this->button9 = (gcnew System::Windows::Forms::Button());
+               this->buttonClear = (gcnew System::Windows::Forms::Button());
+               this->buttonCancel = (gcnew System::Windows::Forms::Button());
+               this->SuspendLayout();
+               // 
+               // button1
+               // 
+               this->button1->BackColor = System::Drawing::SystemColors::Menu;
+               this->button1->FlatAppearance->BorderSize = 0;
+               this->button1->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
+               this->button1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                   static_cast<System::Byte>(204)));
+               this->button1->Location = System::Drawing::Point(0, 0);
+               this->button1->Name = L"button1";
+               this->button1->Size = System::Drawing::Size(50, 50);
+               this->button1->TabIndex = 0;
+               this->button1->Text = L"1";
+               this->button1->UseVisualStyleBackColor = false;
+               this->button1->Click += gcnew System::EventHandler(this, &Numbers::button1_Click);
+               this->button1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button1_KeyPress);
+               this->button1->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
+               this->button1->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
+               this->button1->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
+               this->button1->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
+               // 
+               // button2
+               // 
+               this->button2->BackColor = System::Drawing::SystemColors::Menu;
+               this->button2->FlatAppearance->BorderSize = 0;
+               this->button2->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
+               this->button2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                   static_cast<System::Byte>(204)));
+               this->button2->Location = System::Drawing::Point(50, 0);
+               this->button2->Name = L"button2";
+               this->button2->Size = System::Drawing::Size(50, 50);
+               this->button2->TabIndex = 1;
+               this->button2->Text = L"2";
+               this->button2->UseVisualStyleBackColor = false;
+               this->button2->Click += gcnew System::EventHandler(this, &Numbers::button2_Click);
+               this->button2->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button2_KeyPress);
+               this->button2->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
+               this->button2->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
+               this->button2->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
+               this->button2->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
+               // 
+               // button3
+               // 
+               this->button3->BackColor = System::Drawing::SystemColors::Menu;
+               this->button3->FlatAppearance->BorderSize = 0;
+               this->button3->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
+               this->button3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                   static_cast<System::Byte>(204)));
+               this->button3->Location = System::Drawing::Point(100, 0);
+               this->button3->Name = L"button3";
+               this->button3->Size = System::Drawing::Size(50, 50);
+               this->button3->TabIndex = 2;
+               this->button3->Text = L"3";
+               this->button3->UseVisualStyleBackColor = false;
+               this->button3->Click += gcnew System::EventHandler(this, &Numbers::button3_Click);
+               this->button3->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button3_KeyPress);
+               this->button3->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
+               this->button3->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
+               this->button3->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
+               this->button3->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
+               // 
+               // button4
+               // 
+               this->button4->BackColor = System::Drawing::SystemColors::Menu;
+               this->button4->FlatAppearance->BorderSize = 0;
+               this->button4->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
+               this->button4->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                   static_cast<System::Byte>(204)));
+               this->button4->Location = System::Drawing::Point(0, 50);
+               this->button4->Name = L"button4";
+               this->button4->Size = System::Drawing::Size(50, 50);
+               this->button4->TabIndex = 3;
+               this->button4->Text = L"4";
+               this->button4->UseVisualStyleBackColor = false;
+               this->button4->Click += gcnew System::EventHandler(this, &Numbers::button4_Click);
+               this->button4->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button4_KeyPress);
+               this->button4->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
+               this->button4->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
+               this->button4->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
+               this->button4->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
+               // 
+               // button5
+               // 
+               this->button5->BackColor = System::Drawing::SystemColors::Menu;
+               this->button5->FlatAppearance->BorderSize = 0;
+               this->button5->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
+               this->button5->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                   static_cast<System::Byte>(204)));
+               this->button5->Location = System::Drawing::Point(50, 50);
+               this->button5->Name = L"button5";
+               this->button5->Size = System::Drawing::Size(50, 50);
+               this->button5->TabIndex = 4;
+               this->button5->Text = L"5";
+               this->button5->UseVisualStyleBackColor = false;
+               this->button5->Click += gcnew System::EventHandler(this, &Numbers::button5_Click);
+               this->button5->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button5_KeyPress);
+               this->button5->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
+               this->button5->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
+               this->button5->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
+               this->button5->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
+               // 
+               // button6
+               // 
+               this->button6->BackColor = System::Drawing::SystemColors::Menu;
+               this->button6->FlatAppearance->BorderSize = 0;
+               this->button6->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
+               this->button6->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                   static_cast<System::Byte>(204)));
+               this->button6->Location = System::Drawing::Point(100, 50);
+               this->button6->Name = L"button6";
+               this->button6->Size = System::Drawing::Size(50, 50);
+               this->button6->TabIndex = 5;
+               this->button6->Text = L"6";
+               this->button6->UseVisualStyleBackColor = false;
+               this->button6->Click += gcnew System::EventHandler(this, &Numbers::button6_Click);
+               this->button6->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button6_KeyPress);
+               this->button6->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
+               this->button6->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
+               this->button6->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
+               this->button6->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
+               // 
+               // button7
+               // 
+               this->button7->BackColor = System::Drawing::SystemColors::Menu;
+               this->button7->FlatAppearance->BorderSize = 0;
+               this->button7->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
+               this->button7->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                   static_cast<System::Byte>(204)));
+               this->button7->Location = System::Drawing::Point(0, 100);
+               this->button7->Name = L"button7";
+               this->button7->Size = System::Drawing::Size(50, 50);
+               this->button7->TabIndex = 6;
+               this->button7->Text = L"7";
+               this->button7->UseVisualStyleBackColor = false;
+               this->button7->Click += gcnew System::EventHandler(this, &Numbers::button7_Click);
+               this->button7->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button7_KeyPress);
+               this->button7->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
+               this->button7->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
+               this->button7->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
+               this->button7->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
+               // 
+               // button8
+               // 
+               this->button8->BackColor = System::Drawing::SystemColors::Menu;
+               this->button8->FlatAppearance->BorderSize = 0;
+               this->button8->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
+               this->button8->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                   static_cast<System::Byte>(204)));
+               this->button8->Location = System::Drawing::Point(50, 100);
+               this->button8->Name = L"button8";
+               this->button8->Size = System::Drawing::Size(50, 50);
+               this->button8->TabIndex = 7;
+               this->button8->Text = L"8";
+               this->button8->UseVisualStyleBackColor = false;
+               this->button8->Click += gcnew System::EventHandler(this, &Numbers::button8_Click);
+               this->button8->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button8_KeyPress);
+               this->button8->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
+               this->button8->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
+               this->button8->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
+               this->button8->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
+               // 
+               // button9
+               // 
+               this->button9->BackColor = System::Drawing::SystemColors::Menu;
+               this->button9->FlatAppearance->BorderSize = 0;
+               this->button9->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
+               this->button9->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                   static_cast<System::Byte>(204)));
+               this->button9->Location = System::Drawing::Point(100, 100);
+               this->button9->Name = L"button9";
+               this->button9->Size = System::Drawing::Size(50, 50);
+               this->button9->TabIndex = 8;
+               this->button9->Text = L"9";
+               this->button9->UseVisualStyleBackColor = false;
+               this->button9->Click += gcnew System::EventHandler(this, &Numbers::button9_Click);
+               this->button9->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button9_KeyPress);
+               this->button9->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
+               this->button9->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
+               this->button9->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
+               this->button9->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
+               // 
+               // buttonClear
+               // 
+               this->buttonClear->BackColor = System::Drawing::SystemColors::Menu;
+               this->buttonClear->DialogResult = System::Windows::Forms::DialogResult::Cancel;
+               this->buttonClear->FlatAppearance->BorderSize = 0;
+               this->buttonClear->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
+               this->buttonClear->Font = (gcnew System::Drawing::Font(L"Arial Narrow", 14.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+                   static_cast<System::Byte>(0)));
+               this->buttonClear->Location = System::Drawing::Point(0, 150);
+               this->buttonClear->Name = L"buttonClear";
+               this->buttonClear->Size = System::Drawing::Size(67, 50);
+               this->buttonClear->TabIndex = 9;
+               this->buttonClear->Text = L"Clear";
+               this->buttonClear->UseVisualStyleBackColor = false;
+               this->buttonClear->Click += gcnew System::EventHandler(this, &Numbers::buttonClear_Click);
+               this->buttonClear->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::buttonClear_KeyPress);
+               this->buttonClear->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
+               this->buttonClear->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
+               this->buttonClear->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
+               this->buttonClear->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
+               // 
+               // buttonCancel
+               // 
+               this->buttonCancel->BackColor = System::Drawing::SystemColors::Menu;
+               this->buttonCancel->DialogResult = System::Windows::Forms::DialogResult::Cancel;
+               this->buttonCancel->FlatAppearance->BorderSize = 0;
+               this->buttonCancel->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
+               this->buttonCancel->Font = (gcnew System::Drawing::Font(L"Arial Narrow", 14.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+                   static_cast<System::Byte>(0)));
+               this->buttonCancel->Location = System::Drawing::Point(67, 150);
+               this->buttonCancel->Name = L"buttonCancel";
+               this->buttonCancel->Size = System::Drawing::Size(83, 50);
+               this->buttonCancel->TabIndex = 10;
+               this->buttonCancel->Text = L"Cancel";
+               this->buttonCancel->UseVisualStyleBackColor = false;
+               this->buttonCancel->Click += gcnew System::EventHandler(this, &Numbers::buttonCancel_Click);
+               this->buttonCancel->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::buttonCancel_KeyPress);
+               this->buttonCancel->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
+               this->buttonCancel->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
+               this->buttonCancel->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
+               this->buttonCancel->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Numbers::button_KeyDown);
+               // 
+               // Numbers
+               // 
+               this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
+               this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+               this->CancelButton = this->buttonCancel;
+               this->ClientSize = System::Drawing::Size(150, 200);
+               this->Controls->Add(this->buttonCancel);
+               this->Controls->Add(this->buttonClear);
+               this->Controls->Add(this->button9);
+               this->Controls->Add(this->button8);
+               this->Controls->Add(this->button7);
+               this->Controls->Add(this->button6);
+               this->Controls->Add(this->button5);
+               this->Controls->Add(this->button4);
+               this->Controls->Add(this->button3);
+               this->Controls->Add(this->button2);
+               this->Controls->Add(this->button1);
+               this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::None;
+               this->MaximizeBox = false;
+               this->MaximumSize = System::Drawing::Size(150, 200);
+               this->MinimizeBox = false;
+               this->MinimumSize = System::Drawing::Size(150, 200);
+               this->Name = L"Numbers";
+               this->ShowIcon = false;
+               this->ShowInTaskbar = false;
+               this->StartPosition = System::Windows::Forms::FormStartPosition::CenterParent;
+               this->TransparencyKey = System::Drawing::Color::White;
+               this->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::Numbers_KeyPress);
+               this->ResumeLayout(false);
 
-        }
+           }
 #pragma endregion
 
-        // Navigate the numbers grid using arrow keys.
-        // Layout: buttons 1-9 occupy a 3x3 grid (tab indices 0-8),
-        // Clear and Cancel sit in a bottom row (tab indices 9-10).
+           // Navigate the numbers grid using arrow keys.
+           // Layout: buttons 1-9 occupy a 3x3 grid (tab indices 0-8),
+           // Clear and Cancel sit in a bottom row (tab indices 9-10).
     private: void button_PreviewKeyDown(System::Object^ sender, System::Windows::Forms::PreviewKeyDownEventArgs^ e)
     {
         if (e->KeyCode == Keys::Up || e->KeyCode == Keys::Down ||
