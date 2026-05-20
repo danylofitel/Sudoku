@@ -30,14 +30,14 @@ namespace SudokuGameEngine
     // Enumeration of possible engine states
     enum class SudokuEngineState : unsigned char
     {
-        Empty,					// All cells are empty
-        BeingEdited,			// Is being edited from outside, actual state undefined
-        HasNoSolution,			// Does not have valid solution
-        HasUniqueSolution,		// Is a valid puzzle with a unique solution
-        HasMultipleSolutions,	// Invalid puzzle with multiple solutions
-        NewGame,				// Is a valid puzzle with unique solution, all hidden cells are also valid
-        FilledInvalid,			// Completely filled, but not with a valid combination
-        FilledValid				// Completely filled with a valid combination
+        Empty,                // All cells are empty
+        BeingEdited,          // Is being edited from outside, actual state undefined
+        HasNoSolution,        // Does not have valid solution
+        HasUniqueSolution,    // Is a valid puzzle with a unique solution
+        HasMultipleSolutions, // Invalid puzzle with multiple solutions
+        NewGame,              // Is a valid puzzle with unique solution, all hidden cells are also valid
+        FilledInvalid,        // Completely filled, but not with a valid combination
+        FilledValid           // Completely filled with a valid combination
     };
 
     // Sudoku game engine class
