@@ -2805,7 +2805,7 @@ namespace Sudoku_3_0
             // Show the number choice form
             this->numbersForm->Left = left;
             this->numbersForm->Top = top;
-            this->numbersForm->setPencilMode(this->pencilMode && currentButton->Enabled && currentButton->Text->Length == 0);
+            this->numbersForm->setPencilMode(this->pencilMode && currentButton->Enabled);
             this->numbersForm->setCellNumber(number);
             this->numbersForm->Visible = true;
             this->numbersForm->Activate();
@@ -3328,10 +3328,7 @@ namespace Sudoku_3_0
         }
 
         this->difficultyComboBox->SelectedIndex = this->currentDifficulty;
-        this->hintButton->Enabled = true;
-        this->fixButton->Enabled = true;
-        this->giveUpButton->Enabled = true;
-        this->pencilButton->Enabled = true;
+        this->setGameControls(true, true, true, false);
         this->setPencilMode(false);
     }
 
@@ -4198,8 +4195,11 @@ namespace Sudoku_3_0
 
             bool changed = false;
             if (((Button^)sender)->Text->Length == 0 && choice != 0 ||
-                ((Button^)sender)->Text->Length != 0 && choice == 0 ||
-                !((Button^)sender)->Text->Equals(choice.ToString()))
+                ((Button^)sender)->Text->Length != 0 && choice == 0)
+            {
+                changed = true;
+            }
+            else if (choice != 0 && !((Button^)sender)->Text->Equals(choice.ToString()))
             {
                 changed = true;
             }
@@ -4512,6 +4512,9 @@ namespace Sudoku_3_0
             }
 
             // Restore pencil marks if present (new saves only)
+            this->undoStack->Clear();
+            this->undoToolStripMenuItem->Enabled = false;
+            this->undoButton->Enabled = false;
             this->setPencilMode(false);
             if (save->pencilMarks != nullptr && save->pencilMarks->Length > 0)
             {
