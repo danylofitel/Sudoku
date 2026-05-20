@@ -232,8 +232,13 @@ namespace Sudoku_3_0
            // Session-only win streak (resets to zero on give-up or start of new game)
     private: unsigned int winStreak;
 
-           // Undo stack: each entry is (cellIndex, previousText, previousPencilMarks)
+           // Undo stack: each entry is (cellIndex, previousText, previousPencilMarks).
+           // Atomic batch operations (e.g. Fix) are bracketed by two sentinel entries
+           // (cellIndex == undoGroupSentinel): one pushed first (bottom) and one pushed last (top).
     private: System::Collections::Generic::Stack<System::Tuple<unsigned int, System::String^, int>^>^ undoStack;
+
+           // Sentinel cellIndex value marking a batch boundary in the undo stack
+    private: static const unsigned int undoGroupSentinel = UINT_MAX;
 
            // Pencil mark bitmask per cell: bit N set means digit N is marked (bits 1-9)
     private: array<int>^ pencilMarks;
@@ -2906,17 +2911,10 @@ namespace Sudoku_3_0
         }
     }
 
-    private: void performUndo()
+    private: void restoreCell(unsigned int index, System::String^ previousText, int previousMarks)
     {
-        if (this->undoStack->Count == 0) return;
-
-        auto entry = this->undoStack->Pop();
-        unsigned int index = entry->Item1;
-        System::String^ previousText = entry->Item2;
-        int previousMarks = entry->Item3;
         System::Windows::Forms::Button^ cell = this->cells[index];
 
-        // Adjust filled cell count
         if (cell->Text->Length > 0 && previousText->Length == 0)
         {
             --(this->numberOfFilledCells);
@@ -2934,7 +2932,39 @@ namespace Sudoku_3_0
         cell->Invalidate();
         this->highlightCellConflict(index);
         this->revalidatePeers(index);
-        cell->Focus();
+    }
+
+    private: void performUndo()
+    {
+        if (this->undoStack->Count == 0) return;
+
+        auto top = this->undoStack->Pop();
+
+        if (top->Item1 == undoGroupSentinel)
+        {
+            // Batch undo: pop and restore all entries until the bottom sentinel
+            System::Windows::Forms::Button^ lastCell = nullptr;
+            while (this->undoStack->Count > 0)
+            {
+                auto entry = this->undoStack->Pop();
+                if (entry->Item1 == undoGroupSentinel)
+                {
+                    break; // bottom sentinel reached
+                }
+                this->restoreCell(entry->Item1, entry->Item2, entry->Item3);
+                lastCell = this->cells[entry->Item1];
+            }
+            if (lastCell != nullptr)
+            {
+                lastCell->Focus();
+            }
+        }
+        else
+        {
+            // Single-cell undo
+            this->restoreCell(top->Item1, top->Item2, top->Item3);
+            this->cells[top->Item1]->Focus();
+        }
 
         this->undoToolStripMenuItem->Enabled = this->undoStack->Count > 0;
         this->undoButton->Enabled = this->undoStack->Count > 0;
@@ -3405,6 +3435,9 @@ namespace Sudoku_3_0
 
         ++this->numberOfFixes;
 
+        auto sentinel = gcnew System::Tuple<unsigned int, System::String^, int>(undoGroupSentinel, System::String::Empty, 0);
+        bool anyFixed = false;
+
         unsigned int index = 0;
         for (unsigned int i = 0; i < this->boardSize; ++i)
             for (unsigned int j = 0; j < this->boardSize; ++j)
@@ -3413,6 +3446,16 @@ namespace Sudoku_3_0
                     !this->cells[index]->Text->Equals(String::Empty) &&
                     !this->cells[index]->Text->Equals(((int)this->engine->getCellValue(i, j)).ToString()))
                 {
+                    if (!anyFixed)
+                    {
+                        // Push bottom sentinel before the first fixed-cell entry
+                        this->undoStack->Push(sentinel);
+                        anyFixed = true;
+                    }
+
+                    this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
+                        index, this->cells[index]->Text, this->pencilMarks[index]));
+
                     this->cells[index]->Text = "";
                     this->cells[index]->BackColor = defaultBackColor;
                     --(this->numberOfFilledCells);
@@ -3420,6 +3463,14 @@ namespace Sudoku_3_0
 
                 ++index;
             }
+
+        if (anyFixed)
+        {
+            // Push top sentinel to mark the end of the batch
+            this->undoStack->Push(sentinel);
+            this->undoToolStripMenuItem->Enabled = true;
+            this->undoButton->Enabled = true;
+        }
 
         this->revalidateAllCells();
     }
