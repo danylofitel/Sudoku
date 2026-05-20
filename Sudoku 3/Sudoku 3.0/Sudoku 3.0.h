@@ -202,6 +202,9 @@ namespace Sudoku_3_0
            // Number of hints used so far
     private: unsigned int numberOfHints;
 
+           // Number of times Fix was used so far
+    private: unsigned int numberOfFixes;
+
            // Game mode: 0 - combination, 1 - game, 2 - solver, 3 - other
     private: unsigned int gameMode;
 
@@ -210,6 +213,9 @@ namespace Sudoku_3_0
 
            // Whether the user has given up at least once on this puzzle
     private: bool hasGivenUp;
+
+           // Whether the user has used Fix at least once on this puzzle
+    private: bool hasUsedFix;
 
            // Session-only win streak (resets to zero on give-up or start of new game)
     private: unsigned int winStreak;
@@ -2340,7 +2346,9 @@ namespace Sudoku_3_0
         this->numberOfFilledCells = 0;
         this->isHint = false;
         this->numberOfHints = 0;
+        this->numberOfFixes = 0;
         this->hasGivenUp = false;
+        this->hasUsedFix = false;
         this->winStreak = 0;
         this->undoStack = gcnew System::Collections::Generic::Stack<System::Tuple<unsigned int, System::String^>^>();
         this->gameMode = 3;
@@ -2548,7 +2556,9 @@ namespace Sudoku_3_0
         this->fillBoardFromEngine(false);
         this->gameMode = 1;
         this->numberOfHints = 0;
+        this->numberOfFixes = 0;
         this->hasGivenUp = false;
+        this->hasUsedFix = false;
         this->undoStack->Clear();
         this->undoToolStripMenuItem->Enabled = false;
         this->RestartButton->Enabled = true;
@@ -2620,29 +2630,33 @@ namespace Sudoku_3_0
 
                 System::String^ msg = "";
 
-                if (!this->hasGivenUp && this->numberOfHints == 0)
+                bool clean = !this->hasGivenUp && this->numberOfHints == 0 && this->numberOfFixes == 0;
+
+                if (clean)
                 {
-                    msg += "Congratulations! You won without any hints!";
+                    msg += "Congratulations! You won without any hints or fixes!";
                 }
-                else if (!this->hasGivenUp && this->numberOfHints == 1)
+                else if (!this->hasGivenUp)
                 {
-                    msg += "Congratulations! You only used one hint!";
-                }
-                else if (!this->hasGivenUp && this->numberOfHints > 1)
-                {
-                    msg += "You beat the game using " + this->numberOfHints + " hints!";
-                }
-                else if (this->hasGivenUp && this->numberOfHints == 0)
-                {
-                    msg += "You completed the puzzle after giving up.";
-                }
-                else if (this->hasGivenUp && this->numberOfHints == 1)
-                {
-                    msg += "You completed the puzzle after giving up, using 1 hint.";
+                    msg += "You beat the game";
+                    System::Collections::Generic::List<System::String^>^ assists = gcnew System::Collections::Generic::List<System::String^>();
+                    if (this->numberOfHints == 1) assists->Add("1 hint");
+                    else if (this->numberOfHints > 1) assists->Add(this->numberOfHints + " hints");
+                    if (this->numberOfFixes == 1) assists->Add("1 fix");
+                    else if (this->numberOfFixes > 1) assists->Add(this->numberOfFixes + " fixes");
+                    msg += " using " + System::String::Join(" and ", assists) + "!";
                 }
                 else
                 {
-                    msg += "You completed the puzzle after giving up, using " + this->numberOfHints + " hints.";
+                    msg += "You completed the puzzle after giving up";
+                    System::Collections::Generic::List<System::String^>^ assists = gcnew System::Collections::Generic::List<System::String^>();
+                    if (this->numberOfHints == 1) assists->Add("1 hint");
+                    else if (this->numberOfHints > 1) assists->Add(this->numberOfHints + " hints");
+                    if (this->numberOfFixes == 1) assists->Add("1 fix");
+                    else if (this->numberOfFixes > 1) assists->Add(this->numberOfFixes + " fixes");
+                    if (assists->Count > 0)
+                        msg += ", using " + System::String::Join(" and ", assists);
+                    msg += ".";
                 }
 
                 msg += "\n\nDifficulty: " + this->difficultyName(this->currentDifficulty);
@@ -3063,7 +3077,23 @@ namespace Sudoku_3_0
     {
         this->closeHelperForms();
 
-        ++this->numberOfHints;
+        if (!this->hasUsedFix)
+        {
+            System::Windows::Forms::DialogResult confirm = MessageBox::Show(
+                "Fix will clear all cells whose values conflict with the solution.\nThis will disqualify you from a clean win on this puzzle.",
+                "Fix",
+                MessageBoxButtons::OKCancel,
+                MessageBoxIcon::None);
+
+            if (confirm != System::Windows::Forms::DialogResult::OK)
+            {
+                return;
+            }
+
+            this->hasUsedFix = true;
+        }
+
+        ++this->numberOfFixes;
 
         unsigned int index = 0;
         for (unsigned int i = 0; i < this->boardSize; ++i)
@@ -3896,7 +3926,9 @@ namespace Sudoku_3_0
         save->sizeFactor = this->engine->sizeOfTheBlock();
         save->difficulty = this->currentDifficulty;
         save->numberOfHints = this->numberOfHints;
+        save->numberOfFixes = this->numberOfFixes;
         save->hasGivenUp = this->hasGivenUp;
+        save->hasUsedFix = this->hasUsedFix;
         save->gameMode = this->gameMode;
         if (this->gameMode == 0)
         {
@@ -4024,7 +4056,9 @@ namespace Sudoku_3_0
             this->difficultyComboBox->SelectedIndex = save->difficulty;
             this->numberOfFilledCells = 0;
             this->numberOfHints = save->numberOfHints;
+            this->numberOfFixes = save->numberOfFixes;
             this->hasGivenUp = save->hasGivenUp;
+            this->hasUsedFix = save->hasUsedFix;
             this->gameMode = save->gameMode;
             this->RestartButton->Enabled = save->gameMode == 1;
             this->setGameControls(

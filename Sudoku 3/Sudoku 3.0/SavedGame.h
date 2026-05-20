@@ -16,8 +16,14 @@ public:
     // Number of used hints (cumulative across restarts)
     unsigned int numberOfHints;
 
+    // Number of times Fix was used (cumulative across restarts)
+    unsigned int numberOfFixes;
+
     // Whether the user has given up at least once on this puzzle
     bool hasGivenUp;
+
+    // Whether the user has used Fix at least once on this puzzle
+    bool hasUsedFix;
 
     // State of the game: 0 - combination, 1 - game, 2 - solver
     unsigned int gameMode;
