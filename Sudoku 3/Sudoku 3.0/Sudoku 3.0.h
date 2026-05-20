@@ -150,6 +150,7 @@ namespace Sudoku_3_0
     private: System::Windows::Forms::Button^ giveUpButton;
     private: System::Windows::Forms::Button^ customPuzzleButton;
     private: System::Windows::Forms::Button^ solveButton;
+    private: System::Windows::Forms::Button^ pencilButton;
     private: System::Windows::Forms::Button^ buttonMinimize;
     private: System::Windows::Forms::Button^ buttonClose;
 
@@ -221,8 +222,14 @@ namespace Sudoku_3_0
            // Session-only win streak (resets to zero on give-up or start of new game)
     private: unsigned int winStreak;
 
-           // Undo stack: each entry is (cellIndex, previousText)
-    private: System::Collections::Generic::Stack<System::Tuple<unsigned int, System::String^>^>^ undoStack;
+           // Undo stack: each entry is (cellIndex, previousText, previousPencilMarks)
+    private: System::Collections::Generic::Stack<System::Tuple<unsigned int, System::String^, int>^>^ undoStack;
+
+           // Pencil mark bitmask per cell: bit N set means digit N is marked (bits 1-9)
+    private: array<int>^ pencilMarks;
+
+           // Whether pencil mode is active
+    private: bool pencilMode;
 
            // Dragging state
     private: bool dragging;
@@ -324,6 +331,7 @@ namespace Sudoku_3_0
                this->giveUpButton = (gcnew System::Windows::Forms::Button());
                this->customPuzzleButton = (gcnew System::Windows::Forms::Button());
                this->solveButton = (gcnew System::Windows::Forms::Button());
+               this->pencilButton = (gcnew System::Windows::Forms::Button());
                this->saveGameDialog = (gcnew System::Windows::Forms::SaveFileDialog());
                this->openGameDialog = (gcnew System::Windows::Forms::OpenFileDialog());
                this->menuStrip = (gcnew System::Windows::Forms::MenuStrip());
@@ -1823,7 +1831,7 @@ namespace Sudoku_3_0
                this->RestartButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
                this->RestartButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                    static_cast<System::Byte>(0)));
-               this->RestartButton->Location = System::Drawing::Point(699, 315);
+               this->RestartButton->Location = System::Drawing::Point(699, 306);
                this->RestartButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->RestartButton->Name = L"RestartButton";
                this->RestartButton->Size = System::Drawing::Size(240, 43);
@@ -1839,7 +1847,7 @@ namespace Sudoku_3_0
                this->hintButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
                this->hintButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                    static_cast<System::Byte>(0)));
-               this->hintButton->Location = System::Drawing::Point(699, 376);
+               this->hintButton->Location = System::Drawing::Point(699, 410);
                this->hintButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->hintButton->Name = L"hintButton";
                this->hintButton->Size = System::Drawing::Size(240, 43);
@@ -1855,7 +1863,7 @@ namespace Sudoku_3_0
                this->fixButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
                this->fixButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                    static_cast<System::Byte>(0)));
-               this->fixButton->Location = System::Drawing::Point(699, 437);
+               this->fixButton->Location = System::Drawing::Point(699, 462);
                this->fixButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->fixButton->Name = L"fixButton";
                this->fixButton->Size = System::Drawing::Size(240, 43);
@@ -1871,7 +1879,7 @@ namespace Sudoku_3_0
                this->giveUpButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
                this->giveUpButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                    static_cast<System::Byte>(0)));
-               this->giveUpButton->Location = System::Drawing::Point(699, 498);
+               this->giveUpButton->Location = System::Drawing::Point(699, 514);
                this->giveUpButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->giveUpButton->Name = L"giveUpButton";
                this->giveUpButton->Size = System::Drawing::Size(240, 43);
@@ -1887,7 +1895,7 @@ namespace Sudoku_3_0
                this->customPuzzleButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
                this->customPuzzleButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                    static_cast<System::Byte>(0)));
-               this->customPuzzleButton->Location = System::Drawing::Point(699, 559);
+               this->customPuzzleButton->Location = System::Drawing::Point(699, 566);
                this->customPuzzleButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->customPuzzleButton->Name = L"customPuzzleButton";
                this->customPuzzleButton->Size = System::Drawing::Size(240, 43);
@@ -1903,7 +1911,7 @@ namespace Sudoku_3_0
                this->solveButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
                this->solveButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                    static_cast<System::Byte>(0)));
-               this->solveButton->Location = System::Drawing::Point(699, 620);
+               this->solveButton->Location = System::Drawing::Point(699, 618);
                this->solveButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->solveButton->Name = L"solveButton";
                this->solveButton->Size = System::Drawing::Size(240, 43);
@@ -1911,6 +1919,22 @@ namespace Sudoku_3_0
                this->solveButton->Text = L"Solve";
                this->solveButton->UseVisualStyleBackColor = false;
                this->solveButton->Click += gcnew System::EventHandler(this, &SudokuForm::solveButton_Click);
+               // 
+               // pencilButton
+               // 
+               this->pencilButton->BackColor = System::Drawing::SystemColors::Menu;
+               this->pencilButton->FlatAppearance->BorderSize = 0;
+               this->pencilButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
+               this->pencilButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                   static_cast<System::Byte>(0)));
+               this->pencilButton->Location = System::Drawing::Point(699, 358);
+               this->pencilButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
+               this->pencilButton->Name = L"pencilButton";
+               this->pencilButton->Size = System::Drawing::Size(240, 43);
+               this->pencilButton->TabIndex = 95;
+               this->pencilButton->Text = L"Pencil";
+               this->pencilButton->UseVisualStyleBackColor = false;
+               this->pencilButton->Click += gcnew System::EventHandler(this, &SudokuForm::pencilButton_Click);
                // 
                // saveGameDialog
                // 
@@ -2177,6 +2201,7 @@ namespace Sudoku_3_0
                this->AutoValidate = System::Windows::Forms::AutoValidate::EnablePreventFocusChange;
                this->BackColor = System::Drawing::SystemColors::Menu;
                this->ClientSize = System::Drawing::Size(990, 708);
+               this->Controls->Add(this->pencilButton);
                this->Controls->Add(this->solveButton);
                this->Controls->Add(this->customPuzzleButton);
                this->Controls->Add(this->giveUpButton);
@@ -2302,6 +2327,7 @@ namespace Sudoku_3_0
         this->fixButton->Enabled = fix;
         this->giveUpButton->Enabled = giveUp;
         this->solveButton->Enabled = solve;
+        this->pencilButton->Enabled = hint || solve;
         this->hintToolStripMenuItem->Enabled = hint;
         this->fixToolStripMenuItem->Enabled = fix;
         this->giveUpToolStripMenuItem->Enabled = giveUp;
@@ -2351,10 +2377,18 @@ namespace Sudoku_3_0
         this->hasGivenUp = false;
         this->hasUsedFix = false;
         this->winStreak = 0;
-        this->undoStack = gcnew System::Collections::Generic::Stack<System::Tuple<unsigned int, System::String^>^>();
+        this->pencilMarks = gcnew array<int>(this->numberOfCells);
+        this->pencilMode = false;
+        this->undoStack = gcnew System::Collections::Generic::Stack<System::Tuple<unsigned int, System::String^, int>^>();
         this->gameMode = 3;
         this->currentDifficulty = 2;
         this->difficultyComboBox->SelectedIndex = currentDifficulty;
+
+        // Wire Paint events for pencil marks on each cell
+        for each (System::Windows::Forms::Button ^ cell in this->cells)
+        {
+            cell->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &SudokuForm::cell_Paint);
+        }
 
         // Start a new game
         this->newGame(SudokuGameEngine::DifficultyLevel::Medium);
@@ -2466,6 +2500,7 @@ namespace Sudoku_3_0
                 cell->ForeColor = defaultColor;
                 cell->BackColor = defaultBackColor;
                 cell->Enabled = enableCells;
+                this->pencilMarks[index] = 0;
                 ++index;
             }
         }
@@ -2565,6 +2600,8 @@ namespace Sudoku_3_0
         this->undoToolStripMenuItem->Enabled = false;
         this->RestartButton->Enabled = true;
         this->setGameControls(true, true, true, false);
+        for (unsigned int i = 0; i < this->numberOfCells; ++i) this->pencilMarks[i] = 0;
+        this->setPencilMode(false);
 
         // Move focus to the first editable cell
         for each (Button ^ cell in this->cells)
@@ -2618,6 +2655,7 @@ namespace Sudoku_3_0
                 this->disableHint();
                 this->difficultyComboBox->SelectedIndex = this->currentDifficulty;
                 this->setGameControls(false, false, false, false);
+                this->setPencilMode(false);
                 this->undoStack->Clear();
                 this->undoToolStripMenuItem->Enabled = false;
 
@@ -2727,6 +2765,7 @@ namespace Sudoku_3_0
             // Show the number choice form
             this->numbersForm->Left = left;
             this->numbersForm->Top = top;
+            this->numbersForm->setPencilMode(this->pencilMode && currentButton->Enabled && currentButton->Text->Length == 0);
             this->numbersForm->setCellNumber(number);
             this->numbersForm->Visible = true;
             this->numbersForm->Activate();
@@ -2744,9 +2783,22 @@ namespace Sudoku_3_0
     {
         this->closeHelperForms();
         System::Windows::Forms::Button^ cell = this->cells[cellNumber - 1];
+
+        // Pencil mode: toggle mark bit, don't touch the cell value
+        if (this->pencilMode && choice >= 1 && choice <= 9 && cell->Enabled && cell->Text->Length == 0)
+        {
+            this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
+                cellNumber - 1, cell->Text, this->pencilMarks[cellNumber - 1]));
+            this->undoToolStripMenuItem->Enabled = true;
+            this->pencilMarks[cellNumber - 1] ^= (1 << (int)choice);
+            cell->Invalidate();
+            return;
+        }
+
         if (changed)
         {
-            this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^>(cellNumber - 1, cell->Text));
+            this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
+                cellNumber - 1, cell->Text, this->pencilMarks[cellNumber - 1]));
             this->undoToolStripMenuItem->Enabled = true;
             if (cell->Text->Length == 0)
             {
@@ -2754,6 +2806,11 @@ namespace Sudoku_3_0
                 {
                     cell->Text = choice.ToString();
                     ++(this->numberOfFilledCells);
+                    // Clear this digit from all peers' pencil marks
+                    this->clearPeerPencilMark(cellNumber - 1, choice);
+                    // Clear own pencil marks now that a value is placed
+                    this->pencilMarks[cellNumber - 1] = 0;
+                    cell->Invalidate();
                     this->highlightCellConflict(cellNumber - 1);
                     this->revalidatePeers(cellNumber - 1);
                 }
@@ -2764,12 +2821,17 @@ namespace Sudoku_3_0
                 {
                     cell->Text = String::Empty;
                     --(this->numberOfFilledCells);
+                    this->pencilMarks[cellNumber - 1] = 0;
                     cell->BackColor = defaultBackColor;
+                    cell->Invalidate();
                     this->revalidatePeers(cellNumber - 1);
                 }
                 else
                 {
                     cell->Text = choice.ToString();
+                    this->clearPeerPencilMark(cellNumber - 1, choice);
+                    this->pencilMarks[cellNumber - 1] = 0;
+                    cell->Invalidate();
                     this->highlightCellConflict(cellNumber - 1);
                     this->revalidatePeers(cellNumber - 1);
                 }
@@ -2790,6 +2852,7 @@ namespace Sudoku_3_0
         auto entry = this->undoStack->Pop();
         unsigned int index = entry->Item1;
         System::String^ previousText = entry->Item2;
+        int previousMarks = entry->Item3;
         System::Windows::Forms::Button^ cell = this->cells[index];
 
         // Adjust filled cell count
@@ -2803,8 +2866,10 @@ namespace Sudoku_3_0
         }
 
         cell->Text = previousText;
+        this->pencilMarks[index] = previousMarks;
         cell->ForeColor = defaultColor;
         cell->BackColor = defaultBackColor;
+        cell->Invalidate();
         this->highlightCellConflict(index);
         this->revalidatePeers(index);
         cell->Focus();
@@ -2815,6 +2880,17 @@ namespace Sudoku_3_0
     private: void undoToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
         this->performUndo();
+    }
+
+    private: void setPencilMode(bool active)
+    {
+        this->pencilMode = active;
+        this->pencilButton->ForeColor = active ? hintButtonColor : defaultColor;
+    }
+
+    private: void pencilButton_Click(System::Object^ sender, System::EventArgs^ e)
+    {
+        this->setPencilMode(!this->pencilMode);
     }
 
            // Returns true if cellNumber has a conflict with any peer in its row, column, or block
@@ -2928,6 +3004,84 @@ namespace Sudoku_3_0
                 {
                     this->highlightCellConflict(peer);
                 }
+            }
+        }
+    }
+
+           // Clears the given digit from the pencil marks of all peers of cellNumber and repaints them
+    private: void clearPeerPencilMark(const unsigned int cellNumber, const unsigned int digit)
+    {
+        const int bit = 1 << (int)digit;
+        const unsigned int rowIndex = cellNumber / this->boardSize;
+        const unsigned int columnIndex = cellNumber % this->boardSize;
+
+        // Row and column peers
+        unsigned int row = rowIndex * this->boardSize;
+        unsigned int col = columnIndex;
+        while (row < this->numberOfCells && col < this->numberOfCells)
+        {
+            if (row != cellNumber && (this->pencilMarks[row] & bit))
+            {
+                this->pencilMarks[row] &= ~bit;
+                this->cells[row]->Invalidate();
+            }
+            if (col != cellNumber && col != row && (this->pencilMarks[col] & bit))
+            {
+                this->pencilMarks[col] &= ~bit;
+                this->cells[col]->Invalidate();
+            }
+            row += 1;
+            col += this->boardSize;
+        }
+
+        // Box peers
+        const unsigned int rBegin((rowIndex / this->sizeFactor) * this->sizeFactor);
+        const unsigned int cBegin((columnIndex / this->sizeFactor) * this->sizeFactor);
+        for (unsigned int i = rBegin; i < rBegin + this->sizeFactor; ++i)
+        {
+            for (unsigned int j = cBegin; j < cBegin + this->sizeFactor; ++j)
+            {
+                const unsigned int peer = i * this->boardSize + j;
+                if (peer != cellNumber && (this->pencilMarks[peer] & bit))
+                {
+                    this->pencilMarks[peer] &= ~bit;
+                    this->cells[peer]->Invalidate();
+                }
+            }
+        }
+    }
+
+           // Paints pencil marks into a cell using a 3x3 mini-grid layout
+    private: void cell_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e)
+    {
+        System::Windows::Forms::Button^ cell = safe_cast<System::Windows::Forms::Button^>(sender);
+        int idx = array<System::Windows::Forms::Button^>::IndexOf(this->cells, cell);
+        if (idx < 0 || this->pencilMarks[idx] == 0 || cell->Text->Length > 0)
+            return;
+
+        System::Drawing::Graphics^ g = e->Graphics;
+        float w = (float)cell->ClientSize.Width;
+        float h = (float)cell->ClientSize.Height;
+        float cw = w / 3.0f;
+        float ch = h / 3.0f;
+
+        System::Drawing::Font^ font = gcnew System::Drawing::Font("Calibri", Math::Max(6.0f, Math::Min(cw, ch) * 0.55f),
+            System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point);
+        System::Drawing::Brush^ brush = System::Drawing::Brushes::DimGray;
+
+        for (int d = 1; d <= 9; ++d)
+        {
+            if (this->pencilMarks[idx] & (1 << d))
+            {
+                int col3 = (d - 1) % 3;
+                int row3 = (d - 1) / 3;
+                float x = col3 * cw;
+                float y = row3 * ch;
+                System::Drawing::RectangleF rect(x, y, cw, ch);
+                System::Drawing::StringFormat^ sf = gcnew System::Drawing::StringFormat();
+                sf->Alignment = System::Drawing::StringAlignment::Center;
+                sf->LineAlignment = System::Drawing::StringAlignment::Center;
+                g->DrawString(d.ToString(), font, brush, rect, sf);
             }
         }
     }
@@ -3074,6 +3228,17 @@ namespace Sudoku_3_0
 
     private: void RestartButton_Click(System::Object^ sender, System::EventArgs^ e)
     {
+        System::Windows::Forms::DialogResult confirm = MessageBox::Show(
+            "Are you sure you want to restart?\nAll your progress on this puzzle will be lost.",
+            "Restart",
+            MessageBoxButtons::OKCancel,
+            MessageBoxIcon::None);
+
+        if (confirm != System::Windows::Forms::DialogResult::OK)
+        {
+            return;
+        }
+
         this->closeHelperForms();
         this->disableHint();
 
@@ -3095,6 +3260,8 @@ namespace Sudoku_3_0
                 cell->ForeColor = defaultColor;
                 cell->BackColor = defaultBackColor;
                 cell->Enabled = true;
+                this->pencilMarks[index] = 0;
+                cell->Invalidate();
             }
         }
 
@@ -3102,6 +3269,8 @@ namespace Sudoku_3_0
         this->hintButton->Enabled = true;
         this->fixButton->Enabled = true;
         this->giveUpButton->Enabled = true;
+        this->pencilButton->Enabled = true;
+        this->setPencilMode(false);
     }
 
     private: void hintButton_Click(System::Object^ sender, System::EventArgs^ e)
@@ -3951,6 +4120,11 @@ namespace Sudoku_3_0
             {
                 choice = 0;
             }
+            else if (e->KeyChar == 'p' || e->KeyChar == 'P')
+            {
+                this->setPencilMode(!this->pencilMode);
+                return;
+            }
             else
             {
                 return;
@@ -3994,6 +4168,7 @@ namespace Sudoku_3_0
         }
         save->value = gcnew String("");
         save->state = gcnew String("");
+        save->pencilMarks = gcnew String("");
 
         unsigned int index = 0;
         for (unsigned int i = 0; i < this->engine->sizeOfTheBoard(); ++i)
@@ -4047,6 +4222,13 @@ namespace Sudoku_3_0
 
                 ++index;
             }
+        }
+
+        // Serialize pencil marks as 81 space-separated integers
+        for (unsigned int i = 0; i < this->numberOfCells; ++i)
+        {
+            if (i > 0) save->pencilMarks += " ";
+            save->pencilMarks += this->pencilMarks[i].ToString();
         }
 
         FileStream^ fileStream = nullptr;
@@ -4263,6 +4445,22 @@ namespace Sudoku_3_0
 
                     ++index;
                 }
+            }
+
+            // Restore pencil marks if present (new saves only)
+            this->setPencilMode(false);
+            if (save->pencilMarks != nullptr && save->pencilMarks->Length > 0)
+            {
+                array<System::String^>^ parts = save->pencilMarks->Split(' ');
+                for (unsigned int i = 0; i < this->numberOfCells && i < (unsigned int)parts->Length; ++i)
+                {
+                    int mark = 0;
+                    if (int::TryParse(parts[i], mark))
+                        this->pencilMarks[i] = mark;
+                }
+                // Repaint all cells to show loaded marks
+                for each (Button ^ cell in this->cells)
+                    cell->Invalidate();
             }
 
             // The engine needs to solve the puzzle for 2 reasons

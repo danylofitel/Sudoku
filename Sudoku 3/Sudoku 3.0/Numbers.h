@@ -22,7 +22,7 @@ namespace Sudoku_3_0 {
     public ref class Numbers : public System::Windows::Forms::Form
     {
     public:
-        Numbers(void) : currentCellNumber(0), choiceMade(false), choice(0), lastGridCol(0)
+        Numbers(void) : currentCellNumber(0), choiceMade(false), choice(0), lastGridCol(0), isPencilMode(false)
         {
             InitializeComponent();
         }
@@ -61,6 +61,9 @@ namespace Sudoku_3_0 {
 
            // Last column active in the 3x3 grid, used to restore position when leaving the bottom row
     private: int lastGridCol;
+
+           // Whether the form is in pencil mode (hides Clear, Cancel-only bottom row)
+    private: bool isPencilMode;
 
            // Action delegate from the father form
     private: choiceAction^ choiceDelegate;
@@ -436,6 +439,26 @@ namespace Sudoku_3_0 {
         this->choiceDelegate = choiceActionDelegate;
     }
 
+          // Switch between normal mode (Clear + Cancel) and pencil mode (Cancel only)
+    public: void setPencilMode(bool pencil)
+    {
+        this->isPencilMode = pencil;
+        if (pencil)
+        {
+            this->buttonClear->Visible = false;
+            this->buttonCancel->Location = System::Drawing::Point(0, 150);
+            this->buttonCancel->Size = System::Drawing::Size(150, 50);
+        }
+        else
+        {
+            this->buttonClear->Visible = true;
+            this->buttonClear->Location = System::Drawing::Point(0, 150);
+            this->buttonClear->Size = System::Drawing::Size(67, 50);
+            this->buttonCancel->Location = System::Drawing::Point(67, 150);
+            this->buttonCancel->Size = System::Drawing::Size(83, 50);
+        }
+    }
+
           // Set the number of current cell
     public: void setCellNumber(const unsigned int cellNumber)
     {
@@ -519,7 +542,6 @@ namespace Sudoku_3_0 {
     {
         this->choiceMade = false;
         this->Visible = false;
-        this->choiceDelegate(this->currentCellNumber, this->choiceMade, this->choice);
     }
 
     private: System::Void Numbers_KeyPress(System::Object^ sender, System::Windows::Forms::KeyPressEventArgs^ e)

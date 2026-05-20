@@ -38,4 +38,7 @@ public:
     // 3 - filled by user and confirmed, 4 - hint, 5 - filled when the user gave up,
     // 6 - filled by the solver
     System::String^ state;
+
+    // Pencil mark bitmasks for all cells, space-separated (may be null for old saves)
+    System::String^ pencilMarks;
 };
