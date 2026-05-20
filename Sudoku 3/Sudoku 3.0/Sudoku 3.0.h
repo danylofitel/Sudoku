@@ -2907,6 +2907,7 @@ namespace Sudoku_3_0
         }
 
         cell->Text = previousText;
+        cell->Enabled = true;
         this->pencilMarks[index] = previousMarks;
         cell->ForeColor = defaultColor;
         cell->BackColor = defaultBackColor;
