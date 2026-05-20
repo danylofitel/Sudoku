@@ -2289,6 +2289,18 @@ namespace Sudoku_3_0
 			MessageBox::Show(message, "Sudoku", MessageBoxButtons::OK, MessageBoxIcon::None);
 		}
 
+		private: void setGameControls(bool hint, bool fix, bool giveUp, bool solve)
+		{
+			this->hintButton->Enabled = hint;
+			this->fixButton->Enabled = fix;
+			this->giveUpButton->Enabled = giveUp;
+			this->solveButton->Enabled = solve;
+			this->hintToolStripMenuItem->Enabled = hint;
+			this->fixToolStripMenuItem->Enabled = fix;
+			this->giveUpToolStripMenuItem->Enabled = giveUp;
+			this->solveToolStripMenuItem->Enabled = solve;
+		}
+
 		private: System::String^ difficultyName(unsigned int d)
 		{
 			switch (d)
@@ -2540,10 +2552,7 @@ namespace Sudoku_3_0
 			this->undoStack->Clear();
 			this->undoToolStripMenuItem->Enabled = false;
 			this->RestartButton->Enabled = true;
-			this->hintButton->Enabled = true;
-			this->fixButton->Enabled = true;
-			this->giveUpButton->Enabled = true;
-			this->solveButton->Enabled = false;
+			this->setGameControls(true, true, true, false);
 
 			// Move focus to the first editable cell
 			for each (Button^ cell in this->cells)
@@ -2596,9 +2605,7 @@ namespace Sudoku_3_0
 
 					this->disableHint();
 					this->difficultyComboBox->SelectedIndex = this->currentDifficulty;
-					this->hintButton->Enabled = false;
-					this->fixButton->Enabled = false;
-					this->giveUpButton->Enabled = false;
+					this->setGameControls(false, false, false, false);
 					this->undoStack->Clear();
 					this->undoToolStripMenuItem->Enabled = false;
 
@@ -3119,9 +3126,7 @@ namespace Sudoku_3_0
 			}
 
 			this->difficultyComboBox->SelectedIndex = this->currentDifficulty;
-			this->hintButton->Enabled = false;
-			this->fixButton->Enabled = false;
-			this->giveUpButton->Enabled = false;
+			this->setGameControls(false, false, false, false);
 			this->undoStack->Clear();
 			this->undoToolStripMenuItem->Enabled = false;
 		}
@@ -3137,12 +3142,9 @@ namespace Sudoku_3_0
 
 			this->gameMode = 2;
 			this->RestartButton->Enabled = false;
-			this->hintButton->Enabled = false;
-			this->fixButton->Enabled = false;
-			this->giveUpButton->Enabled = false;
 			this->undoStack->Clear();
 			this->undoToolStripMenuItem->Enabled = false;
-			this->solveButton->Enabled = true;
+			this->setGameControls(false, false, false, true);
 		}
 
 		private: void solveButton_Click(System::Object^  sender, System::EventArgs^  e)
@@ -3174,6 +3176,7 @@ namespace Sudoku_3_0
 				}
 
 				this->solveButton->Enabled = false;
+				this->solveToolStripMenuItem->Enabled = false;
 			}
 			else if (engine->currentState() == SudokuGameEngine::SudokuEngineState::HasMultipleSolutions)
 			{
@@ -4024,10 +4027,11 @@ namespace Sudoku_3_0
 				this->hasGivenUp = save->hasGivenUp;
 				this->gameMode = save->gameMode;
 				this->RestartButton->Enabled = save->gameMode == 1;
-				this->hintButton->Enabled = save->gameMode == 1 && !save->gameFinished;
-				this->fixButton->Enabled = save->gameMode == 1 && !save->gameFinished;
-				this->giveUpButton->Enabled = save->gameMode == 1 && !save->gameFinished;
-				this->solveButton->Enabled = save->gameMode == 2 && !save->gameFinished;
+				this->setGameControls(
+					save->gameMode == 1 && !save->gameFinished,
+					save->gameMode == 1 && !save->gameFinished,
+					save->gameMode == 1 && !save->gameFinished,
+					save->gameMode == 2 && !save->gameFinished);
 
 				// Fill each cell
 				unsigned int index = 0;
