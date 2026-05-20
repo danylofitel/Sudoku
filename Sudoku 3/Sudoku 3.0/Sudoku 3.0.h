@@ -168,6 +168,7 @@ namespace Sudoku_3_0
 	private: System::Windows::Forms::ToolStripMenuItem^  gameToolStripMenuItem;
 
 	private: System::Windows::Forms::ToolStripMenuItem^  newGameToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  undoToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  RestartToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  hintToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  fixToolStripMenuItem;
@@ -218,6 +219,9 @@ namespace Sudoku_3_0
 
 	// Session-only win streak (resets to zero on give-up or start of new game)
 	private: unsigned int winStreak;
+
+	// Undo stack: each entry is (cellIndex, previousText)
+	private: System::Collections::Generic::Stack<System::Tuple<unsigned int, System::String^>^>^ undoStack;
 
 	// Dragging state
 	private: bool dragging;
@@ -332,6 +336,7 @@ namespace Sudoku_3_0
 			this->exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->gameToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->newGameToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->undoToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->RestartToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->hintToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->fixToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -1987,9 +1992,9 @@ namespace Sudoku_3_0
 			// 
 			// gameToolStripMenuItem
 			// 
-			this->gameToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(7) {
+			this->gameToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(8) {
 				this->newGameToolStripMenuItem,
-					this->RestartToolStripMenuItem, this->hintToolStripMenuItem, this->fixToolStripMenuItem, this->giveUpToolStripMenuItem, this->customPuzzleToolStripMenuItem,
+					this->RestartToolStripMenuItem, this->undoToolStripMenuItem, this->hintToolStripMenuItem, this->fixToolStripMenuItem, this->giveUpToolStripMenuItem, this->customPuzzleToolStripMenuItem,
 					this->solveToolStripMenuItem
 			});
 			this->gameToolStripMenuItem->Name = L"gameToolStripMenuItem";
@@ -2011,6 +2016,14 @@ namespace Sudoku_3_0
 			this->RestartToolStripMenuItem->Size = System::Drawing::Size(291, 34);
 			this->RestartToolStripMenuItem->Text = L"Restart";
 			this->RestartToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::RestartToolStripMenuItem_Click);
+			// 
+			// undoToolStripMenuItem
+			// 
+			this->undoToolStripMenuItem->Name = L"undoToolStripMenuItem";
+			this->undoToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Z));
+			this->undoToolStripMenuItem->Size = System::Drawing::Size(291, 34);
+			this->undoToolStripMenuItem->Text = L"Undo";
+			this->undoToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::undoToolStripMenuItem_Click);
 			// 
 			// hintToolStripMenuItem
 			// 
@@ -2326,6 +2339,7 @@ namespace Sudoku_3_0
 			this->numberOfHints = 0;
 			this->hasGivenUp = false;
 			this->winStreak = 0;
+			this->undoStack = gcnew System::Collections::Generic::Stack<System::Tuple<unsigned int, System::String^>^>();
 			this->gameMode = 3;
 			this->currentDifficulty = 2;
 			this->difficultyComboBox->SelectedIndex = currentDifficulty;
@@ -2532,6 +2546,8 @@ namespace Sudoku_3_0
 			this->gameMode = 1;
 			this->numberOfHints = 0;
 			this->hasGivenUp = false;
+			this->undoStack->Clear();
+			this->undoToolStripMenuItem->Enabled = false;
 			this->RestartButton->Enabled = true;
 			this->hintButton->Enabled = true;
 			this->fixButton->Enabled = true;
@@ -2592,15 +2608,17 @@ namespace Sudoku_3_0
 					this->hintButton->Enabled = false;
 					this->fixButton->Enabled = false;
 					this->giveUpButton->Enabled = false;
+					this->undoStack->Clear();
+					this->undoToolStripMenuItem->Enabled = false;
 
-					if (!this->hasGivenUp)
-					{
-						++this->winStreak;
-					}
-					else
-					{
-						this->winStreak = 0;
-					}
+						if (!this->hasGivenUp)
+						{
+							++this->winStreak;
+						}
+						else
+						{
+							this->winStreak = 0;
+						}
 
 					System::String^ msg = "";
 
@@ -2712,6 +2730,8 @@ namespace Sudoku_3_0
 			System::Windows::Forms::Button^ cell = this->cells[cellNumber - 1];
 			if (changed)
 			{
+				this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^>(cellNumber - 1, cell->Text));
+				this->undoToolStripMenuItem->Enabled = true;
 				if (cell->Text->Length == 0)
 				{
 					if (choice != 0)
@@ -2743,9 +2763,39 @@ namespace Sudoku_3_0
 			}
 		}
 
+		private: void performUndo()
+		{
+			if (this->undoStack->Count == 0) return;
+
+			auto entry = this->undoStack->Pop();
+			unsigned int index = entry->Item1;
+			System::String^ previousText = entry->Item2;
+			System::Windows::Forms::Button^ cell = this->cells[index];
+
+			// Adjust filled cell count
+			if (cell->Text->Length > 0 && previousText->Length == 0)
+			{
+				--(this->numberOfFilledCells);
+			}
+			else if (cell->Text->Length == 0 && previousText->Length > 0)
+			{
+				++(this->numberOfFilledCells);
+			}
+
+			cell->Text = previousText;
+			cell->ForeColor = defaultColor;
+			cell->Focus();
+
+			this->undoToolStripMenuItem->Enabled = this->undoStack->Count > 0;
+		}
+
+		private: void undoToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
+		{
+			this->performUndo();
+		}
+
 		private: void highlightCellConflict(const unsigned int cellNumber)
 		{
-			if (this->cells[cellNumber]->Text->Length > 0)
 			{
 				// Coordinates of the cell
 				const unsigned int rowIndex = cellNumber / this->boardSize;
@@ -2971,6 +3021,8 @@ namespace Sudoku_3_0
 			this->closeHelperForms();
 			this->disableHint();
 
+			this->undoStack->Clear();
+			this->undoToolStripMenuItem->Enabled = false;
 			this->numberOfFilledCells = 0;
 
 			// Fill the board
@@ -3079,6 +3131,8 @@ namespace Sudoku_3_0
 			this->hintButton->Enabled = false;
 			this->fixButton->Enabled = false;
 			this->giveUpButton->Enabled = false;
+			this->undoStack->Clear();
+			this->undoToolStripMenuItem->Enabled = false;
 		}
 
 		private: void customPuzzleButton_Click(System::Object^  sender, System::EventArgs^  e)
@@ -3095,6 +3149,8 @@ namespace Sudoku_3_0
 			this->hintButton->Enabled = false;
 			this->fixButton->Enabled = false;
 			this->giveUpButton->Enabled = false;
+			this->undoStack->Clear();
+			this->undoToolStripMenuItem->Enabled = false;
 			this->solveButton->Enabled = true;
 		}
 
