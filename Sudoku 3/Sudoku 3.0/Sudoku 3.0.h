@@ -157,7 +157,6 @@ namespace Sudoku_3_0
 	private: System::Windows::Forms::Button^  solveButton;
 	private: System::Windows::Forms::Button^  buttonMinimize;
 	private: System::Windows::Forms::Button^  buttonClose;
-	private: System::Windows::Forms::Button^  newCombinationButton;
 
 	// Menu elements
 	private: System::Windows::Forms::MenuStrip^  menuStrip;
@@ -167,7 +166,7 @@ namespace Sudoku_3_0
 	private: System::Windows::Forms::ToolStripMenuItem^  minimizeToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  exitToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  gameToolStripMenuItem;
-	private: System::Windows::Forms::ToolStripMenuItem^  newCombinationToolStripMenuItem;
+
 	private: System::Windows::Forms::ToolStripMenuItem^  newGameToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  RestartToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  hintToolStripMenuItem;
@@ -196,9 +195,6 @@ namespace Sudoku_3_0
 	// Numbers form
 	private: Sudoku_3_0::Numbers^ numbersForm;
 
-
-
-
 	// Numbers form active
 	private: bool numbersFormActive;
 
@@ -220,7 +216,6 @@ namespace Sudoku_3_0
 	// Dragging state
 	private: bool dragging;
 	private: Point offset;
-
 
 	// Components
 	private: System::ComponentModel::Container ^components;
@@ -314,7 +309,6 @@ namespace Sudoku_3_0
 			this->buttonClose = (gcnew System::Windows::Forms::Button());
 			this->difficultyLabel = (gcnew System::Windows::Forms::Label());
 			this->difficultyComboBox = (gcnew System::Windows::Forms::ComboBox());
-			this->newCombinationButton = (gcnew System::Windows::Forms::Button());
 			this->newGameButton = (gcnew System::Windows::Forms::Button());
 			this->RestartButton = (gcnew System::Windows::Forms::Button());
 			this->hintButton = (gcnew System::Windows::Forms::Button());
@@ -336,7 +330,6 @@ namespace Sudoku_3_0
 			this->hintToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->fixToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->giveUpToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->newCombinationToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->customPuzzleToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->solveToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->optionsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -361,15 +354,16 @@ namespace Sudoku_3_0
 			this->button1->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button1->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button1->Location = System::Drawing::Point(35, 35);
+			this->button1->Location = System::Drawing::Point(52, 54);
+			this->button1->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button1->Name = L"button1";
-			this->button1->Size = System::Drawing::Size(40, 40);
+			this->button1->Size = System::Drawing::Size(60, 62);
 			this->button1->TabIndex = 3;
 			this->button1->UseVisualStyleBackColor = false;
 			this->button1->Click += gcnew System::EventHandler(this, &SudokuForm::button1_Click);
+			this->button1->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button1->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button1->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button2
 			// 
@@ -377,15 +371,16 @@ namespace Sudoku_3_0
 			this->button2->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button2->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button2->Location = System::Drawing::Point(78, 35);
+			this->button2->Location = System::Drawing::Point(117, 54);
+			this->button2->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button2->Name = L"button2";
-			this->button2->Size = System::Drawing::Size(40, 40);
+			this->button2->Size = System::Drawing::Size(60, 62);
 			this->button2->TabIndex = 4;
 			this->button2->UseVisualStyleBackColor = false;
 			this->button2->Click += gcnew System::EventHandler(this, &SudokuForm::button2_Click);
+			this->button2->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button2->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button2->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button2->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button3
 			// 
@@ -393,15 +388,16 @@ namespace Sudoku_3_0
 			this->button3->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button3->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button3->Location = System::Drawing::Point(121, 35);
+			this->button3->Location = System::Drawing::Point(182, 54);
+			this->button3->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button3->Name = L"button3";
-			this->button3->Size = System::Drawing::Size(40, 40);
+			this->button3->Size = System::Drawing::Size(60, 62);
 			this->button3->TabIndex = 5;
 			this->button3->UseVisualStyleBackColor = false;
 			this->button3->Click += gcnew System::EventHandler(this, &SudokuForm::button3_Click);
+			this->button3->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button3->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button3->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button3->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button4
 			// 
@@ -409,15 +405,16 @@ namespace Sudoku_3_0
 			this->button4->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button4->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button4->Location = System::Drawing::Point(170, 35);
+			this->button4->Location = System::Drawing::Point(255, 54);
+			this->button4->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button4->Name = L"button4";
-			this->button4->Size = System::Drawing::Size(40, 40);
+			this->button4->Size = System::Drawing::Size(60, 62);
 			this->button4->TabIndex = 6;
 			this->button4->UseVisualStyleBackColor = false;
 			this->button4->Click += gcnew System::EventHandler(this, &SudokuForm::button4_Click);
+			this->button4->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button4->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button4->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button4->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button5
 			// 
@@ -425,15 +422,16 @@ namespace Sudoku_3_0
 			this->button5->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button5->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button5->Location = System::Drawing::Point(213, 35);
+			this->button5->Location = System::Drawing::Point(320, 54);
+			this->button5->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button5->Name = L"button5";
-			this->button5->Size = System::Drawing::Size(40, 40);
+			this->button5->Size = System::Drawing::Size(60, 62);
 			this->button5->TabIndex = 7;
 			this->button5->UseVisualStyleBackColor = false;
 			this->button5->Click += gcnew System::EventHandler(this, &SudokuForm::button5_Click);
+			this->button5->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button5->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button5->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button5->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button6
 			// 
@@ -441,15 +439,16 @@ namespace Sudoku_3_0
 			this->button6->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button6->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button6->Location = System::Drawing::Point(256, 35);
+			this->button6->Location = System::Drawing::Point(384, 54);
+			this->button6->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button6->Name = L"button6";
-			this->button6->Size = System::Drawing::Size(40, 40);
+			this->button6->Size = System::Drawing::Size(60, 62);
 			this->button6->TabIndex = 8;
 			this->button6->UseVisualStyleBackColor = false;
 			this->button6->Click += gcnew System::EventHandler(this, &SudokuForm::button6_Click);
+			this->button6->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button6->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button6->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button6->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button7
 			// 
@@ -457,15 +456,16 @@ namespace Sudoku_3_0
 			this->button7->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button7->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button7->Location = System::Drawing::Point(305, 35);
+			this->button7->Location = System::Drawing::Point(458, 54);
+			this->button7->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button7->Name = L"button7";
-			this->button7->Size = System::Drawing::Size(40, 40);
+			this->button7->Size = System::Drawing::Size(60, 62);
 			this->button7->TabIndex = 9;
 			this->button7->UseVisualStyleBackColor = false;
 			this->button7->Click += gcnew System::EventHandler(this, &SudokuForm::button7_Click);
+			this->button7->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button7->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button7->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button7->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button8
 			// 
@@ -473,15 +473,16 @@ namespace Sudoku_3_0
 			this->button8->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button8->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button8->Location = System::Drawing::Point(348, 35);
+			this->button8->Location = System::Drawing::Point(522, 54);
+			this->button8->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button8->Name = L"button8";
-			this->button8->Size = System::Drawing::Size(40, 40);
+			this->button8->Size = System::Drawing::Size(60, 62);
 			this->button8->TabIndex = 10;
 			this->button8->UseVisualStyleBackColor = false;
 			this->button8->Click += gcnew System::EventHandler(this, &SudokuForm::button8_Click);
+			this->button8->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button8->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button8->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button8->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button9
 			// 
@@ -489,15 +490,16 @@ namespace Sudoku_3_0
 			this->button9->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button9->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button9->Location = System::Drawing::Point(391, 35);
+			this->button9->Location = System::Drawing::Point(586, 54);
+			this->button9->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button9->Name = L"button9";
-			this->button9->Size = System::Drawing::Size(40, 40);
+			this->button9->Size = System::Drawing::Size(60, 62);
 			this->button9->TabIndex = 11;
 			this->button9->UseVisualStyleBackColor = false;
 			this->button9->Click += gcnew System::EventHandler(this, &SudokuForm::button9_Click);
+			this->button9->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button9->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button9->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button9->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button10
 			// 
@@ -505,15 +507,16 @@ namespace Sudoku_3_0
 			this->button10->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button10->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button10->Location = System::Drawing::Point(35, 78);
+			this->button10->Location = System::Drawing::Point(52, 120);
+			this->button10->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button10->Name = L"button10";
-			this->button10->Size = System::Drawing::Size(40, 40);
+			this->button10->Size = System::Drawing::Size(60, 62);
 			this->button10->TabIndex = 12;
 			this->button10->UseVisualStyleBackColor = false;
 			this->button10->Click += gcnew System::EventHandler(this, &SudokuForm::button10_Click);
+			this->button10->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button10->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button10->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button10->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button11
 			// 
@@ -521,15 +524,16 @@ namespace Sudoku_3_0
 			this->button11->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button11->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button11->Location = System::Drawing::Point(78, 78);
+			this->button11->Location = System::Drawing::Point(117, 120);
+			this->button11->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button11->Name = L"button11";
-			this->button11->Size = System::Drawing::Size(40, 40);
+			this->button11->Size = System::Drawing::Size(60, 62);
 			this->button11->TabIndex = 13;
 			this->button11->UseVisualStyleBackColor = false;
 			this->button11->Click += gcnew System::EventHandler(this, &SudokuForm::button11_Click);
+			this->button11->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button11->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button11->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button11->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button12
 			// 
@@ -537,15 +541,16 @@ namespace Sudoku_3_0
 			this->button12->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button12->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button12->Location = System::Drawing::Point(121, 78);
+			this->button12->Location = System::Drawing::Point(182, 120);
+			this->button12->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button12->Name = L"button12";
-			this->button12->Size = System::Drawing::Size(40, 40);
+			this->button12->Size = System::Drawing::Size(60, 62);
 			this->button12->TabIndex = 14;
 			this->button12->UseVisualStyleBackColor = false;
 			this->button12->Click += gcnew System::EventHandler(this, &SudokuForm::button12_Click);
+			this->button12->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button12->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button12->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button12->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button13
 			// 
@@ -553,15 +558,16 @@ namespace Sudoku_3_0
 			this->button13->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button13->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button13->Location = System::Drawing::Point(170, 78);
+			this->button13->Location = System::Drawing::Point(255, 120);
+			this->button13->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button13->Name = L"button13";
-			this->button13->Size = System::Drawing::Size(40, 40);
+			this->button13->Size = System::Drawing::Size(60, 62);
 			this->button13->TabIndex = 15;
 			this->button13->UseVisualStyleBackColor = false;
 			this->button13->Click += gcnew System::EventHandler(this, &SudokuForm::button13_Click);
+			this->button13->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button13->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button13->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button13->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button14
 			// 
@@ -569,15 +575,16 @@ namespace Sudoku_3_0
 			this->button14->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button14->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button14->Location = System::Drawing::Point(213, 78);
+			this->button14->Location = System::Drawing::Point(320, 120);
+			this->button14->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button14->Name = L"button14";
-			this->button14->Size = System::Drawing::Size(40, 40);
+			this->button14->Size = System::Drawing::Size(60, 62);
 			this->button14->TabIndex = 16;
 			this->button14->UseVisualStyleBackColor = false;
 			this->button14->Click += gcnew System::EventHandler(this, &SudokuForm::button14_Click);
+			this->button14->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button14->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button14->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button14->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button15
 			// 
@@ -585,15 +592,16 @@ namespace Sudoku_3_0
 			this->button15->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button15->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button15->Location = System::Drawing::Point(256, 78);
+			this->button15->Location = System::Drawing::Point(384, 120);
+			this->button15->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button15->Name = L"button15";
-			this->button15->Size = System::Drawing::Size(40, 40);
+			this->button15->Size = System::Drawing::Size(60, 62);
 			this->button15->TabIndex = 17;
 			this->button15->UseVisualStyleBackColor = false;
 			this->button15->Click += gcnew System::EventHandler(this, &SudokuForm::button15_Click);
+			this->button15->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button15->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button15->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button15->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button16
 			// 
@@ -601,15 +609,16 @@ namespace Sudoku_3_0
 			this->button16->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button16->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button16->Location = System::Drawing::Point(305, 78);
+			this->button16->Location = System::Drawing::Point(458, 120);
+			this->button16->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button16->Name = L"button16";
-			this->button16->Size = System::Drawing::Size(40, 40);
+			this->button16->Size = System::Drawing::Size(60, 62);
 			this->button16->TabIndex = 18;
 			this->button16->UseVisualStyleBackColor = false;
 			this->button16->Click += gcnew System::EventHandler(this, &SudokuForm::button16_Click);
+			this->button16->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button16->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button16->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button16->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button17
 			// 
@@ -617,15 +626,16 @@ namespace Sudoku_3_0
 			this->button17->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button17->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button17->Location = System::Drawing::Point(348, 78);
+			this->button17->Location = System::Drawing::Point(522, 120);
+			this->button17->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button17->Name = L"button17";
-			this->button17->Size = System::Drawing::Size(40, 40);
+			this->button17->Size = System::Drawing::Size(60, 62);
 			this->button17->TabIndex = 19;
 			this->button17->UseVisualStyleBackColor = false;
 			this->button17->Click += gcnew System::EventHandler(this, &SudokuForm::button17_Click);
+			this->button17->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button17->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button17->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button17->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button18
 			// 
@@ -633,15 +643,16 @@ namespace Sudoku_3_0
 			this->button18->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button18->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button18->Location = System::Drawing::Point(391, 78);
+			this->button18->Location = System::Drawing::Point(586, 120);
+			this->button18->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button18->Name = L"button18";
-			this->button18->Size = System::Drawing::Size(40, 40);
+			this->button18->Size = System::Drawing::Size(60, 62);
 			this->button18->TabIndex = 20;
 			this->button18->UseVisualStyleBackColor = false;
 			this->button18->Click += gcnew System::EventHandler(this, &SudokuForm::button18_Click);
+			this->button18->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button18->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button18->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button18->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button19
 			// 
@@ -649,15 +660,16 @@ namespace Sudoku_3_0
 			this->button19->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button19->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button19->Location = System::Drawing::Point(35, 121);
+			this->button19->Location = System::Drawing::Point(52, 186);
+			this->button19->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button19->Name = L"button19";
-			this->button19->Size = System::Drawing::Size(40, 40);
+			this->button19->Size = System::Drawing::Size(60, 62);
 			this->button19->TabIndex = 21;
 			this->button19->UseVisualStyleBackColor = false;
 			this->button19->Click += gcnew System::EventHandler(this, &SudokuForm::button19_Click);
+			this->button19->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button19->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button19->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button19->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button20
 			// 
@@ -665,15 +677,16 @@ namespace Sudoku_3_0
 			this->button20->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button20->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button20->Location = System::Drawing::Point(78, 121);
+			this->button20->Location = System::Drawing::Point(117, 186);
+			this->button20->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button20->Name = L"button20";
-			this->button20->Size = System::Drawing::Size(40, 40);
+			this->button20->Size = System::Drawing::Size(60, 62);
 			this->button20->TabIndex = 22;
 			this->button20->UseVisualStyleBackColor = false;
 			this->button20->Click += gcnew System::EventHandler(this, &SudokuForm::button20_Click);
+			this->button20->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button20->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button20->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button20->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button21
 			// 
@@ -681,15 +694,16 @@ namespace Sudoku_3_0
 			this->button21->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button21->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button21->Location = System::Drawing::Point(121, 121);
+			this->button21->Location = System::Drawing::Point(182, 186);
+			this->button21->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button21->Name = L"button21";
-			this->button21->Size = System::Drawing::Size(40, 40);
+			this->button21->Size = System::Drawing::Size(60, 62);
 			this->button21->TabIndex = 23;
 			this->button21->UseVisualStyleBackColor = false;
 			this->button21->Click += gcnew System::EventHandler(this, &SudokuForm::button21_Click);
+			this->button21->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button21->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button21->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button21->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button22
 			// 
@@ -697,15 +711,16 @@ namespace Sudoku_3_0
 			this->button22->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button22->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button22->Location = System::Drawing::Point(170, 121);
+			this->button22->Location = System::Drawing::Point(255, 186);
+			this->button22->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button22->Name = L"button22";
-			this->button22->Size = System::Drawing::Size(40, 40);
+			this->button22->Size = System::Drawing::Size(60, 62);
 			this->button22->TabIndex = 24;
 			this->button22->UseVisualStyleBackColor = false;
 			this->button22->Click += gcnew System::EventHandler(this, &SudokuForm::button22_Click);
+			this->button22->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button22->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button22->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button22->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button23
 			// 
@@ -713,15 +728,16 @@ namespace Sudoku_3_0
 			this->button23->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button23->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button23->Location = System::Drawing::Point(213, 121);
+			this->button23->Location = System::Drawing::Point(320, 186);
+			this->button23->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button23->Name = L"button23";
-			this->button23->Size = System::Drawing::Size(40, 40);
+			this->button23->Size = System::Drawing::Size(60, 62);
 			this->button23->TabIndex = 25;
 			this->button23->UseVisualStyleBackColor = false;
 			this->button23->Click += gcnew System::EventHandler(this, &SudokuForm::button23_Click);
+			this->button23->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button23->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button23->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button23->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button24
 			// 
@@ -729,15 +745,16 @@ namespace Sudoku_3_0
 			this->button24->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button24->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button24->Location = System::Drawing::Point(256, 121);
+			this->button24->Location = System::Drawing::Point(384, 186);
+			this->button24->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button24->Name = L"button24";
-			this->button24->Size = System::Drawing::Size(40, 40);
+			this->button24->Size = System::Drawing::Size(60, 62);
 			this->button24->TabIndex = 26;
 			this->button24->UseVisualStyleBackColor = false;
 			this->button24->Click += gcnew System::EventHandler(this, &SudokuForm::button24_Click);
+			this->button24->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button24->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button24->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button24->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button25
 			// 
@@ -745,15 +762,16 @@ namespace Sudoku_3_0
 			this->button25->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button25->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button25->Location = System::Drawing::Point(305, 121);
+			this->button25->Location = System::Drawing::Point(458, 186);
+			this->button25->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button25->Name = L"button25";
-			this->button25->Size = System::Drawing::Size(40, 40);
+			this->button25->Size = System::Drawing::Size(60, 62);
 			this->button25->TabIndex = 27;
 			this->button25->UseVisualStyleBackColor = false;
 			this->button25->Click += gcnew System::EventHandler(this, &SudokuForm::button25_Click);
+			this->button25->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button25->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button25->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button25->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button26
 			// 
@@ -761,15 +779,16 @@ namespace Sudoku_3_0
 			this->button26->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button26->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button26->Location = System::Drawing::Point(348, 121);
+			this->button26->Location = System::Drawing::Point(522, 186);
+			this->button26->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button26->Name = L"button26";
-			this->button26->Size = System::Drawing::Size(40, 40);
+			this->button26->Size = System::Drawing::Size(60, 62);
 			this->button26->TabIndex = 28;
 			this->button26->UseVisualStyleBackColor = false;
 			this->button26->Click += gcnew System::EventHandler(this, &SudokuForm::button26_Click);
+			this->button26->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button26->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button26->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button26->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button27
 			// 
@@ -777,15 +796,16 @@ namespace Sudoku_3_0
 			this->button27->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button27->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button27->Location = System::Drawing::Point(391, 121);
+			this->button27->Location = System::Drawing::Point(586, 186);
+			this->button27->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button27->Name = L"button27";
-			this->button27->Size = System::Drawing::Size(40, 40);
+			this->button27->Size = System::Drawing::Size(60, 62);
 			this->button27->TabIndex = 29;
 			this->button27->UseVisualStyleBackColor = false;
 			this->button27->Click += gcnew System::EventHandler(this, &SudokuForm::button27_Click);
+			this->button27->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button27->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button27->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button27->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button28
 			// 
@@ -793,15 +813,16 @@ namespace Sudoku_3_0
 			this->button28->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button28->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button28->Location = System::Drawing::Point(35, 170);
+			this->button28->Location = System::Drawing::Point(52, 262);
+			this->button28->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button28->Name = L"button28";
-			this->button28->Size = System::Drawing::Size(40, 40);
+			this->button28->Size = System::Drawing::Size(60, 62);
 			this->button28->TabIndex = 30;
 			this->button28->UseVisualStyleBackColor = false;
 			this->button28->Click += gcnew System::EventHandler(this, &SudokuForm::button28_Click);
+			this->button28->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button28->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button28->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button28->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button29
 			// 
@@ -809,15 +830,16 @@ namespace Sudoku_3_0
 			this->button29->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button29->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button29->Location = System::Drawing::Point(78, 170);
+			this->button29->Location = System::Drawing::Point(117, 262);
+			this->button29->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button29->Name = L"button29";
-			this->button29->Size = System::Drawing::Size(40, 40);
+			this->button29->Size = System::Drawing::Size(60, 62);
 			this->button29->TabIndex = 31;
 			this->button29->UseVisualStyleBackColor = false;
 			this->button29->Click += gcnew System::EventHandler(this, &SudokuForm::button29_Click);
+			this->button29->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button29->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button29->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button29->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button30
 			// 
@@ -825,15 +847,16 @@ namespace Sudoku_3_0
 			this->button30->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button30->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button30->Location = System::Drawing::Point(121, 170);
+			this->button30->Location = System::Drawing::Point(182, 262);
+			this->button30->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button30->Name = L"button30";
-			this->button30->Size = System::Drawing::Size(40, 40);
+			this->button30->Size = System::Drawing::Size(60, 62);
 			this->button30->TabIndex = 32;
 			this->button30->UseVisualStyleBackColor = false;
 			this->button30->Click += gcnew System::EventHandler(this, &SudokuForm::button30_Click);
+			this->button30->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button30->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button30->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button30->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button31
 			// 
@@ -841,15 +864,16 @@ namespace Sudoku_3_0
 			this->button31->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button31->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button31->Location = System::Drawing::Point(170, 170);
+			this->button31->Location = System::Drawing::Point(255, 262);
+			this->button31->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button31->Name = L"button31";
-			this->button31->Size = System::Drawing::Size(40, 40);
+			this->button31->Size = System::Drawing::Size(60, 62);
 			this->button31->TabIndex = 33;
 			this->button31->UseVisualStyleBackColor = false;
 			this->button31->Click += gcnew System::EventHandler(this, &SudokuForm::button31_Click);
+			this->button31->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button31->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button31->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button31->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button32
 			// 
@@ -857,15 +881,16 @@ namespace Sudoku_3_0
 			this->button32->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button32->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button32->Location = System::Drawing::Point(213, 170);
+			this->button32->Location = System::Drawing::Point(320, 262);
+			this->button32->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button32->Name = L"button32";
-			this->button32->Size = System::Drawing::Size(40, 40);
+			this->button32->Size = System::Drawing::Size(60, 62);
 			this->button32->TabIndex = 34;
 			this->button32->UseVisualStyleBackColor = false;
 			this->button32->Click += gcnew System::EventHandler(this, &SudokuForm::button32_Click);
+			this->button32->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button32->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button32->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button32->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button33
 			// 
@@ -873,15 +898,16 @@ namespace Sudoku_3_0
 			this->button33->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button33->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button33->Location = System::Drawing::Point(256, 170);
+			this->button33->Location = System::Drawing::Point(384, 262);
+			this->button33->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button33->Name = L"button33";
-			this->button33->Size = System::Drawing::Size(40, 40);
+			this->button33->Size = System::Drawing::Size(60, 62);
 			this->button33->TabIndex = 35;
 			this->button33->UseVisualStyleBackColor = false;
 			this->button33->Click += gcnew System::EventHandler(this, &SudokuForm::button33_Click);
+			this->button33->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button33->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button33->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button33->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button34
 			// 
@@ -889,15 +915,16 @@ namespace Sudoku_3_0
 			this->button34->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button34->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button34->Location = System::Drawing::Point(305, 170);
+			this->button34->Location = System::Drawing::Point(458, 262);
+			this->button34->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button34->Name = L"button34";
-			this->button34->Size = System::Drawing::Size(40, 40);
+			this->button34->Size = System::Drawing::Size(60, 62);
 			this->button34->TabIndex = 36;
 			this->button34->UseVisualStyleBackColor = false;
 			this->button34->Click += gcnew System::EventHandler(this, &SudokuForm::button34_Click);
+			this->button34->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button34->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button34->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button34->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button35
 			// 
@@ -905,15 +932,16 @@ namespace Sudoku_3_0
 			this->button35->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button35->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button35->Location = System::Drawing::Point(348, 170);
+			this->button35->Location = System::Drawing::Point(522, 262);
+			this->button35->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button35->Name = L"button35";
-			this->button35->Size = System::Drawing::Size(40, 40);
+			this->button35->Size = System::Drawing::Size(60, 62);
 			this->button35->TabIndex = 37;
 			this->button35->UseVisualStyleBackColor = false;
 			this->button35->Click += gcnew System::EventHandler(this, &SudokuForm::button35_Click);
+			this->button35->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button35->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button35->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button35->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button36
 			// 
@@ -921,15 +949,16 @@ namespace Sudoku_3_0
 			this->button36->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button36->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button36->Location = System::Drawing::Point(391, 170);
+			this->button36->Location = System::Drawing::Point(586, 262);
+			this->button36->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button36->Name = L"button36";
-			this->button36->Size = System::Drawing::Size(40, 40);
+			this->button36->Size = System::Drawing::Size(60, 62);
 			this->button36->TabIndex = 38;
 			this->button36->UseVisualStyleBackColor = false;
 			this->button36->Click += gcnew System::EventHandler(this, &SudokuForm::button36_Click);
+			this->button36->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button36->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button36->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button36->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button37
 			// 
@@ -937,15 +966,16 @@ namespace Sudoku_3_0
 			this->button37->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button37->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button37->Location = System::Drawing::Point(35, 213);
+			this->button37->Location = System::Drawing::Point(52, 328);
+			this->button37->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button37->Name = L"button37";
-			this->button37->Size = System::Drawing::Size(40, 40);
+			this->button37->Size = System::Drawing::Size(60, 62);
 			this->button37->TabIndex = 39;
 			this->button37->UseVisualStyleBackColor = false;
 			this->button37->Click += gcnew System::EventHandler(this, &SudokuForm::button37_Click);
+			this->button37->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button37->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button37->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button37->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button38
 			// 
@@ -953,15 +983,16 @@ namespace Sudoku_3_0
 			this->button38->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button38->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button38->Location = System::Drawing::Point(78, 213);
+			this->button38->Location = System::Drawing::Point(117, 328);
+			this->button38->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button38->Name = L"button38";
-			this->button38->Size = System::Drawing::Size(40, 40);
+			this->button38->Size = System::Drawing::Size(60, 62);
 			this->button38->TabIndex = 40;
 			this->button38->UseVisualStyleBackColor = false;
 			this->button38->Click += gcnew System::EventHandler(this, &SudokuForm::button38_Click);
+			this->button38->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button38->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button38->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button38->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button39
 			// 
@@ -969,15 +1000,16 @@ namespace Sudoku_3_0
 			this->button39->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button39->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button39->Location = System::Drawing::Point(121, 213);
+			this->button39->Location = System::Drawing::Point(182, 328);
+			this->button39->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button39->Name = L"button39";
-			this->button39->Size = System::Drawing::Size(40, 40);
+			this->button39->Size = System::Drawing::Size(60, 62);
 			this->button39->TabIndex = 41;
 			this->button39->UseVisualStyleBackColor = false;
 			this->button39->Click += gcnew System::EventHandler(this, &SudokuForm::button39_Click);
+			this->button39->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button39->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button39->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button39->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button40
 			// 
@@ -985,15 +1017,16 @@ namespace Sudoku_3_0
 			this->button40->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button40->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button40->Location = System::Drawing::Point(170, 213);
+			this->button40->Location = System::Drawing::Point(255, 328);
+			this->button40->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button40->Name = L"button40";
-			this->button40->Size = System::Drawing::Size(40, 40);
+			this->button40->Size = System::Drawing::Size(60, 62);
 			this->button40->TabIndex = 42;
 			this->button40->UseVisualStyleBackColor = false;
 			this->button40->Click += gcnew System::EventHandler(this, &SudokuForm::button40_Click);
+			this->button40->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button40->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button40->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button40->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button41
 			// 
@@ -1001,15 +1034,16 @@ namespace Sudoku_3_0
 			this->button41->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button41->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button41->Location = System::Drawing::Point(213, 213);
+			this->button41->Location = System::Drawing::Point(320, 328);
+			this->button41->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button41->Name = L"button41";
-			this->button41->Size = System::Drawing::Size(40, 40);
+			this->button41->Size = System::Drawing::Size(60, 62);
 			this->button41->TabIndex = 43;
 			this->button41->UseVisualStyleBackColor = false;
 			this->button41->Click += gcnew System::EventHandler(this, &SudokuForm::button41_Click);
+			this->button41->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button41->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button41->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button41->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button42
 			// 
@@ -1017,15 +1051,16 @@ namespace Sudoku_3_0
 			this->button42->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button42->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button42->Location = System::Drawing::Point(256, 213);
+			this->button42->Location = System::Drawing::Point(384, 328);
+			this->button42->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button42->Name = L"button42";
-			this->button42->Size = System::Drawing::Size(40, 40);
+			this->button42->Size = System::Drawing::Size(60, 62);
 			this->button42->TabIndex = 44;
 			this->button42->UseVisualStyleBackColor = false;
 			this->button42->Click += gcnew System::EventHandler(this, &SudokuForm::button42_Click);
+			this->button42->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button42->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button42->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button42->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button43
 			// 
@@ -1033,15 +1068,16 @@ namespace Sudoku_3_0
 			this->button43->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button43->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button43->Location = System::Drawing::Point(305, 213);
+			this->button43->Location = System::Drawing::Point(458, 328);
+			this->button43->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button43->Name = L"button43";
-			this->button43->Size = System::Drawing::Size(40, 40);
+			this->button43->Size = System::Drawing::Size(60, 62);
 			this->button43->TabIndex = 45;
 			this->button43->UseVisualStyleBackColor = false;
 			this->button43->Click += gcnew System::EventHandler(this, &SudokuForm::button43_Click);
+			this->button43->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button43->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button43->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button43->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button44
 			// 
@@ -1049,15 +1085,16 @@ namespace Sudoku_3_0
 			this->button44->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button44->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button44->Location = System::Drawing::Point(348, 213);
+			this->button44->Location = System::Drawing::Point(522, 328);
+			this->button44->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button44->Name = L"button44";
-			this->button44->Size = System::Drawing::Size(40, 40);
+			this->button44->Size = System::Drawing::Size(60, 62);
 			this->button44->TabIndex = 46;
 			this->button44->UseVisualStyleBackColor = false;
 			this->button44->Click += gcnew System::EventHandler(this, &SudokuForm::button44_Click);
+			this->button44->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button44->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button44->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button44->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button45
 			// 
@@ -1065,15 +1102,16 @@ namespace Sudoku_3_0
 			this->button45->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button45->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button45->Location = System::Drawing::Point(391, 213);
+			this->button45->Location = System::Drawing::Point(586, 328);
+			this->button45->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button45->Name = L"button45";
-			this->button45->Size = System::Drawing::Size(40, 40);
+			this->button45->Size = System::Drawing::Size(60, 62);
 			this->button45->TabIndex = 47;
 			this->button45->UseVisualStyleBackColor = false;
 			this->button45->Click += gcnew System::EventHandler(this, &SudokuForm::button45_Click);
+			this->button45->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button45->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button45->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button45->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button46
 			// 
@@ -1081,15 +1119,16 @@ namespace Sudoku_3_0
 			this->button46->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button46->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button46->Location = System::Drawing::Point(35, 256);
+			this->button46->Location = System::Drawing::Point(52, 394);
+			this->button46->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button46->Name = L"button46";
-			this->button46->Size = System::Drawing::Size(40, 40);
+			this->button46->Size = System::Drawing::Size(60, 62);
 			this->button46->TabIndex = 48;
 			this->button46->UseVisualStyleBackColor = false;
 			this->button46->Click += gcnew System::EventHandler(this, &SudokuForm::button46_Click);
+			this->button46->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button46->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button46->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button46->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button47
 			// 
@@ -1097,15 +1136,16 @@ namespace Sudoku_3_0
 			this->button47->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button47->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button47->Location = System::Drawing::Point(78, 256);
+			this->button47->Location = System::Drawing::Point(117, 394);
+			this->button47->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button47->Name = L"button47";
-			this->button47->Size = System::Drawing::Size(40, 40);
+			this->button47->Size = System::Drawing::Size(60, 62);
 			this->button47->TabIndex = 49;
 			this->button47->UseVisualStyleBackColor = false;
 			this->button47->Click += gcnew System::EventHandler(this, &SudokuForm::button47_Click);
+			this->button47->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button47->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button47->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button47->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button48
 			// 
@@ -1113,15 +1153,16 @@ namespace Sudoku_3_0
 			this->button48->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button48->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button48->Location = System::Drawing::Point(121, 256);
+			this->button48->Location = System::Drawing::Point(182, 394);
+			this->button48->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button48->Name = L"button48";
-			this->button48->Size = System::Drawing::Size(40, 40);
+			this->button48->Size = System::Drawing::Size(60, 62);
 			this->button48->TabIndex = 50;
 			this->button48->UseVisualStyleBackColor = false;
 			this->button48->Click += gcnew System::EventHandler(this, &SudokuForm::button48_Click);
+			this->button48->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button48->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button48->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button48->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button49
 			// 
@@ -1129,15 +1170,16 @@ namespace Sudoku_3_0
 			this->button49->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button49->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button49->Location = System::Drawing::Point(170, 256);
+			this->button49->Location = System::Drawing::Point(255, 394);
+			this->button49->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button49->Name = L"button49";
-			this->button49->Size = System::Drawing::Size(40, 40);
+			this->button49->Size = System::Drawing::Size(60, 62);
 			this->button49->TabIndex = 51;
 			this->button49->UseVisualStyleBackColor = false;
 			this->button49->Click += gcnew System::EventHandler(this, &SudokuForm::button49_Click);
+			this->button49->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button49->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button49->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button49->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button50
 			// 
@@ -1145,15 +1187,16 @@ namespace Sudoku_3_0
 			this->button50->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button50->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button50->Location = System::Drawing::Point(213, 256);
+			this->button50->Location = System::Drawing::Point(320, 394);
+			this->button50->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button50->Name = L"button50";
-			this->button50->Size = System::Drawing::Size(40, 40);
+			this->button50->Size = System::Drawing::Size(60, 62);
 			this->button50->TabIndex = 52;
 			this->button50->UseVisualStyleBackColor = false;
 			this->button50->Click += gcnew System::EventHandler(this, &SudokuForm::button50_Click);
+			this->button50->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button50->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button50->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button50->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button51
 			// 
@@ -1161,15 +1204,16 @@ namespace Sudoku_3_0
 			this->button51->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button51->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button51->Location = System::Drawing::Point(256, 256);
+			this->button51->Location = System::Drawing::Point(384, 394);
+			this->button51->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button51->Name = L"button51";
-			this->button51->Size = System::Drawing::Size(40, 40);
+			this->button51->Size = System::Drawing::Size(60, 62);
 			this->button51->TabIndex = 53;
 			this->button51->UseVisualStyleBackColor = false;
 			this->button51->Click += gcnew System::EventHandler(this, &SudokuForm::button51_Click);
+			this->button51->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button51->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button51->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button51->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button52
 			// 
@@ -1177,15 +1221,16 @@ namespace Sudoku_3_0
 			this->button52->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button52->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button52->Location = System::Drawing::Point(305, 256);
+			this->button52->Location = System::Drawing::Point(458, 394);
+			this->button52->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button52->Name = L"button52";
-			this->button52->Size = System::Drawing::Size(40, 40);
+			this->button52->Size = System::Drawing::Size(60, 62);
 			this->button52->TabIndex = 54;
 			this->button52->UseVisualStyleBackColor = false;
 			this->button52->Click += gcnew System::EventHandler(this, &SudokuForm::button52_Click);
+			this->button52->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button52->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button52->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button52->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button53
 			// 
@@ -1193,15 +1238,16 @@ namespace Sudoku_3_0
 			this->button53->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button53->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button53->Location = System::Drawing::Point(348, 256);
+			this->button53->Location = System::Drawing::Point(522, 394);
+			this->button53->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button53->Name = L"button53";
-			this->button53->Size = System::Drawing::Size(40, 40);
+			this->button53->Size = System::Drawing::Size(60, 62);
 			this->button53->TabIndex = 55;
 			this->button53->UseVisualStyleBackColor = false;
 			this->button53->Click += gcnew System::EventHandler(this, &SudokuForm::button53_Click);
+			this->button53->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button53->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button53->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button53->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button54
 			// 
@@ -1209,15 +1255,16 @@ namespace Sudoku_3_0
 			this->button54->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button54->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button54->Location = System::Drawing::Point(391, 256);
+			this->button54->Location = System::Drawing::Point(586, 394);
+			this->button54->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button54->Name = L"button54";
-			this->button54->Size = System::Drawing::Size(40, 40);
+			this->button54->Size = System::Drawing::Size(60, 62);
 			this->button54->TabIndex = 56;
 			this->button54->UseVisualStyleBackColor = false;
 			this->button54->Click += gcnew System::EventHandler(this, &SudokuForm::button54_Click);
+			this->button54->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button54->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button54->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button54->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button55
 			// 
@@ -1225,15 +1272,16 @@ namespace Sudoku_3_0
 			this->button55->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button55->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button55->Location = System::Drawing::Point(35, 305);
+			this->button55->Location = System::Drawing::Point(52, 469);
+			this->button55->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button55->Name = L"button55";
-			this->button55->Size = System::Drawing::Size(40, 40);
+			this->button55->Size = System::Drawing::Size(60, 62);
 			this->button55->TabIndex = 57;
 			this->button55->UseVisualStyleBackColor = false;
 			this->button55->Click += gcnew System::EventHandler(this, &SudokuForm::button55_Click);
+			this->button55->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button55->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button55->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button55->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button56
 			// 
@@ -1241,15 +1289,16 @@ namespace Sudoku_3_0
 			this->button56->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button56->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button56->Location = System::Drawing::Point(78, 305);
+			this->button56->Location = System::Drawing::Point(117, 469);
+			this->button56->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button56->Name = L"button56";
-			this->button56->Size = System::Drawing::Size(40, 40);
+			this->button56->Size = System::Drawing::Size(60, 62);
 			this->button56->TabIndex = 58;
 			this->button56->UseVisualStyleBackColor = false;
 			this->button56->Click += gcnew System::EventHandler(this, &SudokuForm::button56_Click);
+			this->button56->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button56->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button56->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button56->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button57
 			// 
@@ -1257,15 +1306,16 @@ namespace Sudoku_3_0
 			this->button57->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button57->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button57->Location = System::Drawing::Point(121, 305);
+			this->button57->Location = System::Drawing::Point(182, 469);
+			this->button57->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button57->Name = L"button57";
-			this->button57->Size = System::Drawing::Size(40, 40);
+			this->button57->Size = System::Drawing::Size(60, 62);
 			this->button57->TabIndex = 59;
 			this->button57->UseVisualStyleBackColor = false;
 			this->button57->Click += gcnew System::EventHandler(this, &SudokuForm::button57_Click);
+			this->button57->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button57->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button57->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button57->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button58
 			// 
@@ -1273,15 +1323,16 @@ namespace Sudoku_3_0
 			this->button58->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button58->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button58->Location = System::Drawing::Point(170, 305);
+			this->button58->Location = System::Drawing::Point(255, 469);
+			this->button58->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button58->Name = L"button58";
-			this->button58->Size = System::Drawing::Size(40, 40);
+			this->button58->Size = System::Drawing::Size(60, 62);
 			this->button58->TabIndex = 60;
 			this->button58->UseVisualStyleBackColor = false;
 			this->button58->Click += gcnew System::EventHandler(this, &SudokuForm::button58_Click);
+			this->button58->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button58->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button58->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button58->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button59
 			// 
@@ -1289,15 +1340,16 @@ namespace Sudoku_3_0
 			this->button59->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button59->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button59->Location = System::Drawing::Point(213, 305);
+			this->button59->Location = System::Drawing::Point(320, 469);
+			this->button59->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button59->Name = L"button59";
-			this->button59->Size = System::Drawing::Size(40, 40);
+			this->button59->Size = System::Drawing::Size(60, 62);
 			this->button59->TabIndex = 61;
 			this->button59->UseVisualStyleBackColor = false;
 			this->button59->Click += gcnew System::EventHandler(this, &SudokuForm::button59_Click);
+			this->button59->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button59->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button59->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button59->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button60
 			// 
@@ -1305,15 +1357,16 @@ namespace Sudoku_3_0
 			this->button60->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button60->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button60->Location = System::Drawing::Point(256, 305);
+			this->button60->Location = System::Drawing::Point(384, 469);
+			this->button60->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button60->Name = L"button60";
-			this->button60->Size = System::Drawing::Size(40, 40);
+			this->button60->Size = System::Drawing::Size(60, 62);
 			this->button60->TabIndex = 62;
 			this->button60->UseVisualStyleBackColor = false;
 			this->button60->Click += gcnew System::EventHandler(this, &SudokuForm::button60_Click);
+			this->button60->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button60->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button60->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button60->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button61
 			// 
@@ -1321,15 +1374,16 @@ namespace Sudoku_3_0
 			this->button61->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button61->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button61->Location = System::Drawing::Point(305, 305);
+			this->button61->Location = System::Drawing::Point(458, 469);
+			this->button61->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button61->Name = L"button61";
-			this->button61->Size = System::Drawing::Size(40, 40);
+			this->button61->Size = System::Drawing::Size(60, 62);
 			this->button61->TabIndex = 63;
 			this->button61->UseVisualStyleBackColor = false;
 			this->button61->Click += gcnew System::EventHandler(this, &SudokuForm::button61_Click);
+			this->button61->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button61->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button61->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button61->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button62
 			// 
@@ -1337,15 +1391,16 @@ namespace Sudoku_3_0
 			this->button62->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button62->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button62->Location = System::Drawing::Point(348, 305);
+			this->button62->Location = System::Drawing::Point(522, 469);
+			this->button62->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button62->Name = L"button62";
-			this->button62->Size = System::Drawing::Size(40, 40);
+			this->button62->Size = System::Drawing::Size(60, 62);
 			this->button62->TabIndex = 64;
 			this->button62->UseVisualStyleBackColor = false;
 			this->button62->Click += gcnew System::EventHandler(this, &SudokuForm::button62_Click);
+			this->button62->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button62->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button62->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button62->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button63
 			// 
@@ -1353,15 +1408,16 @@ namespace Sudoku_3_0
 			this->button63->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button63->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button63->Location = System::Drawing::Point(391, 305);
+			this->button63->Location = System::Drawing::Point(586, 469);
+			this->button63->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button63->Name = L"button63";
-			this->button63->Size = System::Drawing::Size(40, 40);
+			this->button63->Size = System::Drawing::Size(60, 62);
 			this->button63->TabIndex = 65;
 			this->button63->UseVisualStyleBackColor = false;
 			this->button63->Click += gcnew System::EventHandler(this, &SudokuForm::button63_Click);
+			this->button63->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button63->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button63->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button63->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button64
 			// 
@@ -1369,15 +1425,16 @@ namespace Sudoku_3_0
 			this->button64->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button64->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button64->Location = System::Drawing::Point(35, 348);
+			this->button64->Location = System::Drawing::Point(52, 535);
+			this->button64->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button64->Name = L"button64";
-			this->button64->Size = System::Drawing::Size(40, 40);
+			this->button64->Size = System::Drawing::Size(60, 62);
 			this->button64->TabIndex = 66;
 			this->button64->UseVisualStyleBackColor = false;
 			this->button64->Click += gcnew System::EventHandler(this, &SudokuForm::button64_Click);
+			this->button64->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button64->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button64->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button64->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button65
 			// 
@@ -1385,15 +1442,16 @@ namespace Sudoku_3_0
 			this->button65->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button65->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button65->Location = System::Drawing::Point(78, 348);
+			this->button65->Location = System::Drawing::Point(117, 535);
+			this->button65->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button65->Name = L"button65";
-			this->button65->Size = System::Drawing::Size(40, 40);
+			this->button65->Size = System::Drawing::Size(60, 62);
 			this->button65->TabIndex = 67;
 			this->button65->UseVisualStyleBackColor = false;
 			this->button65->Click += gcnew System::EventHandler(this, &SudokuForm::button65_Click);
+			this->button65->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button65->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button65->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button65->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button66
 			// 
@@ -1401,15 +1459,16 @@ namespace Sudoku_3_0
 			this->button66->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button66->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button66->Location = System::Drawing::Point(121, 348);
+			this->button66->Location = System::Drawing::Point(182, 535);
+			this->button66->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button66->Name = L"button66";
-			this->button66->Size = System::Drawing::Size(40, 40);
+			this->button66->Size = System::Drawing::Size(60, 62);
 			this->button66->TabIndex = 68;
 			this->button66->UseVisualStyleBackColor = false;
 			this->button66->Click += gcnew System::EventHandler(this, &SudokuForm::button66_Click);
+			this->button66->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button66->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button66->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button66->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button67
 			// 
@@ -1417,15 +1476,16 @@ namespace Sudoku_3_0
 			this->button67->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button67->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button67->Location = System::Drawing::Point(170, 348);
+			this->button67->Location = System::Drawing::Point(255, 535);
+			this->button67->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button67->Name = L"button67";
-			this->button67->Size = System::Drawing::Size(40, 40);
+			this->button67->Size = System::Drawing::Size(60, 62);
 			this->button67->TabIndex = 69;
 			this->button67->UseVisualStyleBackColor = false;
 			this->button67->Click += gcnew System::EventHandler(this, &SudokuForm::button67_Click);
+			this->button67->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button67->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button67->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button67->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button68
 			// 
@@ -1433,15 +1493,16 @@ namespace Sudoku_3_0
 			this->button68->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button68->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button68->Location = System::Drawing::Point(213, 348);
+			this->button68->Location = System::Drawing::Point(320, 535);
+			this->button68->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button68->Name = L"button68";
-			this->button68->Size = System::Drawing::Size(40, 40);
+			this->button68->Size = System::Drawing::Size(60, 62);
 			this->button68->TabIndex = 70;
 			this->button68->UseVisualStyleBackColor = false;
 			this->button68->Click += gcnew System::EventHandler(this, &SudokuForm::button68_Click);
+			this->button68->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button68->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button68->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button68->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button69
 			// 
@@ -1449,15 +1510,16 @@ namespace Sudoku_3_0
 			this->button69->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button69->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button69->Location = System::Drawing::Point(256, 348);
+			this->button69->Location = System::Drawing::Point(384, 535);
+			this->button69->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button69->Name = L"button69";
-			this->button69->Size = System::Drawing::Size(40, 40);
+			this->button69->Size = System::Drawing::Size(60, 62);
 			this->button69->TabIndex = 71;
 			this->button69->UseVisualStyleBackColor = false;
 			this->button69->Click += gcnew System::EventHandler(this, &SudokuForm::button69_Click);
+			this->button69->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button69->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button69->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button69->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button70
 			// 
@@ -1465,15 +1527,16 @@ namespace Sudoku_3_0
 			this->button70->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button70->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button70->Location = System::Drawing::Point(305, 348);
+			this->button70->Location = System::Drawing::Point(458, 535);
+			this->button70->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button70->Name = L"button70";
-			this->button70->Size = System::Drawing::Size(40, 40);
+			this->button70->Size = System::Drawing::Size(60, 62);
 			this->button70->TabIndex = 72;
 			this->button70->UseVisualStyleBackColor = false;
 			this->button70->Click += gcnew System::EventHandler(this, &SudokuForm::button70_Click);
+			this->button70->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button70->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button70->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button70->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button71
 			// 
@@ -1481,15 +1544,16 @@ namespace Sudoku_3_0
 			this->button71->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button71->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button71->Location = System::Drawing::Point(348, 348);
+			this->button71->Location = System::Drawing::Point(522, 535);
+			this->button71->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button71->Name = L"button71";
-			this->button71->Size = System::Drawing::Size(40, 40);
+			this->button71->Size = System::Drawing::Size(60, 62);
 			this->button71->TabIndex = 73;
 			this->button71->UseVisualStyleBackColor = false;
 			this->button71->Click += gcnew System::EventHandler(this, &SudokuForm::button71_Click);
+			this->button71->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button71->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button71->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button71->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button72
 			// 
@@ -1497,15 +1561,16 @@ namespace Sudoku_3_0
 			this->button72->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button72->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button72->Location = System::Drawing::Point(391, 348);
+			this->button72->Location = System::Drawing::Point(586, 535);
+			this->button72->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button72->Name = L"button72";
-			this->button72->Size = System::Drawing::Size(40, 40);
+			this->button72->Size = System::Drawing::Size(60, 62);
 			this->button72->TabIndex = 74;
 			this->button72->UseVisualStyleBackColor = false;
 			this->button72->Click += gcnew System::EventHandler(this, &SudokuForm::button72_Click);
+			this->button72->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button72->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button72->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button72->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button73
 			// 
@@ -1513,15 +1578,16 @@ namespace Sudoku_3_0
 			this->button73->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button73->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button73->Location = System::Drawing::Point(35, 391);
+			this->button73->Location = System::Drawing::Point(52, 602);
+			this->button73->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button73->Name = L"button73";
-			this->button73->Size = System::Drawing::Size(40, 40);
+			this->button73->Size = System::Drawing::Size(60, 62);
 			this->button73->TabIndex = 75;
 			this->button73->UseVisualStyleBackColor = false;
 			this->button73->Click += gcnew System::EventHandler(this, &SudokuForm::button73_Click);
+			this->button73->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button73->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button73->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button73->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button74
 			// 
@@ -1529,15 +1595,16 @@ namespace Sudoku_3_0
 			this->button74->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button74->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button74->Location = System::Drawing::Point(78, 391);
+			this->button74->Location = System::Drawing::Point(117, 602);
+			this->button74->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button74->Name = L"button74";
-			this->button74->Size = System::Drawing::Size(40, 40);
+			this->button74->Size = System::Drawing::Size(60, 62);
 			this->button74->TabIndex = 76;
 			this->button74->UseVisualStyleBackColor = false;
 			this->button74->Click += gcnew System::EventHandler(this, &SudokuForm::button74_Click);
+			this->button74->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button74->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button74->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button74->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button75
 			// 
@@ -1545,15 +1612,16 @@ namespace Sudoku_3_0
 			this->button75->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button75->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button75->Location = System::Drawing::Point(121, 391);
+			this->button75->Location = System::Drawing::Point(182, 602);
+			this->button75->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button75->Name = L"button75";
-			this->button75->Size = System::Drawing::Size(40, 40);
+			this->button75->Size = System::Drawing::Size(60, 62);
 			this->button75->TabIndex = 77;
 			this->button75->UseVisualStyleBackColor = false;
 			this->button75->Click += gcnew System::EventHandler(this, &SudokuForm::button75_Click);
+			this->button75->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button75->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button75->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button75->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button76
 			// 
@@ -1561,15 +1629,16 @@ namespace Sudoku_3_0
 			this->button76->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button76->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button76->Location = System::Drawing::Point(170, 391);
+			this->button76->Location = System::Drawing::Point(255, 602);
+			this->button76->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button76->Name = L"button76";
-			this->button76->Size = System::Drawing::Size(40, 40);
+			this->button76->Size = System::Drawing::Size(60, 62);
 			this->button76->TabIndex = 78;
 			this->button76->UseVisualStyleBackColor = false;
 			this->button76->Click += gcnew System::EventHandler(this, &SudokuForm::button76_Click);
+			this->button76->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button76->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button76->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button76->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button77
 			// 
@@ -1577,15 +1646,16 @@ namespace Sudoku_3_0
 			this->button77->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button77->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button77->Location = System::Drawing::Point(213, 391);
+			this->button77->Location = System::Drawing::Point(320, 602);
+			this->button77->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button77->Name = L"button77";
-			this->button77->Size = System::Drawing::Size(40, 40);
+			this->button77->Size = System::Drawing::Size(60, 62);
 			this->button77->TabIndex = 79;
 			this->button77->UseVisualStyleBackColor = false;
 			this->button77->Click += gcnew System::EventHandler(this, &SudokuForm::button77_Click);
+			this->button77->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button77->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button77->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button77->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button78
 			// 
@@ -1593,15 +1663,16 @@ namespace Sudoku_3_0
 			this->button78->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button78->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button78->Location = System::Drawing::Point(256, 391);
+			this->button78->Location = System::Drawing::Point(384, 602);
+			this->button78->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button78->Name = L"button78";
-			this->button78->Size = System::Drawing::Size(40, 40);
+			this->button78->Size = System::Drawing::Size(60, 62);
 			this->button78->TabIndex = 80;
 			this->button78->UseVisualStyleBackColor = false;
 			this->button78->Click += gcnew System::EventHandler(this, &SudokuForm::button78_Click);
+			this->button78->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button78->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button78->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button78->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button79
 			// 
@@ -1609,15 +1680,16 @@ namespace Sudoku_3_0
 			this->button79->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button79->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button79->Location = System::Drawing::Point(305, 391);
+			this->button79->Location = System::Drawing::Point(458, 602);
+			this->button79->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button79->Name = L"button79";
-			this->button79->Size = System::Drawing::Size(40, 40);
+			this->button79->Size = System::Drawing::Size(60, 62);
 			this->button79->TabIndex = 81;
 			this->button79->UseVisualStyleBackColor = false;
 			this->button79->Click += gcnew System::EventHandler(this, &SudokuForm::button79_Click);
+			this->button79->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button79->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button79->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button79->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button80
 			// 
@@ -1625,15 +1697,16 @@ namespace Sudoku_3_0
 			this->button80->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button80->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button80->Location = System::Drawing::Point(348, 391);
+			this->button80->Location = System::Drawing::Point(522, 602);
+			this->button80->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button80->Name = L"button80";
-			this->button80->Size = System::Drawing::Size(40, 40);
+			this->button80->Size = System::Drawing::Size(60, 62);
 			this->button80->TabIndex = 82;
 			this->button80->UseVisualStyleBackColor = false;
 			this->button80->Click += gcnew System::EventHandler(this, &SudokuForm::button80_Click);
+			this->button80->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button80->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button80->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button80->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// button81
 			// 
@@ -1641,15 +1714,16 @@ namespace Sudoku_3_0
 			this->button81->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->button81->Font = (gcnew System::Drawing::Font(L"Cambria", 24, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->button81->Location = System::Drawing::Point(391, 391);
+			this->button81->Location = System::Drawing::Point(586, 602);
+			this->button81->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->button81->Name = L"button81";
-			this->button81->Size = System::Drawing::Size(40, 40);
+			this->button81->Size = System::Drawing::Size(60, 62);
 			this->button81->TabIndex = 83;
 			this->button81->UseVisualStyleBackColor = false;
 			this->button81->Click += gcnew System::EventHandler(this, &SudokuForm::button81_Click);
+			this->button81->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			this->button81->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
 			this->button81->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
-			this->button81->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
 			// 
 			// buttonMinimize
 			// 
@@ -1657,9 +1731,10 @@ namespace Sudoku_3_0
 			this->buttonMinimize->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->buttonMinimize->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 18, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->buttonMinimize->Location = System::Drawing::Point(560, 0);
+			this->buttonMinimize->Location = System::Drawing::Point(840, 0);
+			this->buttonMinimize->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->buttonMinimize->Name = L"buttonMinimize";
-			this->buttonMinimize->Size = System::Drawing::Size(50, 50);
+			this->buttonMinimize->Size = System::Drawing::Size(75, 77);
 			this->buttonMinimize->TabIndex = 84;
 			this->buttonMinimize->TabStop = false;
 			this->buttonMinimize->Text = L"_";
@@ -1672,9 +1747,10 @@ namespace Sudoku_3_0
 			this->buttonClose->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->buttonClose->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 15.75F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->buttonClose->Location = System::Drawing::Point(610, 0);
+			this->buttonClose->Location = System::Drawing::Point(915, 0);
+			this->buttonClose->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->buttonClose->Name = L"buttonClose";
-			this->buttonClose->Size = System::Drawing::Size(50, 50);
+			this->buttonClose->Size = System::Drawing::Size(75, 77);
 			this->buttonClose->TabIndex = 85;
 			this->buttonClose->TabStop = false;
 			this->buttonClose->Text = L"X";
@@ -1687,9 +1763,10 @@ namespace Sudoku_3_0
 			this->difficultyLabel->BackColor = System::Drawing::SystemColors::Menu;
 			this->difficultyLabel->Font = (gcnew System::Drawing::Font(L"Calibri", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->difficultyLabel->Location = System::Drawing::Point(505, 76);
+			this->difficultyLabel->Location = System::Drawing::Point(758, 117);
+			this->difficultyLabel->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
 			this->difficultyLabel->Name = L"difficultyLabel";
-			this->difficultyLabel->Size = System::Drawing::Size(78, 23);
+			this->difficultyLabel->Size = System::Drawing::Size(120, 36);
 			this->difficultyLabel->TabIndex = 84;
 			this->difficultyLabel->Text = L"Difficulty";
 			this->difficultyLabel->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &SudokuForm::difficultyLabel_MouseDown);
@@ -1707,28 +1784,12 @@ namespace Sudoku_3_0
 				L"Very Easy", L"Easy", L"Medium", L"Hard",
 					L"Very Hard"
 			});
-			this->difficultyComboBox->Location = System::Drawing::Point(466, 117);
+			this->difficultyComboBox->Location = System::Drawing::Point(699, 180);
+			this->difficultyComboBox->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->difficultyComboBox->Name = L"difficultyComboBox";
-			this->difficultyComboBox->Size = System::Drawing::Size(160, 31);
+			this->difficultyComboBox->Size = System::Drawing::Size(238, 44);
 			this->difficultyComboBox->TabIndex = 86;
-			this->difficultyComboBox->TabStop = true;
 			this->difficultyComboBox->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &SudokuForm::difficultyComboBox_MouseDown);
-			// 
-			// newCombinationButton
-			// 
-			this->newCombinationButton->BackColor = System::Drawing::SystemColors::Menu;
-			this->newCombinationButton->FlatAppearance->BorderSize = 0;
-			this->newCombinationButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-			this->newCombinationButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(0)));
-			this->newCombinationButton->Location = System::Drawing::Point(466, 335);
-			this->newCombinationButton->Name = L"newCombinationButton";
-			this->newCombinationButton->Size = System::Drawing::Size(160, 28);
-			this->newCombinationButton->TabIndex = 92;
-			this->newCombinationButton->TabStop = true;
-			this->newCombinationButton->Text = L"New Combo";
-			this->newCombinationButton->UseVisualStyleBackColor = false;
-			this->newCombinationButton->Click += gcnew System::EventHandler(this, &SudokuForm::newCombinationButton_Click);
 			// 
 			// newGameButton
 			// 
@@ -1737,11 +1798,11 @@ namespace Sudoku_3_0
 			this->newGameButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->newGameButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->newGameButton->Location = System::Drawing::Point(466, 165);
+			this->newGameButton->Location = System::Drawing::Point(699, 254);
+			this->newGameButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->newGameButton->Name = L"newGameButton";
-			this->newGameButton->Size = System::Drawing::Size(160, 28);
+			this->newGameButton->Size = System::Drawing::Size(240, 43);
 			this->newGameButton->TabIndex = 87;
-			this->newGameButton->TabStop = true;
 			this->newGameButton->Text = L"New Game";
 			this->newGameButton->UseVisualStyleBackColor = false;
 			this->newGameButton->Click += gcnew System::EventHandler(this, &SudokuForm::newGameButton_Click);
@@ -1753,11 +1814,11 @@ namespace Sudoku_3_0
 			this->RestartButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->RestartButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->RestartButton->Location = System::Drawing::Point(466, 199);
+			this->RestartButton->Location = System::Drawing::Point(699, 315);
+			this->RestartButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->RestartButton->Name = L"RestartButton";
-			this->RestartButton->Size = System::Drawing::Size(160, 28);
+			this->RestartButton->Size = System::Drawing::Size(240, 43);
 			this->RestartButton->TabIndex = 88;
-			this->RestartButton->TabStop = true;
 			this->RestartButton->Text = L"Restart";
 			this->RestartButton->UseVisualStyleBackColor = false;
 			this->RestartButton->Click += gcnew System::EventHandler(this, &SudokuForm::RestartButton_Click);
@@ -1769,11 +1830,11 @@ namespace Sudoku_3_0
 			this->hintButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->hintButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->hintButton->Location = System::Drawing::Point(466, 233);
+			this->hintButton->Location = System::Drawing::Point(699, 376);
+			this->hintButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->hintButton->Name = L"hintButton";
-			this->hintButton->Size = System::Drawing::Size(160, 28);
+			this->hintButton->Size = System::Drawing::Size(240, 43);
 			this->hintButton->TabIndex = 89;
-			this->hintButton->TabStop = true;
 			this->hintButton->Text = L"Hint";
 			this->hintButton->UseVisualStyleBackColor = false;
 			this->hintButton->Click += gcnew System::EventHandler(this, &SudokuForm::hintButton_Click);
@@ -1785,11 +1846,11 @@ namespace Sudoku_3_0
 			this->fixButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->fixButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->fixButton->Location = System::Drawing::Point(466, 267);
+			this->fixButton->Location = System::Drawing::Point(699, 437);
+			this->fixButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->fixButton->Name = L"fixButton";
-			this->fixButton->Size = System::Drawing::Size(160, 28);
+			this->fixButton->Size = System::Drawing::Size(240, 43);
 			this->fixButton->TabIndex = 90;
-			this->fixButton->TabStop = true;
 			this->fixButton->Text = L"Fix";
 			this->fixButton->UseVisualStyleBackColor = false;
 			this->fixButton->Click += gcnew System::EventHandler(this, &SudokuForm::fixButton_Click);
@@ -1801,11 +1862,11 @@ namespace Sudoku_3_0
 			this->giveUpButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->giveUpButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->giveUpButton->Location = System::Drawing::Point(466, 301);
+			this->giveUpButton->Location = System::Drawing::Point(699, 498);
+			this->giveUpButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->giveUpButton->Name = L"giveUpButton";
-			this->giveUpButton->Size = System::Drawing::Size(160, 28);
+			this->giveUpButton->Size = System::Drawing::Size(240, 43);
 			this->giveUpButton->TabIndex = 91;
-			this->giveUpButton->TabStop = true;
 			this->giveUpButton->Text = L"Give Up";
 			this->giveUpButton->UseVisualStyleBackColor = false;
 			this->giveUpButton->Click += gcnew System::EventHandler(this, &SudokuForm::giveUpButton_Click);
@@ -1817,11 +1878,11 @@ namespace Sudoku_3_0
 			this->customPuzzleButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->customPuzzleButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->customPuzzleButton->Location = System::Drawing::Point(466, 369);
+			this->customPuzzleButton->Location = System::Drawing::Point(699, 559);
+			this->customPuzzleButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->customPuzzleButton->Name = L"customPuzzleButton";
-			this->customPuzzleButton->Size = System::Drawing::Size(160, 28);
+			this->customPuzzleButton->Size = System::Drawing::Size(240, 43);
 			this->customPuzzleButton->TabIndex = 93;
-			this->customPuzzleButton->TabStop = true;
 			this->customPuzzleButton->Text = L"Custom Puzzle";
 			this->customPuzzleButton->UseVisualStyleBackColor = false;
 			this->customPuzzleButton->Click += gcnew System::EventHandler(this, &SudokuForm::customPuzzleButton_Click);
@@ -1833,11 +1894,11 @@ namespace Sudoku_3_0
 			this->solveButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->solveButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->solveButton->Location = System::Drawing::Point(466, 403);
+			this->solveButton->Location = System::Drawing::Point(699, 620);
+			this->solveButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->solveButton->Name = L"solveButton";
-			this->solveButton->Size = System::Drawing::Size(160, 28);
+			this->solveButton->Size = System::Drawing::Size(240, 43);
 			this->solveButton->TabIndex = 94;
-			this->solveButton->TabStop = true;
 			this->solveButton->Text = L"Solve";
 			this->solveButton->UseVisualStyleBackColor = false;
 			this->solveButton->Click += gcnew System::EventHandler(this, &SudokuForm::solveButton_Click);
@@ -1858,15 +1919,16 @@ namespace Sudoku_3_0
 			this->menuStrip->AccessibleRole = System::Windows::Forms::AccessibleRole::MenuBar;
 			this->menuStrip->AllowMerge = false;
 			this->menuStrip->BackColor = System::Drawing::SystemColors::ButtonFace;
+			this->menuStrip->GripMargin = System::Windows::Forms::Padding(2, 2, 0, 2);
+			this->menuStrip->ImageScalingSize = System::Drawing::Size(24, 24);
 			this->menuStrip->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
 				this->fileToolStripMenuItem,
 					this->gameToolStripMenuItem, this->optionsToolStripMenuItem, this->helpToolStripMenuItem
 			});
 			this->menuStrip->Location = System::Drawing::Point(0, 0);
 			this->menuStrip->Name = L"menuStrip";
-			this->menuStrip->Size = System::Drawing::Size(660, 24);
+			this->menuStrip->Size = System::Drawing::Size(990, 33);
 			this->menuStrip->TabIndex = 0;
-			this->menuStrip->TabStop = false;
 			this->menuStrip->Text = L"menuStrip";
 			this->menuStrip->ItemClicked += gcnew System::Windows::Forms::ToolStripItemClickedEventHandler(this, &SudokuForm::menuStrip_ItemClicked);
 			this->menuStrip->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &SudokuForm::menuStrip_MouseDown);
@@ -1880,14 +1942,14 @@ namespace Sudoku_3_0
 					this->openToolStripMenuItem, this->minimizeToolStripMenuItem, this->exitToolStripMenuItem
 			});
 			this->fileToolStripMenuItem->Name = L"fileToolStripMenuItem";
-			this->fileToolStripMenuItem->Size = System::Drawing::Size(37, 20);
+			this->fileToolStripMenuItem->Size = System::Drawing::Size(54, 29);
 			this->fileToolStripMenuItem->Text = L"File";
 			// 
 			// saveToolStripMenuItem
 			// 
 			this->saveToolStripMenuItem->Name = L"saveToolStripMenuItem";
 			this->saveToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::S));
-			this->saveToolStripMenuItem->Size = System::Drawing::Size(200, 22);
+			this->saveToolStripMenuItem->Size = System::Drawing::Size(300, 34);
 			this->saveToolStripMenuItem->Text = L"Save";
 			this->saveToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::saveToolStripMenuItem_Click);
 			// 
@@ -1895,7 +1957,7 @@ namespace Sudoku_3_0
 			// 
 			this->openToolStripMenuItem->Name = L"openToolStripMenuItem";
 			this->openToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::O));
-			this->openToolStripMenuItem->Size = System::Drawing::Size(200, 22);
+			this->openToolStripMenuItem->Size = System::Drawing::Size(300, 34);
 			this->openToolStripMenuItem->Text = L"Open";
 			this->openToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::openToolStripMenuItem_Click);
 			// 
@@ -1904,7 +1966,7 @@ namespace Sudoku_3_0
 			this->minimizeToolStripMenuItem->Name = L"minimizeToolStripMenuItem";
 			this->minimizeToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>(((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Shift)
 				| System::Windows::Forms::Keys::M));
-			this->minimizeToolStripMenuItem->Size = System::Drawing::Size(200, 22);
+			this->minimizeToolStripMenuItem->Size = System::Drawing::Size(300, 34);
 			this->minimizeToolStripMenuItem->Text = L"Minimize";
 			this->minimizeToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::minimizeToolStripMenuItem_Click);
 			// 
@@ -1913,26 +1975,26 @@ namespace Sudoku_3_0
 			this->exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
 			this->exitToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>(((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Shift)
 				| System::Windows::Forms::Keys::E));
-			this->exitToolStripMenuItem->Size = System::Drawing::Size(200, 22);
+			this->exitToolStripMenuItem->Size = System::Drawing::Size(300, 34);
 			this->exitToolStripMenuItem->Text = L"Exit";
 			this->exitToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::exitToolStripMenuItem_Click);
 			// 
 			// gameToolStripMenuItem
 			// 
-			this->gameToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(8) {
+			this->gameToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(7) {
 				this->newGameToolStripMenuItem,
-					this->RestartToolStripMenuItem, this->hintToolStripMenuItem, this->fixToolStripMenuItem, this->giveUpToolStripMenuItem, this->newCombinationToolStripMenuItem,
-					this->customPuzzleToolStripMenuItem, this->solveToolStripMenuItem
+					this->RestartToolStripMenuItem, this->hintToolStripMenuItem, this->fixToolStripMenuItem, this->giveUpToolStripMenuItem, this->customPuzzleToolStripMenuItem,
+					this->solveToolStripMenuItem
 			});
 			this->gameToolStripMenuItem->Name = L"gameToolStripMenuItem";
-			this->gameToolStripMenuItem->Size = System::Drawing::Size(50, 20);
+			this->gameToolStripMenuItem->Size = System::Drawing::Size(74, 29);
 			this->gameToolStripMenuItem->Text = L"Game";
 			// 
 			// newGameToolStripMenuItem
 			// 
 			this->newGameToolStripMenuItem->Name = L"newGameToolStripMenuItem";
 			this->newGameToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::N));
-			this->newGameToolStripMenuItem->Size = System::Drawing::Size(193, 22);
+			this->newGameToolStripMenuItem->Size = System::Drawing::Size(291, 34);
 			this->newGameToolStripMenuItem->Text = L"New Game";
 			this->newGameToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::newGameToolStripMenuItem_Click);
 			// 
@@ -1940,7 +2002,7 @@ namespace Sudoku_3_0
 			// 
 			this->RestartToolStripMenuItem->Name = L"RestartToolStripMenuItem";
 			this->RestartToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::R));
-			this->RestartToolStripMenuItem->Size = System::Drawing::Size(193, 22);
+			this->RestartToolStripMenuItem->Size = System::Drawing::Size(291, 34);
 			this->RestartToolStripMenuItem->Text = L"Restart";
 			this->RestartToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::RestartToolStripMenuItem_Click);
 			// 
@@ -1948,7 +2010,7 @@ namespace Sudoku_3_0
 			// 
 			this->hintToolStripMenuItem->Name = L"hintToolStripMenuItem";
 			this->hintToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::H));
-			this->hintToolStripMenuItem->Size = System::Drawing::Size(193, 22);
+			this->hintToolStripMenuItem->Size = System::Drawing::Size(291, 34);
 			this->hintToolStripMenuItem->Text = L"Hint";
 			this->hintToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::hintToolStripMenuItem_Click);
 			// 
@@ -1956,7 +2018,7 @@ namespace Sudoku_3_0
 			// 
 			this->fixToolStripMenuItem->Name = L"fixToolStripMenuItem";
 			this->fixToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::F));
-			this->fixToolStripMenuItem->Size = System::Drawing::Size(193, 22);
+			this->fixToolStripMenuItem->Size = System::Drawing::Size(291, 34);
 			this->fixToolStripMenuItem->Text = L"Fix";
 			this->fixToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::fixToolStripMenuItem_Click);
 			// 
@@ -1964,23 +2026,15 @@ namespace Sudoku_3_0
 			// 
 			this->giveUpToolStripMenuItem->Name = L"giveUpToolStripMenuItem";
 			this->giveUpToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::G));
-			this->giveUpToolStripMenuItem->Size = System::Drawing::Size(193, 22);
+			this->giveUpToolStripMenuItem->Size = System::Drawing::Size(291, 34);
 			this->giveUpToolStripMenuItem->Text = L"Give Up";
 			this->giveUpToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::giveUpToolStripMenuItem_Click);
-			// 
-			// newCombinationToolStripMenuItem
-			// 
-			this->newCombinationToolStripMenuItem->Name = L"newCombinationToolStripMenuItem";
-			this->newCombinationToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::M));
-			this->newCombinationToolStripMenuItem->Size = System::Drawing::Size(193, 22);
-			this->newCombinationToolStripMenuItem->Text = L"New Combo";
-			this->newCombinationToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::newCombinationToolStripMenuItem_Click);
 			// 
 			// customPuzzleToolStripMenuItem
 			// 
 			this->customPuzzleToolStripMenuItem->Name = L"customPuzzleToolStripMenuItem";
 			this->customPuzzleToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::P));
-			this->customPuzzleToolStripMenuItem->Size = System::Drawing::Size(193, 22);
+			this->customPuzzleToolStripMenuItem->Size = System::Drawing::Size(291, 34);
 			this->customPuzzleToolStripMenuItem->Text = L"Custom Puzzle";
 			this->customPuzzleToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::customPuzzleToolStripMenuItem_Click);
 			// 
@@ -1988,7 +2042,7 @@ namespace Sudoku_3_0
 			// 
 			this->solveToolStripMenuItem->Name = L"solveToolStripMenuItem";
 			this->solveToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::L));
-			this->solveToolStripMenuItem->Size = System::Drawing::Size(193, 22);
+			this->solveToolStripMenuItem->Size = System::Drawing::Size(291, 34);
 			this->solveToolStripMenuItem->Text = L"Solve";
 			this->solveToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::solveToolStripMenuItem_Click);
 			// 
@@ -1996,7 +2050,7 @@ namespace Sudoku_3_0
 			// 
 			this->optionsToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) { this->difficultyToolStripMenuItem });
 			this->optionsToolStripMenuItem->Name = L"optionsToolStripMenuItem";
-			this->optionsToolStripMenuItem->Size = System::Drawing::Size(61, 20);
+			this->optionsToolStripMenuItem->Size = System::Drawing::Size(92, 29);
 			this->optionsToolStripMenuItem->Text = L"Options";
 			// 
 			// difficultyToolStripMenuItem
@@ -2006,14 +2060,14 @@ namespace Sudoku_3_0
 					this->easyToolStripMenuItem, this->mediumToolStripMenuItem, this->hardToolStripMenuItem, this->veryHardToolStripMenuItem
 			});
 			this->difficultyToolStripMenuItem->Name = L"difficultyToolStripMenuItem";
-			this->difficultyToolStripMenuItem->Size = System::Drawing::Size(122, 22);
+			this->difficultyToolStripMenuItem->Size = System::Drawing::Size(184, 34);
 			this->difficultyToolStripMenuItem->Text = L"Difficulty";
 			// 
 			// veryEasyToolStripMenuItem
 			// 
 			this->veryEasyToolStripMenuItem->Name = L"veryEasyToolStripMenuItem";
 			this->veryEasyToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::D1));
-			this->veryEasyToolStripMenuItem->Size = System::Drawing::Size(166, 22);
+			this->veryEasyToolStripMenuItem->Size = System::Drawing::Size(253, 34);
 			this->veryEasyToolStripMenuItem->Text = L"Very Easy";
 			this->veryEasyToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::veryEasyToolStripMenuItem_Click);
 			// 
@@ -2021,7 +2075,7 @@ namespace Sudoku_3_0
 			// 
 			this->easyToolStripMenuItem->Name = L"easyToolStripMenuItem";
 			this->easyToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::D2));
-			this->easyToolStripMenuItem->Size = System::Drawing::Size(166, 22);
+			this->easyToolStripMenuItem->Size = System::Drawing::Size(253, 34);
 			this->easyToolStripMenuItem->Text = L"Easy";
 			this->easyToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::easyToolStripMenuItem_Click);
 			// 
@@ -2029,7 +2083,7 @@ namespace Sudoku_3_0
 			// 
 			this->mediumToolStripMenuItem->Name = L"mediumToolStripMenuItem";
 			this->mediumToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::D3));
-			this->mediumToolStripMenuItem->Size = System::Drawing::Size(166, 22);
+			this->mediumToolStripMenuItem->Size = System::Drawing::Size(253, 34);
 			this->mediumToolStripMenuItem->Text = L"Medium";
 			this->mediumToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::mediumToolStripMenuItem_Click);
 			// 
@@ -2037,7 +2091,7 @@ namespace Sudoku_3_0
 			// 
 			this->hardToolStripMenuItem->Name = L"hardToolStripMenuItem";
 			this->hardToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::D4));
-			this->hardToolStripMenuItem->Size = System::Drawing::Size(166, 22);
+			this->hardToolStripMenuItem->Size = System::Drawing::Size(253, 34);
 			this->hardToolStripMenuItem->Text = L"Hard";
 			this->hardToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::hardToolStripMenuItem_Click);
 			// 
@@ -2045,7 +2099,7 @@ namespace Sudoku_3_0
 			// 
 			this->veryHardToolStripMenuItem->Name = L"veryHardToolStripMenuItem";
 			this->veryHardToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::D5));
-			this->veryHardToolStripMenuItem->Size = System::Drawing::Size(166, 22);
+			this->veryHardToolStripMenuItem->Size = System::Drawing::Size(253, 34);
 			this->veryHardToolStripMenuItem->Text = L"Very Hard";
 			this->veryHardToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::veryHardToolStripMenuItem_Click);
 			// 
@@ -2056,14 +2110,14 @@ namespace Sudoku_3_0
 					this->rulesToolStripMenuItem, this->featuresToolStripMenuItem, this->hintsAndTipsToolStripMenuItem, this->keyboardToolStripMenuItem
 			});
 			this->helpToolStripMenuItem->Name = L"helpToolStripMenuItem";
-			this->helpToolStripMenuItem->Size = System::Drawing::Size(44, 20);
+			this->helpToolStripMenuItem->Size = System::Drawing::Size(65, 29);
 			this->helpToolStripMenuItem->Text = L"Help";
 			// 
 			// aboutToolStripMenuItem
 			// 
 			this->aboutToolStripMenuItem->Name = L"aboutToolStripMenuItem";
 			this->aboutToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::A));
-			this->aboutToolStripMenuItem->Size = System::Drawing::Size(194, 22);
+			this->aboutToolStripMenuItem->Size = System::Drawing::Size(294, 34);
 			this->aboutToolStripMenuItem->Text = L"About";
 			this->aboutToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::aboutToolStripMenuItem_Click);
 			// 
@@ -2071,7 +2125,7 @@ namespace Sudoku_3_0
 			// 
 			this->rulesToolStripMenuItem->Name = L"rulesToolStripMenuItem";
 			this->rulesToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::B));
-			this->rulesToolStripMenuItem->Size = System::Drawing::Size(194, 22);
+			this->rulesToolStripMenuItem->Size = System::Drawing::Size(294, 34);
 			this->rulesToolStripMenuItem->Text = L"Rules";
 			this->rulesToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::rulesToolStripMenuItem_Click);
 			// 
@@ -2079,7 +2133,7 @@ namespace Sudoku_3_0
 			// 
 			this->featuresToolStripMenuItem->Name = L"featuresToolStripMenuItem";
 			this->featuresToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::C));
-			this->featuresToolStripMenuItem->Size = System::Drawing::Size(194, 22);
+			this->featuresToolStripMenuItem->Size = System::Drawing::Size(294, 34);
 			this->featuresToolStripMenuItem->Text = L"Features";
 			this->featuresToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::featuresToolStripMenuItem_Click);
 			// 
@@ -2087,7 +2141,7 @@ namespace Sudoku_3_0
 			// 
 			this->hintsAndTipsToolStripMenuItem->Name = L"hintsAndTipsToolStripMenuItem";
 			this->hintsAndTipsToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::D));
-			this->hintsAndTipsToolStripMenuItem->Size = System::Drawing::Size(194, 22);
+			this->hintsAndTipsToolStripMenuItem->Size = System::Drawing::Size(294, 34);
 			this->hintsAndTipsToolStripMenuItem->Text = L"Hints And Tips";
 			this->hintsAndTipsToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::hintsAndTipsToolStripMenuItem_Click);
 			// 
@@ -2095,17 +2149,17 @@ namespace Sudoku_3_0
 			// 
 			this->keyboardToolStripMenuItem->Name = L"keyboardToolStripMenuItem";
 			this->keyboardToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::E));
-			this->keyboardToolStripMenuItem->Size = System::Drawing::Size(194, 22);
+			this->keyboardToolStripMenuItem->Size = System::Drawing::Size(294, 34);
 			this->keyboardToolStripMenuItem->Text = L"Keyboard";
 			this->keyboardToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::keyboardToolStripMenuItem_Click);
 			// 
 			// SudokuForm
 			// 
-			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
+			this->AutoScaleDimensions = System::Drawing::SizeF(9, 20);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->AutoValidate = System::Windows::Forms::AutoValidate::EnablePreventFocusChange;
 			this->BackColor = System::Drawing::SystemColors::Menu;
-			this->ClientSize = System::Drawing::Size(660, 460);
+			this->ClientSize = System::Drawing::Size(990, 708);
 			this->Controls->Add(this->solveButton);
 			this->Controls->Add(this->customPuzzleButton);
 			this->Controls->Add(this->giveUpButton);
@@ -2113,7 +2167,6 @@ namespace Sudoku_3_0
 			this->Controls->Add(this->hintButton);
 			this->Controls->Add(this->RestartButton);
 			this->Controls->Add(this->newGameButton);
-			this->Controls->Add(this->newCombinationButton);
 			this->Controls->Add(this->difficultyComboBox);
 			this->Controls->Add(this->difficultyLabel);
 			this->Controls->Add(this->buttonClose);
@@ -2202,9 +2255,10 @@ namespace Sudoku_3_0
 			this->Controls->Add(this->menuStrip);
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::None;
 			this->MainMenuStrip = this->menuStrip;
+			this->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->MaximizeBox = false;
-			this->MaximumSize = System::Drawing::Size(660, 460);
-			this->MinimumSize = System::Drawing::Size(660, 460);
+			this->MaximumSize = System::Drawing::Size(990, 708);
+			this->MinimumSize = System::Drawing::Size(990, 708);
 			this->Name = L"SudokuForm";
 			this->ShowIcon = false;
 			this->Text = L"Sudoku 3.0";
@@ -2215,7 +2269,6 @@ namespace Sudoku_3_0
 			this->menuStrip->PerformLayout();
 			this->ResumeLayout(false);
 			this->PerformLayout();
-
 		}
 
 #pragma endregion
@@ -2455,25 +2508,25 @@ namespace Sudoku_3_0
 			}
 
 			// Prepare the board
-				this->fillBoardFromEngine(false);
-				this->gameMode = 1;
-				this->numberOfHints = 0;
-				this->RestartButton->Enabled = true;
-				this->hintButton->Enabled = true;
-				this->fixButton->Enabled = true;
-				this->giveUpButton->Enabled = true;
-				this->solveButton->Enabled = false;
+			this->fillBoardFromEngine(false);
+			this->gameMode = 1;
+			this->numberOfHints = 0;
+			this->RestartButton->Enabled = true;
+			this->hintButton->Enabled = true;
+			this->fixButton->Enabled = true;
+			this->giveUpButton->Enabled = true;
+			this->solveButton->Enabled = false;
 
-				// Move focus to the first editable cell
-				for each (Button^ cell in this->cells)
+			// Move focus to the first editable cell
+			for each (Button^ cell in this->cells)
+			{
+				if (cell->Enabled)
 				{
-					if (cell->Enabled)
-					{
-						cell->Focus();
-						break;
-					}
+					cell->Focus();
+					break;
 				}
 			}
+		}
 
 		// Check if the solution is correct
 		private: const bool checkSolution()
@@ -2960,23 +3013,6 @@ namespace Sudoku_3_0
 			this->giveUpButton->Enabled = false;
 		}
 
-		private: void newCombinationButton_Click(System::Object^  sender, System::EventArgs^  e)
-		{
-			if (!this->promptSaveIfNeeded()) return;
-			this->closeHelperForms();
-			this->disableHint();
-
-			this->engine->newCombination();
-			this->fillBoardFromEngine(false);
-
-			this->gameMode = 0;
-			this->RestartButton->Enabled = false;
-			this->hintButton->Enabled = false;
-			this->fixButton->Enabled = false;
-			this->giveUpButton->Enabled = false;
-			this->solveButton->Enabled = false;
-		}
-
 		private: void customPuzzleButton_Click(System::Object^  sender, System::EventArgs^  e)
 		{
 			if (!this->promptSaveIfNeeded()) return;
@@ -3127,14 +3163,6 @@ namespace Sudoku_3_0
 			}
 		}
 
-		private: void newCombinationToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
-		{
-			if (this->newCombinationButton->Enabled)
-			{
-				this->newCombinationButton_Click(sender, e);
-			}
-		}
-
 		private: void veryEasyToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
 		{
 			this->difficultyComboBox->SelectedIndex = 0;
@@ -3196,7 +3224,6 @@ namespace Sudoku_3_0
 				"Hint - activate hint mode to open selected cells\n"
 				"Fix - remove all wrong numbers\n"
 				"Give Up - show solution of current puzzle\n"
-				"New Combo - create a new valid 9x9 combination\n"
 				"Custom Puzzle - enter a custom sudoku puzzle\n"
 				"Solve - solve custom sudoku puzzle",
 				"Features",
