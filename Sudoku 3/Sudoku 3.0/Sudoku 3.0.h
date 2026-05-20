@@ -144,7 +144,7 @@ namespace Sudoku_3_0
     private: System::Windows::Forms::Label^ difficultyLabel;
     private: System::Windows::Forms::ComboBox^ difficultyComboBox;
     private: System::Windows::Forms::Button^ newGameButton;
-    private: System::Windows::Forms::Button^ RestartButton;
+    private: System::Windows::Forms::Button^ restartButton;
     private: System::Windows::Forms::Button^ hintButton;
     private: System::Windows::Forms::Button^ fixButton;
     private: System::Windows::Forms::Button^ giveUpButton;
@@ -165,7 +165,7 @@ namespace Sudoku_3_0
 
     private: System::Windows::Forms::ToolStripMenuItem^ newGameToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ undoToolStripMenuItem;
-    private: System::Windows::Forms::ToolStripMenuItem^ RestartToolStripMenuItem;
+    private: System::Windows::Forms::ToolStripMenuItem^ restartToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ hintToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ fixToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ giveUpToolStripMenuItem;
@@ -325,7 +325,7 @@ namespace Sudoku_3_0
                this->difficultyLabel = (gcnew System::Windows::Forms::Label());
                this->difficultyComboBox = (gcnew System::Windows::Forms::ComboBox());
                this->newGameButton = (gcnew System::Windows::Forms::Button());
-               this->RestartButton = (gcnew System::Windows::Forms::Button());
+               this->restartButton = (gcnew System::Windows::Forms::Button());
                this->hintButton = (gcnew System::Windows::Forms::Button());
                this->fixButton = (gcnew System::Windows::Forms::Button());
                this->giveUpButton = (gcnew System::Windows::Forms::Button());
@@ -342,13 +342,13 @@ namespace Sudoku_3_0
                this->exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->gameToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->newGameToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-               this->undoToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-               this->RestartToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+               this->restartToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->hintToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->fixToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->giveUpToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->customPuzzleToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->solveToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+               this->undoToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->optionsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->difficultyToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->veryEasyToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -1824,21 +1824,21 @@ namespace Sudoku_3_0
                this->newGameButton->UseVisualStyleBackColor = false;
                this->newGameButton->Click += gcnew System::EventHandler(this, &SudokuForm::newGameButton_Click);
                // 
-               // RestartButton
+               // restartButton
                // 
-               this->RestartButton->BackColor = System::Drawing::SystemColors::Menu;
-               this->RestartButton->FlatAppearance->BorderSize = 0;
-               this->RestartButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->RestartButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+               this->restartButton->BackColor = System::Drawing::SystemColors::Menu;
+               this->restartButton->FlatAppearance->BorderSize = 0;
+               this->restartButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
+               this->restartButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                    static_cast<System::Byte>(0)));
-               this->RestartButton->Location = System::Drawing::Point(699, 306);
-               this->RestartButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
-               this->RestartButton->Name = L"RestartButton";
-               this->RestartButton->Size = System::Drawing::Size(240, 43);
-               this->RestartButton->TabIndex = 88;
-               this->RestartButton->Text = L"Restart";
-               this->RestartButton->UseVisualStyleBackColor = false;
-               this->RestartButton->Click += gcnew System::EventHandler(this, &SudokuForm::RestartButton_Click);
+               this->restartButton->Location = System::Drawing::Point(699, 306);
+               this->restartButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
+               this->restartButton->Name = L"restartButton";
+               this->restartButton->Size = System::Drawing::Size(240, 43);
+               this->restartButton->TabIndex = 88;
+               this->restartButton->Text = L"Restart";
+               this->restartButton->UseVisualStyleBackColor = false;
+               this->restartButton->Click += gcnew System::EventHandler(this, &SudokuForm::restartButton_Click);
                // 
                // hintButton
                // 
@@ -1952,7 +1952,6 @@ namespace Sudoku_3_0
                this->menuStrip->AccessibleRole = System::Windows::Forms::AccessibleRole::MenuBar;
                this->menuStrip->AllowMerge = false;
                this->menuStrip->BackColor = System::Drawing::SystemColors::ButtonFace;
-               this->menuStrip->GripMargin = System::Windows::Forms::Padding(2, 2, 0, 2);
                this->menuStrip->ImageScalingSize = System::Drawing::Size(24, 24);
                this->menuStrip->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
                    this->fileToolStripMenuItem,
@@ -2016,8 +2015,8 @@ namespace Sudoku_3_0
                // 
                this->gameToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(8) {
                    this->newGameToolStripMenuItem,
-                       this->RestartToolStripMenuItem, this->undoToolStripMenuItem, this->hintToolStripMenuItem, this->fixToolStripMenuItem, this->giveUpToolStripMenuItem, this->customPuzzleToolStripMenuItem,
-                       this->solveToolStripMenuItem
+                       this->restartToolStripMenuItem, this->hintToolStripMenuItem, this->fixToolStripMenuItem, this->giveUpToolStripMenuItem, this->customPuzzleToolStripMenuItem,
+                       this->solveToolStripMenuItem, this->undoToolStripMenuItem
                });
                this->gameToolStripMenuItem->Name = L"gameToolStripMenuItem";
                this->gameToolStripMenuItem->Size = System::Drawing::Size(74, 29);
@@ -2031,21 +2030,13 @@ namespace Sudoku_3_0
                this->newGameToolStripMenuItem->Text = L"New Game";
                this->newGameToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::newGameToolStripMenuItem_Click);
                // 
-               // RestartToolStripMenuItem
+               // restartToolStripMenuItem
                // 
-               this->RestartToolStripMenuItem->Name = L"RestartToolStripMenuItem";
-               this->RestartToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::R));
-               this->RestartToolStripMenuItem->Size = System::Drawing::Size(291, 34);
-               this->RestartToolStripMenuItem->Text = L"Restart";
-               this->RestartToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::RestartToolStripMenuItem_Click);
-               // 
-               // undoToolStripMenuItem
-               // 
-               this->undoToolStripMenuItem->Name = L"undoToolStripMenuItem";
-               this->undoToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Z));
-               this->undoToolStripMenuItem->Size = System::Drawing::Size(291, 34);
-               this->undoToolStripMenuItem->Text = L"Undo";
-               this->undoToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::undoToolStripMenuItem_Click);
+               this->restartToolStripMenuItem->Name = L"restartToolStripMenuItem";
+               this->restartToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::R));
+               this->restartToolStripMenuItem->Size = System::Drawing::Size(291, 34);
+               this->restartToolStripMenuItem->Text = L"Restart";
+               this->restartToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::restartToolStripMenuItem_Click);
                // 
                // hintToolStripMenuItem
                // 
@@ -2087,6 +2078,14 @@ namespace Sudoku_3_0
                this->solveToolStripMenuItem->Text = L"Solve";
                this->solveToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::solveToolStripMenuItem_Click);
                // 
+               // undoToolStripMenuItem
+               // 
+               this->undoToolStripMenuItem->Name = L"undoToolStripMenuItem";
+               this->undoToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Z));
+               this->undoToolStripMenuItem->Size = System::Drawing::Size(291, 34);
+               this->undoToolStripMenuItem->Text = L"Undo";
+               this->undoToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::undoToolStripMenuItem_Click);
+               // 
                // optionsToolStripMenuItem
                // 
                this->optionsToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) { this->difficultyToolStripMenuItem });
@@ -2101,7 +2100,7 @@ namespace Sudoku_3_0
                        this->easyToolStripMenuItem, this->mediumToolStripMenuItem, this->hardToolStripMenuItem, this->veryHardToolStripMenuItem
                });
                this->difficultyToolStripMenuItem->Name = L"difficultyToolStripMenuItem";
-               this->difficultyToolStripMenuItem->Size = System::Drawing::Size(184, 34);
+               this->difficultyToolStripMenuItem->Size = System::Drawing::Size(270, 34);
                this->difficultyToolStripMenuItem->Text = L"Difficulty";
                // 
                // veryEasyToolStripMenuItem
@@ -2157,40 +2156,40 @@ namespace Sudoku_3_0
                // aboutToolStripMenuItem
                // 
                this->aboutToolStripMenuItem->Name = L"aboutToolStripMenuItem";
-               this->aboutToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::A));
-               this->aboutToolStripMenuItem->Size = System::Drawing::Size(294, 34);
+               this->aboutToolStripMenuItem->ShowShortcutKeys = false;
+               this->aboutToolStripMenuItem->Size = System::Drawing::Size(270, 34);
                this->aboutToolStripMenuItem->Text = L"About";
                this->aboutToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::aboutToolStripMenuItem_Click);
                // 
                // rulesToolStripMenuItem
                // 
                this->rulesToolStripMenuItem->Name = L"rulesToolStripMenuItem";
-               this->rulesToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::B));
-               this->rulesToolStripMenuItem->Size = System::Drawing::Size(294, 34);
+               this->rulesToolStripMenuItem->ShowShortcutKeys = false;
+               this->rulesToolStripMenuItem->Size = System::Drawing::Size(270, 34);
                this->rulesToolStripMenuItem->Text = L"Rules";
                this->rulesToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::rulesToolStripMenuItem_Click);
                // 
                // featuresToolStripMenuItem
                // 
                this->featuresToolStripMenuItem->Name = L"featuresToolStripMenuItem";
-               this->featuresToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::C));
-               this->featuresToolStripMenuItem->Size = System::Drawing::Size(294, 34);
+               this->featuresToolStripMenuItem->ShowShortcutKeys = false;
+               this->featuresToolStripMenuItem->Size = System::Drawing::Size(270, 34);
                this->featuresToolStripMenuItem->Text = L"Features";
                this->featuresToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::featuresToolStripMenuItem_Click);
                // 
                // hintsAndTipsToolStripMenuItem
                // 
                this->hintsAndTipsToolStripMenuItem->Name = L"hintsAndTipsToolStripMenuItem";
-               this->hintsAndTipsToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::D));
-               this->hintsAndTipsToolStripMenuItem->Size = System::Drawing::Size(294, 34);
+               this->hintsAndTipsToolStripMenuItem->ShowShortcutKeys = false;
+               this->hintsAndTipsToolStripMenuItem->Size = System::Drawing::Size(270, 34);
                this->hintsAndTipsToolStripMenuItem->Text = L"Hints And Tips";
                this->hintsAndTipsToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::hintsAndTipsToolStripMenuItem_Click);
                // 
                // keyboardToolStripMenuItem
                // 
                this->keyboardToolStripMenuItem->Name = L"keyboardToolStripMenuItem";
-               this->keyboardToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::E));
-               this->keyboardToolStripMenuItem->Size = System::Drawing::Size(294, 34);
+               this->keyboardToolStripMenuItem->ShowShortcutKeys = false;
+               this->keyboardToolStripMenuItem->Size = System::Drawing::Size(270, 34);
                this->keyboardToolStripMenuItem->Text = L"Keyboard";
                this->keyboardToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::keyboardToolStripMenuItem_Click);
                // 
@@ -2207,7 +2206,7 @@ namespace Sudoku_3_0
                this->Controls->Add(this->giveUpButton);
                this->Controls->Add(this->fixButton);
                this->Controls->Add(this->hintButton);
-               this->Controls->Add(this->RestartButton);
+               this->Controls->Add(this->restartButton);
                this->Controls->Add(this->newGameButton);
                this->Controls->Add(this->difficultyComboBox);
                this->Controls->Add(this->difficultyLabel);
@@ -2598,7 +2597,7 @@ namespace Sudoku_3_0
         this->hasUsedFix = false;
         this->undoStack->Clear();
         this->undoToolStripMenuItem->Enabled = false;
-        this->RestartButton->Enabled = true;
+        this->restartButton->Enabled = true;
         this->setGameControls(true, true, true, false);
         for (unsigned int i = 0; i < this->numberOfCells; ++i) this->pencilMarks[i] = 0;
         this->setPencilMode(false);
@@ -2784,14 +2783,17 @@ namespace Sudoku_3_0
         this->closeHelperForms();
         System::Windows::Forms::Button^ cell = this->cells[cellNumber - 1];
 
-        // Pencil mode: toggle mark bit, don't touch the cell value
-        if (this->pencilMode && choice >= 1 && choice <= 9 && cell->Enabled && cell->Text->Length == 0)
+        // Pencil mode: toggle mark bit only, never touch the cell value
+        if (this->pencilMode && cell->Enabled)
         {
-            this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
-                cellNumber - 1, cell->Text, this->pencilMarks[cellNumber - 1]));
-            this->undoToolStripMenuItem->Enabled = true;
-            this->pencilMarks[cellNumber - 1] ^= (1 << (int)choice);
-            cell->Invalidate();
+            if (choice >= 1 && choice <= 9)
+            {
+                this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
+                    cellNumber - 1, cell->Text, this->pencilMarks[cellNumber - 1]));
+                this->undoToolStripMenuItem->Enabled = true;
+                this->pencilMarks[cellNumber - 1] ^= (1 << (int)choice);
+                cell->Invalidate();
+            }
             return;
         }
 
@@ -2808,8 +2810,6 @@ namespace Sudoku_3_0
                     ++(this->numberOfFilledCells);
                     // Clear this digit from all peers' pencil marks
                     this->clearPeerPencilMark(cellNumber - 1, choice);
-                    // Clear own pencil marks now that a value is placed
-                    this->pencilMarks[cellNumber - 1] = 0;
                     cell->Invalidate();
                     this->highlightCellConflict(cellNumber - 1);
                     this->revalidatePeers(cellNumber - 1);
@@ -2821,7 +2821,6 @@ namespace Sudoku_3_0
                 {
                     cell->Text = String::Empty;
                     --(this->numberOfFilledCells);
-                    this->pencilMarks[cellNumber - 1] = 0;
                     cell->BackColor = defaultBackColor;
                     cell->Invalidate();
                     this->revalidatePeers(cellNumber - 1);
@@ -2830,7 +2829,6 @@ namespace Sudoku_3_0
                 {
                     cell->Text = choice.ToString();
                     this->clearPeerPencilMark(cellNumber - 1, choice);
-                    this->pencilMarks[cellNumber - 1] = 0;
                     cell->Invalidate();
                     this->highlightCellConflict(cellNumber - 1);
                     this->revalidatePeers(cellNumber - 1);
@@ -3226,7 +3224,7 @@ namespace Sudoku_3_0
         this->newGame(difficulty);
     }
 
-    private: void RestartButton_Click(System::Object^ sender, System::EventArgs^ e)
+    private: void restartButton_Click(System::Object^ sender, System::EventArgs^ e)
     {
         System::Windows::Forms::DialogResult confirm = MessageBox::Show(
             "Are you sure you want to restart?\nAll your progress on this puzzle will be lost.",
@@ -3253,6 +3251,7 @@ namespace Sudoku_3_0
             if (!cell->Enabled && cell->ForeColor == defaultColor)
             {
                 ++this->numberOfFilledCells;
+                cell->BackColor = defaultBackColor;  // clear any conflict highlight
             }
             else
             {
@@ -3390,7 +3389,7 @@ namespace Sudoku_3_0
         this->clearBoard(true);
 
         this->gameMode = 2;
-        this->RestartButton->Enabled = false;
+        this->restartButton->Enabled = false;
         this->undoStack->Clear();
         this->undoToolStripMenuItem->Enabled = false;
         this->setGameControls(false, false, false, true);
@@ -3482,11 +3481,11 @@ namespace Sudoku_3_0
         }
     }
 
-    private: void RestartToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
+    private: void restartToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        if (this->RestartButton->Enabled)
+        if (this->restartButton->Enabled)
         {
-            this->RestartButton_Click(sender, e);
+            this->restartButton_Click(sender, e);
         }
     }
 
@@ -4292,7 +4291,7 @@ namespace Sudoku_3_0
             this->hasGivenUp = save->hasGivenUp;
             this->hasUsedFix = save->hasUsedFix;
             this->gameMode = save->gameMode;
-            this->RestartButton->Enabled = save->gameMode == 1;
+            this->restartButton->Enabled = save->gameMode == 1;
             this->setGameControls(
                 save->gameMode == 1 && !save->gameFinished,
                 save->gameMode == 1 && !save->gameFinished,
