@@ -33,12 +33,6 @@ namespace Sudoku_3_0
 		~SudokuForm()
 		{
 			delete engine;
-			delete cells;
-
-			if (components)
-			{
-				delete components;
-			}
 		}
 
 	// Set of standard colors
@@ -226,9 +220,6 @@ namespace Sudoku_3_0
 	// Dragging state
 	private: bool dragging;
 	private: Point offset;
-
-	// Components
-	private: System::ComponentModel::Container ^components;
 
 #pragma region Windows Form Designer generated code
 
