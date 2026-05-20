@@ -4143,23 +4143,9 @@ namespace Sudoku_3_0
 				}
 			}
 			catch (...)
-			{
-				// If an error occured, clear the board
-				this->clearBoard(false);
-				this->RestartButton->Enabled = false;
-				this->hintButton->Enabled = false;
-				this->fixButton->Enabled = false;
-				this->giveUpButton->Enabled = false;
-				this->solveButton->Enabled = false;
-				this->gameMode = 3;
-				this->cells[1]->Text = "B";
-				this->cells[4]->Text = "A";
-				this->cells[7]->Text = "D";
-				this->cells[10]->Text = "F";
-				this->cells[12]->Text = "I";
-				this->cells[14]->Text = "L";
-				this->cells[16]->Text = "E";
-			}
+				{
+					this->showNotification("The save file is corrupted and could not be loaded.");
+				}
 			finally
 			{
 				if (fileStream != nullptr)
