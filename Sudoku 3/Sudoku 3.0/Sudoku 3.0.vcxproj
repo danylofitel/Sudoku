@@ -102,6 +102,7 @@
       <FileType>CppForm</FileType>
     </ClInclude>
     <ClInclude Include="SavedGame.h" />
+    <ClInclude Include="Strings.h" />
     <ClInclude Include="Sudoku 3.0.h">
       <FileType>CppForm</FileType>
     </ClInclude>

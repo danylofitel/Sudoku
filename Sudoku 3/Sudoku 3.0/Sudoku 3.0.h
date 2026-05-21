@@ -5,6 +5,7 @@
 #include "Numbers.h"
 #include "SavedGame.h"
 #include "SudokuEngine.h"
+#include "Strings.h"
 
 namespace Sudoku_3_0
 {
@@ -187,6 +188,9 @@ namespace Sudoku_3_0
     private: System::Windows::Forms::ToolStripMenuItem^ pencilToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ optionsToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ difficultyToolStripMenuItem;
+    private: System::Windows::Forms::ToolStripMenuItem^ languageToolStripMenuItem;
+    private: System::Windows::Forms::ToolStripMenuItem^ englishToolStripMenuItem;
+    private: System::Windows::Forms::ToolStripMenuItem^ ukrainianToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ veryEasyToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ easyToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ mediumToolStripMenuItem;
@@ -243,6 +247,9 @@ namespace Sudoku_3_0
 
            // Sentinel cellIndex value marking a batch boundary in the undo stack
     private: static const unsigned int undoGroupSentinel = UINT_MAX;
+
+           // Active UI language
+    private: Language currentLanguage;
 
            // Pencil mark bitmask per cell: bit N set means digit N is marked (bits 1-9)
     private: array<int>^ pencilMarks;
@@ -374,6 +381,9 @@ namespace Sudoku_3_0
                this->undoToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->optionsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->difficultyToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+               this->languageToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+               this->englishToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+               this->ukrainianToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->veryEasyToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->easyToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->mediumToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -2143,7 +2153,9 @@ namespace Sudoku_3_0
                // 
                // optionsToolStripMenuItem
                // 
-               this->optionsToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) { this->difficultyToolStripMenuItem });
+               this->optionsToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
+                   this->difficultyToolStripMenuItem, this->languageToolStripMenuItem
+               });
                this->optionsToolStripMenuItem->Name = L"optionsToolStripMenuItem";
                this->optionsToolStripMenuItem->Size = System::Drawing::Size(92, 29);
                this->optionsToolStripMenuItem->Text = L"Options";
@@ -2157,6 +2169,30 @@ namespace Sudoku_3_0
                this->difficultyToolStripMenuItem->Name = L"difficultyToolStripMenuItem";
                this->difficultyToolStripMenuItem->Size = System::Drawing::Size(184, 34);
                this->difficultyToolStripMenuItem->Text = L"Difficulty";
+               // 
+               // languageToolStripMenuItem
+               // 
+               this->languageToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
+                   this->englishToolStripMenuItem, this->ukrainianToolStripMenuItem
+               });
+               this->languageToolStripMenuItem->Name = L"languageToolStripMenuItem";
+               this->languageToolStripMenuItem->Size = System::Drawing::Size(184, 34);
+               this->languageToolStripMenuItem->Text = L"Language";
+               // 
+               // englishToolStripMenuItem
+               // 
+               this->englishToolStripMenuItem->Name = L"englishToolStripMenuItem";
+               this->englishToolStripMenuItem->Size = System::Drawing::Size(184, 34);
+               this->englishToolStripMenuItem->Text = L"English";
+               this->englishToolStripMenuItem->Checked = true;
+               this->englishToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::englishToolStripMenuItem_Click);
+               // 
+               // ukrainianToolStripMenuItem
+               // 
+               this->ukrainianToolStripMenuItem->Name = L"ukrainianToolStripMenuItem";
+               this->ukrainianToolStripMenuItem->Size = System::Drawing::Size(184, 34);
+               this->ukrainianToolStripMenuItem->Text = L"Українська";
+               this->ukrainianToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::ukrainianToolStripMenuItem_Click);
                // 
                // veryEasyToolStripMenuItem
                // 
@@ -2373,7 +2409,7 @@ namespace Sudoku_3_0
            // Show notification
     private: void showNotification(System::String^ message)
     {
-        MessageBox::Show(message, "Sudoku", MessageBoxButtons::OK, MessageBoxIcon::None);
+        MessageBox::Show(message, Strings::Get(StringId::DialogTitleSudoku, this->currentLanguage), MessageBoxButtons::OK, MessageBoxIcon::None);
     }
 
     private: void setGameControls(bool hint, bool fix, bool giveUp, bool solve)
@@ -2394,12 +2430,12 @@ namespace Sudoku_3_0
     {
         switch (d)
         {
-        case 0: return "Very Easy";
-        case 1: return "Easy";
-        case 2: return "Medium";
-        case 3: return "Hard";
-        case 4: return "Very Hard";
-        default: return "Medium";
+        case 0: return Strings::Get(StringId::DifficultyVeryEasy, this->currentLanguage);
+        case 1: return Strings::Get(StringId::DifficultyEasy, this->currentLanguage);
+        case 2: return Strings::Get(StringId::DifficultyMedium, this->currentLanguage);
+        case 3: return Strings::Get(StringId::DifficultyHard, this->currentLanguage);
+        case 4: return Strings::Get(StringId::DifficultyVeryHard, this->currentLanguage);
+        default: return Strings::Get(StringId::DifficultyMedium, this->currentLanguage);
         }
     }
 
@@ -2439,7 +2475,9 @@ namespace Sudoku_3_0
         this->undoStack = gcnew System::Collections::Generic::Stack<System::Tuple<unsigned int, System::String^, int>^>();
         this->gameMode = GameMode::None;
         this->currentDifficulty = 2;
+        this->currentLanguage = Language::English;
         this->difficultyComboBox->SelectedIndex = currentDifficulty;
+        this->applyLanguage();
 
         // Wire Paint events for pencil marks on each cell
         for each (System::Windows::Forms::Button ^ cell in this->cells)
@@ -2449,6 +2487,89 @@ namespace Sudoku_3_0
 
         // Start a new game
         this->newGame(SudokuGameEngine::DifficultyLevel::Medium);
+    }
+
+           // Apply the current language to all UI controls and update the language menu checkmarks
+    private: void applyLanguage()
+    {
+        Language lang = this->currentLanguage;
+
+        // Window title
+        this->Text = Strings::Get(StringId::WindowTitle, lang);
+
+        // Buttons
+        this->newGameButton->Text = Strings::Get(StringId::ButtonNewGame, lang);
+        this->restartButton->Text = Strings::Get(StringId::ButtonRestart, lang);
+        this->hintButton->Text = Strings::Get(StringId::ButtonHint, lang);
+        this->fixButton->Text = Strings::Get(StringId::ButtonFix, lang);
+        this->giveUpButton->Text = Strings::Get(StringId::ButtonGiveUp, lang);
+        this->customPuzzleButton->Text = Strings::Get(StringId::ButtonEnterPuzzle, lang);
+        this->solveButton->Text = Strings::Get(StringId::ButtonSolve, lang);
+        this->undoButton->Text = Strings::Get(StringId::ButtonUndo, lang);
+        this->pencilButton->Text = Strings::Get(StringId::ButtonPencil, lang);
+
+        // Difficulty label
+        this->difficultyLabel->Text = Strings::Get(StringId::LabelDifficulty, lang);
+
+        // Difficulty combo items
+        int sel = this->difficultyComboBox->SelectedIndex;
+        this->difficultyComboBox->Items->Clear();
+        this->difficultyComboBox->Items->Add(Strings::Get(StringId::DifficultyVeryEasy, lang));
+        this->difficultyComboBox->Items->Add(Strings::Get(StringId::DifficultyEasy, lang));
+        this->difficultyComboBox->Items->Add(Strings::Get(StringId::DifficultyMedium, lang));
+        this->difficultyComboBox->Items->Add(Strings::Get(StringId::DifficultyHard, lang));
+        this->difficultyComboBox->Items->Add(Strings::Get(StringId::DifficultyVeryHard, lang));
+        this->difficultyComboBox->SelectedIndex = sel >= 0 ? sel : 2;
+
+        // Menu: File
+        this->fileToolStripMenuItem->Text = Strings::Get(StringId::MenuFile, lang);
+        this->saveToolStripMenuItem->Text = Strings::Get(StringId::MenuSave, lang);
+        this->openToolStripMenuItem->Text = Strings::Get(StringId::MenuOpen, lang);
+        this->minimizeToolStripMenuItem->Text = Strings::Get(StringId::MenuMinimize, lang);
+        this->exitToolStripMenuItem->Text = Strings::Get(StringId::MenuExit, lang);
+
+        // Menu: Game
+        this->gameToolStripMenuItem->Text = Strings::Get(StringId::MenuGame, lang);
+        this->newGameToolStripMenuItem->Text = Strings::Get(StringId::MenuNewGame, lang);
+        this->restartToolStripMenuItem->Text = Strings::Get(StringId::MenuRestart, lang);
+        this->pencilToolStripMenuItem->Text = Strings::Get(StringId::MenuPencil, lang);
+        this->hintToolStripMenuItem->Text = Strings::Get(StringId::MenuHint, lang);
+        this->fixToolStripMenuItem->Text = Strings::Get(StringId::MenuFix, lang);
+        this->giveUpToolStripMenuItem->Text = Strings::Get(StringId::MenuGiveUp, lang);
+        this->customPuzzleToolStripMenuItem->Text = Strings::Get(StringId::MenuEnterPuzzle, lang);
+        this->solveToolStripMenuItem->Text = Strings::Get(StringId::MenuSolve, lang);
+        this->undoToolStripMenuItem->Text = Strings::Get(StringId::MenuUndo, lang);
+
+        // Menu: Options
+        this->optionsToolStripMenuItem->Text = Strings::Get(StringId::MenuOptions, lang);
+        this->difficultyToolStripMenuItem->Text = Strings::Get(StringId::MenuDifficulty, lang);
+        this->languageToolStripMenuItem->Text = Strings::Get(StringId::MenuLanguage, lang);
+        this->englishToolStripMenuItem->Text = Strings::Get(StringId::MenuLanguageEnglish, lang);
+        this->ukrainianToolStripMenuItem->Text = Strings::Get(StringId::MenuLanguageUkrainian, lang);
+
+        // Menu: Help
+        this->helpToolStripMenuItem->Text = Strings::Get(StringId::MenuHelp, lang);
+        this->aboutToolStripMenuItem->Text = Strings::Get(StringId::MenuAbout, lang);
+        this->rulesToolStripMenuItem->Text = Strings::Get(StringId::MenuRules, lang);
+        this->featuresToolStripMenuItem->Text = Strings::Get(StringId::MenuFeatures, lang);
+        this->hintsAndTipsToolStripMenuItem->Text = Strings::Get(StringId::MenuHintsAndTips, lang);
+        this->keyboardToolStripMenuItem->Text = Strings::Get(StringId::MenuKeyboard, lang);
+
+        // Language menu checkmarks
+        this->englishToolStripMenuItem->Checked = (lang == Language::English);
+        this->ukrainianToolStripMenuItem->Checked = (lang == Language::Ukrainian);
+    }
+
+    private: void englishToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
+    {
+        this->currentLanguage = Language::English;
+        this->applyLanguage();
+    }
+
+    private: void ukrainianToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
+    {
+        this->currentLanguage = Language::Ukrainian;
+        this->applyLanguage();
     }
 
            void initializeCells()
@@ -2738,35 +2859,35 @@ namespace Sudoku_3_0
 
                 if (clean)
                 {
-                    msg += "Congratulations! You won without any hints or fixes!";
+                    msg += Strings::Get(StringId::WinClean, this->currentLanguage);
                 }
                 else if (!this->hasGivenUp)
                 {
-                    msg += "You beat the game";
+                    msg += Strings::Get(StringId::WinWithAssists, this->currentLanguage);
                     System::Collections::Generic::List<System::String^>^ assists = gcnew System::Collections::Generic::List<System::String^>();
-                    if (this->numberOfHints == 1) assists->Add("1 hint");
-                    else if (this->numberOfHints > 1) assists->Add(this->numberOfHints + " hints");
-                    if (this->numberOfFixes == 1) assists->Add("1 fix");
-                    else if (this->numberOfFixes > 1) assists->Add(this->numberOfFixes + " fixes");
+                    if (this->numberOfHints == 1) assists->Add(Strings::Get(StringId::WinAssistHint, this->currentLanguage));
+                    else if (this->numberOfHints > 1) assists->Add(this->numberOfHints + Strings::Get(StringId::WinAssistHints, this->currentLanguage));
+                    if (this->numberOfFixes == 1) assists->Add(Strings::Get(StringId::WinAssistFix, this->currentLanguage));
+                    else if (this->numberOfFixes > 1) assists->Add(this->numberOfFixes + Strings::Get(StringId::WinAssistFixes, this->currentLanguage));
                     msg += " using " + System::String::Join(" and ", assists) + "!";
                 }
                 else
                 {
-                    msg += "You completed the puzzle after giving up";
+                    msg += Strings::Get(StringId::WinAfterGiveUp, this->currentLanguage);
                     System::Collections::Generic::List<System::String^>^ assists = gcnew System::Collections::Generic::List<System::String^>();
-                    if (this->numberOfHints == 1) assists->Add("1 hint");
-                    else if (this->numberOfHints > 1) assists->Add(this->numberOfHints + " hints");
-                    if (this->numberOfFixes == 1) assists->Add("1 fix");
-                    else if (this->numberOfFixes > 1) assists->Add(this->numberOfFixes + " fixes");
+                    if (this->numberOfHints == 1) assists->Add(Strings::Get(StringId::WinAssistHint, this->currentLanguage));
+                    else if (this->numberOfHints > 1) assists->Add(this->numberOfHints + Strings::Get(StringId::WinAssistHints, this->currentLanguage));
+                    if (this->numberOfFixes == 1) assists->Add(Strings::Get(StringId::WinAssistFix, this->currentLanguage));
+                    else if (this->numberOfFixes > 1) assists->Add(this->numberOfFixes + Strings::Get(StringId::WinAssistFixes, this->currentLanguage));
                     if (assists->Count > 0)
                         msg += ", using " + System::String::Join(" and ", assists);
                     msg += ".";
                 }
 
-                msg += "\n\nDifficulty: " + this->difficultyName(this->currentDifficulty);
+                msg += Strings::Get(StringId::WinDifficulty, this->currentLanguage) + this->difficultyName(this->currentDifficulty);
                 if (this->winStreak > 1)
                 {
-                    msg += "\nWin streak: " + this->winStreak;
+                    msg += Strings::Get(StringId::WinStreak, this->currentLanguage) + this->winStreak;
                 }
 
                 this->showNotification(msg);
@@ -3279,8 +3400,8 @@ namespace Sudoku_3_0
         if (this->gameMode == GameMode::Game || this->gameMode == GameMode::Solver)
         {
             System::Windows::Forms::DialogResult result = MessageBox::Show(
-                "Do you want to save the current game?",
-                "Save Game",
+                Strings::Get(StringId::DialogSavePrompt, this->currentLanguage),
+                Strings::Get(StringId::DialogTitleSave, this->currentLanguage),
                 MessageBoxButtons::YesNoCancel,
                 MessageBoxIcon::Question);
 
@@ -3352,8 +3473,8 @@ namespace Sudoku_3_0
     private: void restartButton_Click(System::Object^ sender, System::EventArgs^ e)
     {
         System::Windows::Forms::DialogResult confirm = MessageBox::Show(
-            "Are you sure you want to restart?\nAll your progress on this puzzle will be lost.",
-            "Restart",
+            Strings::Get(StringId::DialogRestartPrompt, this->currentLanguage),
+            Strings::Get(StringId::DialogTitleRestart, this->currentLanguage),
             MessageBoxButtons::OKCancel,
             MessageBoxIcon::None);
 
@@ -3425,8 +3546,8 @@ namespace Sudoku_3_0
         if (!this->hasUsedFix)
         {
             System::Windows::Forms::DialogResult confirm = MessageBox::Show(
-                "Fix will clear all cells whose values conflict with the solution.\nThis will disqualify you from a clean win on this puzzle.",
-                "Fix",
+                Strings::Get(StringId::DialogFixPrompt, this->currentLanguage),
+                Strings::Get(StringId::DialogTitleFix, this->currentLanguage),
                 MessageBoxButtons::OKCancel,
                 MessageBoxIcon::None);
 
@@ -3485,8 +3606,8 @@ namespace Sudoku_3_0
         if (!this->hasGivenUp)
         {
             System::Windows::Forms::DialogResult confirm = MessageBox::Show(
-                "Are you sure you want to give up?\nThis will disqualify you from a clean win on this puzzle.",
-                "Give Up",
+                Strings::Get(StringId::DialogGiveUpPrompt, this->currentLanguage),
+                Strings::Get(StringId::DialogTitleGiveUp, this->currentLanguage),
                 MessageBoxButtons::YesNo,
                 MessageBoxIcon::None);
 
@@ -3583,17 +3704,17 @@ namespace Sudoku_3_0
         }
         else if (engine->currentState() == SudokuGameEngine::SudokuEngineState::HasMultipleSolutions)
         {
-            this->showNotification("The puzzle has multiple solutions!");
+            this->showNotification(Strings::Get(StringId::NotifyMultipleSolutions, this->currentLanguage));
         }
         else if (
             engine->currentState() == SudokuGameEngine::SudokuEngineState::HasNoSolution ||
             engine->currentState() == SudokuGameEngine::SudokuEngineState::FilledInvalid)
         {
-            this->showNotification("The puzzle has no solution!");
+            this->showNotification(Strings::Get(StringId::NotifyNoSolution, this->currentLanguage));
         }
         else if (engine->currentState() == SudokuGameEngine::SudokuEngineState::Empty)
         {
-            this->showNotification("The board is empty!");
+            this->showNotification(Strings::Get(StringId::NotifyBoardEmpty, this->currentLanguage));
         }
     }
 
@@ -3717,8 +3838,8 @@ namespace Sudoku_3_0
     private: void aboutToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
         MessageBox::Show(
-            "Sudoku 3.0\n\nAll rights reserved",
-            "About",
+            Strings::Get(StringId::DialogAboutText, this->currentLanguage),
+            Strings::Get(StringId::DialogTitleAbout, this->currentLanguage),
             MessageBoxButtons::OK,
             MessageBoxIcon::None);
     }
@@ -3726,13 +3847,8 @@ namespace Sudoku_3_0
     private: void rulesToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
         MessageBox::Show(
-            "Solving a sudoku puzzle can be rather tricky, but the rules of the game are quite simple.\n\n"
-            "A sudoku puzzle is a grid of nine by nine squares or cells, that has been subdivided into "
-            "nine subgrids or \"regions\" of three by three cells.\n\n"
-            "The objective of sudoku is to enter a digit from 1 through 9 in each cell, in such a way "
-            "that each horizontal row, vertical column and region contains each digit exactly once.\n\n"
-            "A sudoku puzzle has only one solution.",
-            "Rules",
+            Strings::Get(StringId::DialogRulesText, this->currentLanguage),
+            Strings::Get(StringId::DialogTitleRules, this->currentLanguage),
             MessageBoxButtons::OK,
             MessageBoxIcon::None);
     }
@@ -3740,16 +3856,8 @@ namespace Sudoku_3_0
     private: void featuresToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
         MessageBox::Show(
-            "New Game - start a new game\n"
-            "Restart - restart the current game\n"
-            "Pencil - toggle pencil mode to add or remove pencil marks\n"
-            "Hint - toggle hint mode to reveal hidden cells\n"
-            "Fix - remove all incorrect guesses\n"
-            "Give Up - show the solution to the current puzzle\n"
-            "Enter Puzzle - enter a custom sudoku puzzle\n"
-            "Solve - solve a custom sudoku puzzle\n"
-            "Undo - undo the last move or batch of moves",
-            "Features",
+            Strings::Get(StringId::DialogFeaturesText, this->currentLanguage),
+            Strings::Get(StringId::DialogTitleFeatures, this->currentLanguage),
             MessageBoxButtons::OK,
             MessageBoxIcon::None);
     }
@@ -3757,13 +3865,8 @@ namespace Sudoku_3_0
     private: void hintsAndTipsToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
         MessageBox::Show(
-            "You can save the game anytime and open it later\n\n"
-            "Click on any cell you want to fill to see the options\n\n"
-            "If the number you entered is highlighted in red -\n"
-            "it conflicts with existing numbers\n\n"
-            "Click the Hint button to toggle hint mode\n"
-            "Press and hold anywhere to drag the window",
-            "Hints And Tips",
+            Strings::Get(StringId::DialogHintsAndTipsText, this->currentLanguage),
+            Strings::Get(StringId::DialogTitleHintsAndTips, this->currentLanguage),
             MessageBoxButtons::OK,
             MessageBoxIcon::None);
     }
@@ -3771,15 +3874,8 @@ namespace Sudoku_3_0
     private: void keyboardToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
         MessageBox::Show(
-            "The game has full keyboard support\n\n"
-            "Press Tab to select cells\n"
-            "Use Tab or arrow keys to navigate between cells\n"
-            "Press Enter or Space to open the number selection for a cell\n"
-            "Press Backspace or Delete to clear the selected cell\n"
-            "Press a number key to quickly fill the cell\n\n"
-            "All buttons have hotkeys\n"
-            "You can see the list of hotkeys in the main menu",
-            "Keyboard",
+            Strings::Get(StringId::DialogKeyboardText, this->currentLanguage),
+            Strings::Get(StringId::DialogTitleKeyboard, this->currentLanguage),
             MessageBoxButtons::OK,
             MessageBoxIcon::None);
     }
@@ -4395,7 +4491,7 @@ namespace Sudoku_3_0
         }
         catch (...)
         {
-            this->showNotification("Could not write the file!");
+            this->showNotification(Strings::Get(StringId::NotifyFileSaveError, this->currentLanguage));
         }
         finally
         {
@@ -4621,7 +4717,7 @@ namespace Sudoku_3_0
         }
         catch (...)
         {
-            this->showNotification("The save file is corrupted and could not be loaded.");
+            this->showNotification(Strings::Get(StringId::NotifyFileLoadError, this->currentLanguage));
         }
         finally
         {
