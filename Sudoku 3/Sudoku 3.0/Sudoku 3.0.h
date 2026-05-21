@@ -35,12 +35,16 @@ namespace Sudoku_3_0
         }
 
     protected:
-        /// <summary>
-        /// Clean up any resources being used
-        /// </summary>
         ~SudokuForm()
         {
             delete engine;
+            engine = nullptr;
+        }
+
+        !SudokuForm()
+        {
+            delete engine;
+            engine = nullptr;
         }
 
         // Set of standard colors
