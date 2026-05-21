@@ -50,11 +50,11 @@ namespace Sudoku_3_0
 
         // Set of standard colors
     private: static const System::Drawing::Color defaultColor = Color::Black;
-    private: static const System::Drawing::Color correctColor = Color::SpringGreen;
-    private: static const System::Drawing::Color hintColor = Color::Yellow;
+    private: static const System::Drawing::Color correctColor = Color::ForestGreen;
+    private: static const System::Drawing::Color hintColor = Color::Orange;
     private: static const System::Drawing::Color hintButtonColor = Color::Orange;
     private: static const System::Drawing::Color giveUpColor = Color::Red;
-    private: static const System::Drawing::Color solveColor = Color::BlueViolet;
+    private: static const System::Drawing::Color solveColor = Color::DarkCyan;
     private: static const System::Drawing::Color defaultBackColor = SystemColors::Menu;
     private: static const System::Drawing::Color conflictBackColor = Color::Red;
     private: static const System::Drawing::Color conflictBackColorImmutable = Color::LightCoral;
