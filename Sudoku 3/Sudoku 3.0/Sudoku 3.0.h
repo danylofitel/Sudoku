@@ -2184,7 +2184,7 @@ namespace Sudoku_3_0
                this->englishToolStripMenuItem->Name = L"englishToolStripMenuItem";
                this->englishToolStripMenuItem->Size = System::Drawing::Size(184, 34);
                this->englishToolStripMenuItem->Text = L"English";
-               this->englishToolStripMenuItem->Checked = true;
+               this->englishToolStripMenuItem->Checked = false;
                this->englishToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::englishToolStripMenuItem_Click);
                // 
                // ukrainianToolStripMenuItem
@@ -2475,7 +2475,7 @@ namespace Sudoku_3_0
         this->undoStack = gcnew System::Collections::Generic::Stack<System::Tuple<unsigned int, System::String^, int>^>();
         this->gameMode = GameMode::None;
         this->currentDifficulty = 2;
-        this->currentLanguage = Language::English;
+        this->currentLanguage = Language::Ukrainian;
         this->difficultyComboBox->SelectedIndex = currentDifficulty;
         this->applyLanguage();
 
@@ -2558,6 +2558,9 @@ namespace Sudoku_3_0
         // Language menu checkmarks
         this->englishToolStripMenuItem->Checked = (lang == Language::English);
         this->ukrainianToolStripMenuItem->Checked = (lang == Language::Ukrainian);
+
+        // Numbers form
+        this->numbersForm->setLanguage(lang);
     }
 
     private: void englishToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)

@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "Strings.h"
+
 namespace Sudoku_3_0 {
 
     using namespace System;
@@ -423,6 +425,23 @@ namespace Sudoku_3_0 {
     public: void setChoiceDelegate(choiceAction^ choiceActionDelegate)
     {
         this->choiceDelegate = choiceActionDelegate;
+    }
+
+          // Apply UI language to the Clear and Cancel buttons
+    public: void setLanguage(Language lang)
+    {
+        this->buttonClear->Text = Strings::Get(StringId::ButtonClear, lang);
+        this->buttonCancel->Text = Strings::Get(StringId::ButtonCancel, lang);
+
+        // Ukrainian labels are longer — use a smaller font so they fit the fixed-size buttons
+        float fontSize = (lang == Language::Ukrainian) ? 12.0F : 14.25F;
+        System::Drawing::Font^ font = gcnew System::Drawing::Font(
+            L"Arial Narrow", fontSize,
+            System::Drawing::FontStyle::Bold,
+            System::Drawing::GraphicsUnit::Point,
+            static_cast<System::Byte>(0));
+        this->buttonClear->Font = font;
+        this->buttonCancel->Font = font;
     }
 
           // Switch between normal mode (Clear + Cancel) and pencil mode (Cancel only)

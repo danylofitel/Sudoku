@@ -101,6 +101,10 @@ namespace Sudoku_3_0
         NotifyFileSaveError,
         NotifyFileLoadError,
 
+        // ---- Numbers form ----
+        ButtonClear,
+        ButtonCancel,
+
         // ---- Win messages ----
         WinClean,
         WinWithAssists,
@@ -519,6 +523,18 @@ namespace Sudoku_3_0
                 switch (lang) {
                 case Language::Ukrainian: return L"Файл збереження пошкоджено і не може бути завантажено.";
                 default:                 return L"The save file is corrupted and could not be loaded.";
+                }
+
+                // ---- Numbers form ----
+            case StringId::ButtonClear:
+                switch (lang) {
+                case Language::Ukrainian: return L"Стерти";
+                default:                 return L"Clear";
+                }
+            case StringId::ButtonCancel:
+                switch (lang) {
+                case Language::Ukrainian: return L"Скасувати";
+                default:                 return L"Cancel";
                 }
 
                 // ---- Win messages ----
