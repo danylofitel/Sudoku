@@ -3406,8 +3406,9 @@ namespace Sudoku_3_0
         System::Drawing::Graphics^ g = e->Graphics;
         float w = (float)cell->ClientSize.Width;
         float h = (float)cell->ClientSize.Height;
-        float cw = w / 3.0f;
-        float ch = h / 3.0f;
+        float pad = Math::Max(2.0f, Math::Min(w, h) * 0.04f);
+        float cw = (w - 2.0f * pad) / 3.0f;
+        float ch = (h - 2.0f * pad) / 3.0f;
 
         System::Drawing::Font^ font = gcnew System::Drawing::Font("Calibri", Math::Max(6.0f, Math::Min(cw, ch) * 0.55f),
             System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point);
@@ -3419,8 +3420,8 @@ namespace Sudoku_3_0
             {
                 int col3 = (d - 1) % 3;
                 int row3 = (d - 1) / 3;
-                float x = col3 * cw;
-                float y = row3 * ch;
+                float x = pad + col3 * cw;
+                float y = pad + row3 * ch;
                 System::Drawing::RectangleF rect(x, y, cw, ch);
                 System::Drawing::StringFormat^ sf = gcnew System::Drawing::StringFormat();
                 sf->Alignment = System::Drawing::StringAlignment::Center;
