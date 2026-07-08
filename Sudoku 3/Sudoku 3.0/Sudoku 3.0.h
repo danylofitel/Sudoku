@@ -1844,7 +1844,7 @@ namespace Sudoku_3_0
                this->difficultyComboBox->Location = System::Drawing::Point(701, 100);
                this->difficultyComboBox->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->difficultyComboBox->Name = L"difficultyComboBox";
-               this->difficultyComboBox->Size = System::Drawing::Size(238, 43);
+               this->difficultyComboBox->Size = System::Drawing::Size(240, 43);
                this->difficultyComboBox->TabIndex = 86;
                this->difficultyComboBox->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &SudokuForm::difficultyComboBox_MouseDown);
                // 
