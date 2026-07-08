@@ -4591,7 +4591,7 @@ namespace Sudoku_3_0
             {
                 choice = e->KeyChar - '0';
             }
-            else if (e->KeyChar == '\b')
+            else if (e->KeyChar == '\b' || e->KeyChar == '0')
             {
                 choice = 0;
             }
