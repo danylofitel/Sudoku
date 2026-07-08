@@ -2475,7 +2475,7 @@ namespace Sudoku_3_0
         this->undoStack = gcnew System::Collections::Generic::Stack<System::Tuple<unsigned int, System::String^, int>^>();
         this->gameMode = GameMode::None;
         this->currentDifficulty = 2;
-        this->currentLanguage = Language::Ukrainian;
+        this->currentLanguage = Language::English;
         this->difficultyComboBox->SelectedIndex = currentDifficulty;
         this->applyLanguage();
 
