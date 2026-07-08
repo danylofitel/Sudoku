@@ -2008,7 +2008,6 @@ namespace Sudoku_3_0
                this->menuStrip->AccessibleRole = System::Windows::Forms::AccessibleRole::MenuBar;
                this->menuStrip->AllowMerge = false;
                this->menuStrip->BackColor = System::Drawing::SystemColors::ButtonFace;
-               this->menuStrip->GripMargin = System::Windows::Forms::Padding(2, 2, 0, 2);
                this->menuStrip->ImageScalingSize = System::Drawing::Size(24, 24);
                this->menuStrip->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
                    this->fileToolStripMenuItem,
@@ -2016,7 +2015,7 @@ namespace Sudoku_3_0
                });
                this->menuStrip->Location = System::Drawing::Point(0, 0);
                this->menuStrip->Name = L"menuStrip";
-               this->menuStrip->Size = System::Drawing::Size(990, 36);
+               this->menuStrip->Size = System::Drawing::Size(990, 33);
                this->menuStrip->TabIndex = 0;
                this->menuStrip->Text = L"menuStrip";
                this->menuStrip->ItemClicked += gcnew System::Windows::Forms::ToolStripItemClickedEventHandler(this, &SudokuForm::menuStrip_ItemClicked);
@@ -2031,7 +2030,7 @@ namespace Sudoku_3_0
                        this->openToolStripMenuItem, this->toolStripSeparator1, this->minimizeToolStripMenuItem, this->exitToolStripMenuItem
                });
                this->fileToolStripMenuItem->Name = L"fileToolStripMenuItem";
-               this->fileToolStripMenuItem->Size = System::Drawing::Size(54, 32);
+               this->fileToolStripMenuItem->Size = System::Drawing::Size(54, 29);
                this->fileToolStripMenuItem->Text = L"File";
                // 
                // saveToolStripMenuItem
@@ -2058,8 +2057,7 @@ namespace Sudoku_3_0
                // minimizeToolStripMenuItem
                // 
                this->minimizeToolStripMenuItem->Name = L"minimizeToolStripMenuItem";
-               this->minimizeToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>(((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Shift)
-                   | System::Windows::Forms::Keys::M));
+               this->minimizeToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::M));
                this->minimizeToolStripMenuItem->Size = System::Drawing::Size(300, 34);
                this->minimizeToolStripMenuItem->Text = L"Minimize";
                this->minimizeToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::minimizeToolStripMenuItem_Click);
@@ -2067,10 +2065,9 @@ namespace Sudoku_3_0
                // exitToolStripMenuItem
                // 
                this->exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
-               this->exitToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>(((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Shift)
-                   | System::Windows::Forms::Keys::E));
+               this->exitToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Q));
                this->exitToolStripMenuItem->Size = System::Drawing::Size(300, 34);
-               this->exitToolStripMenuItem->Text = L"Exit";
+               this->exitToolStripMenuItem->Text = L"Quit";
                this->exitToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::exitToolStripMenuItem_Click);
                // 
                // gameToolStripMenuItem
@@ -2082,7 +2079,7 @@ namespace Sudoku_3_0
                        this->undoToolStripMenuItem
                });
                this->gameToolStripMenuItem->Name = L"gameToolStripMenuItem";
-               this->gameToolStripMenuItem->Size = System::Drawing::Size(74, 32);
+               this->gameToolStripMenuItem->Size = System::Drawing::Size(74, 29);
                this->gameToolStripMenuItem->Text = L"Game";
                // 
                // newGameToolStripMenuItem
@@ -2128,8 +2125,7 @@ namespace Sudoku_3_0
                // giveUpToolStripMenuItem
                // 
                this->giveUpToolStripMenuItem->Name = L"giveUpToolStripMenuItem";
-               this->giveUpToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>(((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Shift)
-                   | System::Windows::Forms::Keys::G));
+               this->giveUpToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::G));
                this->giveUpToolStripMenuItem->Size = System::Drawing::Size(320, 34);
                this->giveUpToolStripMenuItem->Text = L"Give Up";
                this->giveUpToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::giveUpToolStripMenuItem_Click);
@@ -2146,8 +2142,7 @@ namespace Sudoku_3_0
                // 
                this->copyPuzzleToolStripMenuItem->Enabled = false;
                this->copyPuzzleToolStripMenuItem->Name = L"copyPuzzleToolStripMenuItem";
-               this->copyPuzzleToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>(((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Shift)
-                   | System::Windows::Forms::Keys::C));
+               this->copyPuzzleToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::C));
                this->copyPuzzleToolStripMenuItem->Size = System::Drawing::Size(320, 34);
                this->copyPuzzleToolStripMenuItem->Text = L"Copy Puzzle";
                this->copyPuzzleToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::copyPuzzleToolStripMenuItem_Click);
@@ -2164,8 +2159,7 @@ namespace Sudoku_3_0
                // solveToolStripMenuItem
                // 
                this->solveToolStripMenuItem->Name = L"solveToolStripMenuItem";
-               this->solveToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>(((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Shift)
-                   | System::Windows::Forms::Keys::S));
+               this->solveToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::L));
                this->solveToolStripMenuItem->Size = System::Drawing::Size(320, 34);
                this->solveToolStripMenuItem->Text = L"Solve";
                this->solveToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::solveToolStripMenuItem_Click);
@@ -2185,7 +2179,7 @@ namespace Sudoku_3_0
                        this->languageToolStripMenuItem
                });
                this->optionsToolStripMenuItem->Name = L"optionsToolStripMenuItem";
-               this->optionsToolStripMenuItem->Size = System::Drawing::Size(92, 32);
+               this->optionsToolStripMenuItem->Size = System::Drawing::Size(92, 29);
                this->optionsToolStripMenuItem->Text = L"Options";
                // 
                // difficultyToolStripMenuItem
@@ -2269,7 +2263,7 @@ namespace Sudoku_3_0
                        this->rulesToolStripMenuItem, this->featuresToolStripMenuItem, this->hintsAndTipsToolStripMenuItem, this->keyboardToolStripMenuItem
                });
                this->helpToolStripMenuItem->Name = L"helpToolStripMenuItem";
-               this->helpToolStripMenuItem->Size = System::Drawing::Size(65, 32);
+               this->helpToolStripMenuItem->Size = System::Drawing::Size(65, 29);
                this->helpToolStripMenuItem->Text = L"Help";
                // 
                // aboutToolStripMenuItem
