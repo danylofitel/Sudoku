@@ -1,4 +1,4 @@
-// Danylo Fitel 2013
+﻿// Danylo Fitel 2013
 
 #pragma once
 
@@ -448,19 +448,23 @@ namespace Sudoku_3_0 {
     public: void setPencilMode(bool pencil)
     {
         this->isPencilMode = pencil;
+        int y = this->button7->Bottom;
+        int h = this->button7->Height;
+        int w = this->ClientSize.Width;
         if (pencil)
         {
             this->buttonClear->Visible = false;
-            this->buttonCancel->Location = System::Drawing::Point(0, 150);
-            this->buttonCancel->Size = System::Drawing::Size(150, 50);
+            this->buttonCancel->Location = System::Drawing::Point(0, y);
+            this->buttonCancel->Size = System::Drawing::Size(w, h);
         }
         else
         {
             this->buttonClear->Visible = true;
-            this->buttonClear->Location = System::Drawing::Point(0, 150);
-            this->buttonClear->Size = System::Drawing::Size(67, 50);
-            this->buttonCancel->Location = System::Drawing::Point(67, 150);
-            this->buttonCancel->Size = System::Drawing::Size(83, 50);
+            int clearW = w * 67 / 150;
+            this->buttonClear->Location = System::Drawing::Point(0, y);
+            this->buttonClear->Size = System::Drawing::Size(clearW, h);
+            this->buttonCancel->Location = System::Drawing::Point(clearW, y);
+            this->buttonCancel->Size = System::Drawing::Size(w - clearW, h);
         }
     }
 
