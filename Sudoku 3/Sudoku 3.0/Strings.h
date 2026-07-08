@@ -115,6 +115,13 @@ namespace Sudoku_3_0
         WinAssistHints,
         WinAssistFix,
         WinAssistFixes,
+
+        // ---- Clipboard puzzle ----
+        ButtonPastePuzzle,
+        ButtonCopyPuzzle,
+        MenuPastePuzzle,
+        MenuCopyPuzzle,
+        NotifyInvalidPuzzleString,
     };
 
     ref class Strings abstract sealed
@@ -582,6 +589,33 @@ namespace Sudoku_3_0
                 switch (lang) {
                 case Language::Ukrainian: return L" виправлень(-ня)";
                 default:                 return L" fixes";
+                }
+
+                // ---- Clipboard puzzle ----
+            case StringId::ButtonPastePuzzle:
+                switch (lang) {
+                case Language::Ukrainian: return L"Вставити задачу";
+                default:                 return L"Paste Puzzle";
+                }
+            case StringId::ButtonCopyPuzzle:
+                switch (lang) {
+                case Language::Ukrainian: return L"Скопіювати задачу";
+                default:                 return L"Copy Puzzle";
+                }
+            case StringId::MenuPastePuzzle:
+                switch (lang) {
+                case Language::Ukrainian: return L"Вставити задачу";
+                default:                 return L"Paste Puzzle";
+                }
+            case StringId::MenuCopyPuzzle:
+                switch (lang) {
+                case Language::Ukrainian: return L"Скопіювати задачу";
+                default:                 return L"Copy Puzzle";
+                }
+            case StringId::NotifyInvalidPuzzleString:
+                switch (lang) {
+                case Language::Ukrainian: return L"Неправильний рядок! Потрібно 81 цифру (1-9 або 0/крапка для порожніх).";
+                default:                 return L"Invalid puzzle string! Expected 81 digits (1-9 or 0/dot for empty cells).";
                 }
 
             default:
