@@ -64,4 +64,7 @@
     <EmbeddedResource Include="Sudoku 3.0.resx" />
     <EmbeddedResource Include="Numbers.resx" />
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="app.manifest" />
+  </ItemGroup>
 </Project>

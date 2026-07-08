@@ -1,5 +1,5 @@
 ﻿// Danylo Fitel 2013
-// All translatable UI strings centralised in one place.
+// All translatable UI strings centralized in one place.
 // To add a new language: add a value to Language, then add a column to every Get() call below.
 // To add a new string: add a value to StringId, then add cases in the Get() function.
 
