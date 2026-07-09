@@ -2585,6 +2585,11 @@ namespace Sudoku_3_0
         // Menu: Options
         this->optionsToolStripMenuItem->Text = Strings::Get(StringId::MenuOptions, lang);
         this->difficultyToolStripMenuItem->Text = Strings::Get(StringId::MenuDifficulty, lang);
+        this->veryEasyToolStripMenuItem->Text = Strings::Get(StringId::DifficultyVeryEasy, lang);
+        this->easyToolStripMenuItem->Text = Strings::Get(StringId::DifficultyEasy, lang);
+        this->mediumToolStripMenuItem->Text = Strings::Get(StringId::DifficultyMedium, lang);
+        this->hardToolStripMenuItem->Text = Strings::Get(StringId::DifficultyHard, lang);
+        this->veryHardToolStripMenuItem->Text = Strings::Get(StringId::DifficultyVeryHard, lang);
         this->languageToolStripMenuItem->Text = Strings::Get(StringId::MenuLanguage, lang);
         this->englishToolStripMenuItem->Text = Strings::Get(StringId::MenuLanguageEnglish, lang);
         this->ukrainianToolStripMenuItem->Text = Strings::Get(StringId::MenuLanguageUkrainian, lang);
