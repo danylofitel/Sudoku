@@ -29,7 +29,7 @@ namespace Sudoku_3_0
     public ref class SudokuForm : public System::Windows::Forms::Form
     {
     public:
-        SudokuForm(void) : sizeFactor(3), boardSize(sizeFactor* sizeFactor), numberOfCells(boardSize* boardSize)
+        SudokuForm(void) : sizeFactor(3), boardSize(sizeFactor * sizeFactor), numberOfCells(boardSize * boardSize)
         {
             InitializeComponent();
             this->initialize();
@@ -2499,7 +2499,7 @@ namespace Sudoku_3_0
         this->offset = this->Location;
 
         // Initialize cells
-        this->cells = gcnew array<System::Windows::Forms::Button^>(this->boardSize * this->boardSize);
+        this->cells = gcnew array<System::Windows::Forms::Button^>(this->numberOfCells);
         this->initializeCells();
 
         // Initialize the form
@@ -2869,11 +2869,11 @@ namespace Sudoku_3_0
            // Check if the game has been finished
     private: void checkGameState()
     {
-        if (this->numberOfFilledCells == this->boardSize * this->boardSize)
+        if (this->numberOfFilledCells == this->numberOfCells)
         {
             if (this->checkSolution())
             {
-                for (unsigned int i = 0; i < this->boardSize * this->boardSize; ++i)
+                for (unsigned int i = 0; i < this->numberOfCells; ++i)
                 {
                     if (this->cells[i]->Enabled)
                     {
@@ -2986,11 +2986,11 @@ namespace Sudoku_3_0
 
             left += currentButton->Left;
 
-            if (number <= this->boardSize * this->boardSize / 3)
+            if (number <= this->numberOfCells / 3)
             {
                 top += currentButton->Top;
             }
-            else if (number <= this->boardSize * this->boardSize * 2 / 3)
+            else if (number <= this->numberOfCells * 2 / 3)
             {
                 top += currentButton->Top + currentButton->Height - this->numbersForm->Height / 2;
             }
@@ -3827,7 +3827,7 @@ namespace Sudoku_3_0
                 digits += L"0";
         }
 
-        if (digits->Length != (int)(boardSize * boardSize))
+        if (digits->Length != (int)(this->numberOfCells))
         {
             this->showNotification(Strings::Get(StringId::NotifyInvalidPuzzleString, this->currentLanguage));
             return;
@@ -3839,7 +3839,7 @@ namespace Sudoku_3_0
         this->undoToolStripMenuItem->Enabled = false;
         this->undoButton->Enabled = false;
 
-        for (int i = 0; i < (int)(boardSize * boardSize); ++i)
+        for (int i = 0; i < (int)(this->numberOfCells); ++i)
         {
             int digit = int::Parse(digits[i].ToString());
             if (digit >= 1 && digit <= 9)
@@ -4746,7 +4746,7 @@ namespace Sudoku_3_0
             }
 
             // Check if the velues and states strings' lengths are of right length
-            if (save->value->Length != this->boardSize * this->boardSize)
+            if (save->value->Length != this->numberOfCells)
             {
                 throw "Invalid number of cell values " + save->value->Length.ToString();
             }
