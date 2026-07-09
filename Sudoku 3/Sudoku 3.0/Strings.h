@@ -166,7 +166,7 @@ namespace Sudoku_3_0
                 }
             case StringId::ButtonEnterPuzzle:
                 switch (lang) {
-                case Language::Ukrainian: return L"Введіть задачу";
+                case Language::Ukrainian: return L"Ввести задачу";
                 default:                 return L"Enter Puzzle";
                 }
             case StringId::ButtonSolve:
@@ -282,7 +282,7 @@ namespace Sudoku_3_0
                 }
             case StringId::MenuEnterPuzzle:
                 switch (lang) {
-                case Language::Ukrainian: return L"Введіть задачу";
+                case Language::Ukrainian: return L"Ввести задачу";
                 default:                 return L"Enter Puzzle";
                 }
             case StringId::MenuSolve:
@@ -452,7 +452,7 @@ namespace Sudoku_3_0
                         L"Підказка — увімкнути або вимкнути режим підказок для відкриття прихованих клітинок\n"
                         L"Виправити — видалити всі неправильні здогади\n"
                         L"Здатися — показати розв'язок поточної задачі\n"
-                        L"Введіть задачу — ввести власну задачу судоку\n"
+                        L"Ввести задачу — ввести власну задачу судоку\n"
                         L"Розв'язати — розв'язати власну задачу судоку\n"
                         L"Відмінити — скасувати останній хід або групу ходів";
                 default:
