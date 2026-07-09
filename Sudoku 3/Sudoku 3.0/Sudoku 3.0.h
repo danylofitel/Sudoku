@@ -2986,23 +2986,18 @@ namespace Sudoku_3_0
         // Else show the numbers form
         else
         {
-            // Location of the numbers window
-            int left(this->Left), top(this->Top);
+            // Center the numbers form over the clicked cell,
+            // clamped so it stays fully within the cell grid
+            int boardLeft   = this->Left + this->cells[0]->Left;
+            int boardTop    = this->Top  + this->cells[0]->Top;
+            int boardRight  = this->Left + this->cells[this->numberOfCells - 1]->Right;
+            int boardBottom = this->Top  + this->cells[this->numberOfCells - 1]->Bottom;
 
-            left += currentButton->Left;
+            int left = this->Left + currentButton->Left + (currentButton->Width  - this->numbersForm->Width)  / 2;
+            int top  = this->Top  + currentButton->Top  + (currentButton->Height - this->numbersForm->Height) / 2;
 
-            if (number <= this->numberOfCells / 3)
-            {
-                top += currentButton->Top;
-            }
-            else if (number <= this->numberOfCells * 2 / 3)
-            {
-                top += currentButton->Top + currentButton->Height - this->numbersForm->Height / 2;
-            }
-            else
-            {
-                top += currentButton->Top + currentButton->Height - this->numbersForm->Height;
-            }
+            left = Math::Max(boardLeft, Math::Min(left, boardRight  - this->numbersForm->Width));
+            top  = Math::Max(boardTop,  Math::Min(top,  boardBottom - this->numbersForm->Height));
 
             // Show the number choice form
             this->numbersForm->Left = left;
