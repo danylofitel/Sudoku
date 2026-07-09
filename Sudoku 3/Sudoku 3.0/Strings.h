@@ -171,8 +171,8 @@ namespace Sudoku_3_0
                 }
             case StringId::ButtonSolve:
                 switch (lang) {
-                case Language::Ukrainian: return L"Розв'язати";
-                default:                 return L"Solve";
+                case Language::Ukrainian: return L"Розв'язати задачу";
+                default:                 return L"Solve Puzzle";
                 }
             case StringId::ButtonUndo:
                 switch (lang) {
@@ -287,8 +287,8 @@ namespace Sudoku_3_0
                 }
             case StringId::MenuSolve:
                 switch (lang) {
-                case Language::Ukrainian: return L"Розв'язати";
-                default:                 return L"Solve";
+                case Language::Ukrainian: return L"Розв'язати задачу";
+                default:                 return L"Solve Puzzle";
                 }
             case StringId::MenuUndo:
                 switch (lang) {
@@ -452,9 +452,11 @@ namespace Sudoku_3_0
                         L"Підказка — увімкнути або вимкнути режим підказок для відкриття прихованих клітинок\n"
                         L"Виправити — видалити всі неправильні здогади\n"
                         L"Здатися — показати розв'язок поточної задачі\n"
+                        L"Відмінити — скасувати останній хід або групу ходів\n"
                         L"Ввести задачу — ввести власну задачу судоку\n"
-                        L"Розв'язати — розв'язати власну задачу судоку\n"
-                        L"Відмінити — скасувати останній хід або групу ходів";
+                        L"Скопіювати задачу — скопіювати поточну задачу в буфер обміну\n"
+                        L"Вставити задачу — завантажити задачу з буфера обміну\n"
+                        L"Розв'язати задачу — розв'язати власну задачу судоку";
                 default:
                     return L"New Game - start a new game\n"
                         L"Restart - restart the current game\n"
@@ -462,16 +464,18 @@ namespace Sudoku_3_0
                         L"Hint - toggle hint mode to reveal hidden cells\n"
                         L"Fix - remove all incorrect guesses\n"
                         L"Give Up - show the solution to the current puzzle\n"
+                        L"Undo - undo the last move or batch of moves\n"
                         L"Enter Puzzle - enter a custom sudoku puzzle\n"
-                        L"Solve - solve a custom sudoku puzzle\n"
-                        L"Undo - undo the last move or batch of moves";
+                        L"Copy Puzzle - copy the current puzzle to the clipboard\n"
+                        L"Paste Puzzle - load a puzzle from the clipboard\n"
+                        L"Solve Puzzle - solve a custom sudoku puzzle";
                 }
             case StringId::DialogHintsAndTipsText:
                 switch (lang) {
                 case Language::Ukrainian:
                     return L"Ви можете зберегти гру в будь-який момент і відкрити її пізніше\n\n"
                         L"Натисніть на будь-яку клітинку, яку хочете заповнити, щоб побачити варіанти\n\n"
-                        L"Якщо введена вами цифра підсвічена червоним —\n"
+                        L"Якщо введена вами цифра підсвічена червоним -\n"
                         L"вона конфліктує з наявними цифрами\n\n"
                         L"Натисніть кнопку «Підказка», щоб увімкнути режим підказок\n"
                         L"Натисніть і утримуйте, щоб перетягнути вікно";

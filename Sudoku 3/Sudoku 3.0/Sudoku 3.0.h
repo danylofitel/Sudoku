@@ -1935,7 +1935,7 @@ namespace Sudoku_3_0
                this->customPuzzleButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
                this->customPuzzleButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                    static_cast<System::Byte>(0)));
-               this->customPuzzleButton->Location = System::Drawing::Point(701, 468);
+               this->customPuzzleButton->Location = System::Drawing::Point(701, 519);
                this->customPuzzleButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->customPuzzleButton->Name = L"customPuzzleButton";
                this->customPuzzleButton->Size = System::Drawing::Size(240, 43);
@@ -1951,12 +1951,12 @@ namespace Sudoku_3_0
                this->solveButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
                this->solveButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                    static_cast<System::Byte>(0)));
-               this->solveButton->Location = System::Drawing::Point(701, 519);
+               this->solveButton->Location = System::Drawing::Point(701, 621);
                this->solveButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->solveButton->Name = L"solveButton";
                this->solveButton->Size = System::Drawing::Size(240, 43);
                this->solveButton->TabIndex = 94;
-               this->solveButton->Text = L"Solve";
+               this->solveButton->Text = L"Solve Puzzle";
                this->solveButton->UseVisualStyleBackColor = false;
                this->solveButton->Click += gcnew System::EventHandler(this, &SudokuForm::solveButton_Click);
                // 
@@ -1967,7 +1967,7 @@ namespace Sudoku_3_0
                this->undoButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
                this->undoButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                    static_cast<System::Byte>(0)));
-               this->undoButton->Location = System::Drawing::Point(701, 570);
+               this->undoButton->Location = System::Drawing::Point(701, 468);
                this->undoButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->undoButton->Name = L"undoButton";
                this->undoButton->Size = System::Drawing::Size(240, 43);
@@ -2075,8 +2075,8 @@ namespace Sudoku_3_0
                this->gameToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(11) {
                    this->newGameToolStripMenuItem,
                        this->restartToolStripMenuItem, this->pencilToolStripMenuItem, this->hintToolStripMenuItem, this->fixToolStripMenuItem, this->giveUpToolStripMenuItem,
-                       this->customPuzzleToolStripMenuItem, this->copyPuzzleToolStripMenuItem, this->pastePuzzleToolStripMenuItem, this->solveToolStripMenuItem,
-                       this->undoToolStripMenuItem
+                       this->undoToolStripMenuItem, this->customPuzzleToolStripMenuItem, this->copyPuzzleToolStripMenuItem, this->pastePuzzleToolStripMenuItem,
+                       this->solveToolStripMenuItem
                });
                this->gameToolStripMenuItem->Name = L"gameToolStripMenuItem";
                this->gameToolStripMenuItem->Size = System::Drawing::Size(74, 32);
@@ -2314,7 +2314,7 @@ namespace Sudoku_3_0
                this->clipboardButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
                this->clipboardButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                    static_cast<System::Byte>(0)));
-               this->clipboardButton->Location = System::Drawing::Point(701, 621);
+               this->clipboardButton->Location = System::Drawing::Point(701, 570);
                this->clipboardButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->clipboardButton->Name = L"clipboardButton";
                this->clipboardButton->Size = System::Drawing::Size(240, 43);
@@ -2577,9 +2577,9 @@ namespace Sudoku_3_0
         this->hintToolStripMenuItem->Text = Strings::Get(StringId::MenuHint, lang);
         this->fixToolStripMenuItem->Text = Strings::Get(StringId::MenuFix, lang);
         this->giveUpToolStripMenuItem->Text = Strings::Get(StringId::MenuGiveUp, lang);
+        this->undoToolStripMenuItem->Text = Strings::Get(StringId::MenuUndo, lang);
         this->customPuzzleToolStripMenuItem->Text = Strings::Get(StringId::MenuEnterPuzzle, lang);
         this->solveToolStripMenuItem->Text = Strings::Get(StringId::MenuSolve, lang);
-        this->undoToolStripMenuItem->Text = Strings::Get(StringId::MenuUndo, lang);
         this->updateClipboardControls();
 
         // Menu: Options
