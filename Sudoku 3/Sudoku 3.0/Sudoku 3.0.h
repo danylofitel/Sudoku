@@ -29,7 +29,7 @@ namespace Sudoku_3_0
     public ref class SudokuForm : public System::Windows::Forms::Form
     {
     public:
-        SudokuForm(void) : sizeFactor(3), boardSize(sizeFactor * sizeFactor), numberOfCells(boardSize * boardSize)
+        SudokuForm(void) : sizeFactor(3), boardSize(sizeFactor* sizeFactor), numberOfCells(boardSize* boardSize)
         {
             InitializeComponent();
             this->initialize();
@@ -2988,16 +2988,16 @@ namespace Sudoku_3_0
         {
             // Center the numbers form over the clicked cell,
             // clamped so it stays fully within the cell grid
-            int boardLeft   = this->Left + this->cells[0]->Left;
-            int boardTop    = this->Top  + this->cells[0]->Top;
-            int boardRight  = this->Left + this->cells[this->numberOfCells - 1]->Right;
-            int boardBottom = this->Top  + this->cells[this->numberOfCells - 1]->Bottom;
+            int boardLeft = this->Left + this->cells[0]->Left;
+            int boardTop = this->Top + this->cells[0]->Top;
+            int boardRight = this->Left + this->cells[this->numberOfCells - 1]->Right;
+            int boardBottom = this->Top + this->cells[this->numberOfCells - 1]->Bottom;
 
-            int left = this->Left + currentButton->Left + (currentButton->Width  - this->numbersForm->Width)  / 2;
-            int top  = this->Top  + currentButton->Top  + (currentButton->Height - this->numbersForm->Height) / 2;
+            int left = this->Left + currentButton->Left + (currentButton->Width - this->numbersForm->Width) / 2;
+            int top = this->Top + currentButton->Top + (currentButton->Height - this->numbersForm->Height) / 2;
 
-            left = Math::Max(boardLeft, Math::Min(left, boardRight  - this->numbersForm->Width));
-            top  = Math::Max(boardTop,  Math::Min(top,  boardBottom - this->numbersForm->Height));
+            left = Math::Max(boardLeft, Math::Min(left, boardRight - this->numbersForm->Width));
+            top = Math::Max(boardTop, Math::Min(top, boardBottom - this->numbersForm->Height));
 
             // Show the number choice form
             this->numbersForm->Left = left;
@@ -3050,12 +3050,9 @@ namespace Sudoku_3_0
             {
                 if (choice != 0)
                 {
-                    auto sentinel = gcnew System::Tuple<unsigned int, System::String^, int>(undoGroupSentinel, System::String::Empty, 0);
-                    this->undoStack->Push(sentinel);
                     this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
                         cellNumber - 1, cell->Text, this->pencilMarks[cellNumber - 1]));
-                    this->clearPeerPencilMarkWithUndo(cellNumber - 1, choice);
-                    this->undoStack->Push(sentinel);
+                    this->pencilMarks[cellNumber - 1] = 0;
                     cell->Text = choice.ToString();
                     ++(this->numberOfFilledCells);
                     cell->Invalidate();
@@ -3077,12 +3074,9 @@ namespace Sudoku_3_0
                 }
                 else
                 {
-                    auto sentinel = gcnew System::Tuple<unsigned int, System::String^, int>(undoGroupSentinel, System::String::Empty, 0);
-                    this->undoStack->Push(sentinel);
                     this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
                         cellNumber - 1, cell->Text, this->pencilMarks[cellNumber - 1]));
-                    this->clearPeerPencilMarkWithUndo(cellNumber - 1, choice);
-                    this->undoStack->Push(sentinel);
+                    this->pencilMarks[cellNumber - 1] = 0;
                     cell->Text = choice.ToString();
                     cell->Invalidate();
                     this->highlightCellConflict(cellNumber - 1);
@@ -3250,6 +3244,7 @@ namespace Sudoku_3_0
         {
             this->cells[cellNumber]->BackColor = defaultBackColor;
         }
+        this->cells[cellNumber]->Invalidate();
     }
 
            // Re-evaluates conflict highlighting for every cell on the board
@@ -3304,97 +3299,6 @@ namespace Sudoku_3_0
         }
     }
 
-           // Clears the given digit from the pencil marks of all peers of cellNumber and repaints them.
-           // Also pushes each modified peer's previous state onto the undo stack.
-    private: void clearPeerPencilMarkWithUndo(const unsigned int cellNumber, const unsigned int digit)
-    {
-        const int bit = 1 << (int)digit;
-        const unsigned int rowIndex = cellNumber / this->boardSize;
-        const unsigned int columnIndex = cellNumber % this->boardSize;
-
-        unsigned int row = rowIndex * this->boardSize;
-        unsigned int col = columnIndex;
-        while (row < this->numberOfCells && col < this->numberOfCells)
-        {
-            if (row != cellNumber && (this->pencilMarks[row] & bit))
-            {
-                this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
-                    row, this->cells[row]->Text, this->pencilMarks[row]));
-                this->pencilMarks[row] &= ~bit;
-                this->cells[row]->Invalidate();
-            }
-            if (col != cellNumber && col != row && (this->pencilMarks[col] & bit))
-            {
-                this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
-                    col, this->cells[col]->Text, this->pencilMarks[col]));
-                this->pencilMarks[col] &= ~bit;
-                this->cells[col]->Invalidate();
-            }
-            row += 1;
-            col += this->boardSize;
-        }
-
-        const unsigned int rBegin((rowIndex / this->sizeFactor) * this->sizeFactor);
-        const unsigned int cBegin((columnIndex / this->sizeFactor) * this->sizeFactor);
-        for (unsigned int i = rBegin; i < rBegin + this->sizeFactor; ++i)
-        {
-            for (unsigned int j = cBegin; j < cBegin + this->sizeFactor; ++j)
-            {
-                const unsigned int peer = i * this->boardSize + j;
-                if (peer != cellNumber && (this->pencilMarks[peer] & bit))
-                {
-                    this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
-                        peer, this->cells[peer]->Text, this->pencilMarks[peer]));
-                    this->pencilMarks[peer] &= ~bit;
-                    this->cells[peer]->Invalidate();
-                }
-            }
-        }
-    }
-
-           // Clears the given digit from the pencil marks of all peers of cellNumber and repaints them
-    private: void clearPeerPencilMark(const unsigned int cellNumber, const unsigned int digit)
-    {
-        const int bit = 1 << (int)digit;
-        const unsigned int rowIndex = cellNumber / this->boardSize;
-        const unsigned int columnIndex = cellNumber % this->boardSize;
-
-        // Row and column peers
-        unsigned int row = rowIndex * this->boardSize;
-        unsigned int col = columnIndex;
-        while (row < this->numberOfCells && col < this->numberOfCells)
-        {
-            if (row != cellNumber && (this->pencilMarks[row] & bit))
-            {
-                this->pencilMarks[row] &= ~bit;
-                this->cells[row]->Invalidate();
-            }
-            if (col != cellNumber && col != row && (this->pencilMarks[col] & bit))
-            {
-                this->pencilMarks[col] &= ~bit;
-                this->cells[col]->Invalidate();
-            }
-            row += 1;
-            col += this->boardSize;
-        }
-
-        // Box peers
-        const unsigned int rBegin((rowIndex / this->sizeFactor) * this->sizeFactor);
-        const unsigned int cBegin((columnIndex / this->sizeFactor) * this->sizeFactor);
-        for (unsigned int i = rBegin; i < rBegin + this->sizeFactor; ++i)
-        {
-            for (unsigned int j = cBegin; j < cBegin + this->sizeFactor; ++j)
-            {
-                const unsigned int peer = i * this->boardSize + j;
-                if (peer != cellNumber && (this->pencilMarks[peer] & bit))
-                {
-                    this->pencilMarks[peer] &= ~bit;
-                    this->cells[peer]->Invalidate();
-                }
-            }
-        }
-    }
-
            // Paints pencil marks into a cell using a 3x3 mini-grid layout
     private: void cell_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e)
     {
@@ -3412,7 +3316,35 @@ namespace Sudoku_3_0
 
         System::Drawing::Font^ font = gcnew System::Drawing::Font("Calibri", Math::Max(6.0f, Math::Min(cw, ch) * 0.55f),
             System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point);
-        System::Drawing::Brush^ brush = System::Drawing::Brushes::DimGray;
+
+        // Pre-compute which digits are blocked by a filled peer
+        int blockedBits = 0;
+        const unsigned int rowIndex = (unsigned int)idx / this->boardSize;
+        const unsigned int colIndex = (unsigned int)idx % this->boardSize;
+        unsigned int row = rowIndex * this->boardSize;
+        unsigned int col = colIndex;
+        while (row < this->numberOfCells && col < this->numberOfCells)
+        {
+            if (row != (unsigned int)idx && this->cells[row]->Text->Length > 0)
+                blockedBits |= (1 << int::Parse(this->cells[row]->Text));
+            if (col != (unsigned int)idx && col != row && this->cells[col]->Text->Length > 0)
+                blockedBits |= (1 << int::Parse(this->cells[col]->Text));
+            row += 1;
+            col += this->boardSize;
+        }
+        const unsigned int rBegin = (rowIndex / this->sizeFactor) * this->sizeFactor;
+        const unsigned int cBegin = (colIndex / this->sizeFactor) * this->sizeFactor;
+        for (unsigned int i = rBegin; i < rBegin + this->sizeFactor; ++i)
+            for (unsigned int j = cBegin; j < cBegin + this->sizeFactor; ++j)
+            {
+                unsigned int peer = i * this->boardSize + j;
+                if (peer != (unsigned int)idx && this->cells[peer]->Text->Length > 0)
+                    blockedBits |= (1 << int::Parse(this->cells[peer]->Text));
+            }
+
+        System::Drawing::StringFormat^ sf = gcnew System::Drawing::StringFormat();
+        sf->Alignment = System::Drawing::StringAlignment::Center;
+        sf->LineAlignment = System::Drawing::StringAlignment::Center;
 
         for (int d = 1; d <= 9; ++d)
         {
@@ -3423,9 +3355,9 @@ namespace Sudoku_3_0
                 float x = pad + col3 * cw;
                 float y = pad + row3 * ch;
                 System::Drawing::RectangleF rect(x, y, cw, ch);
-                System::Drawing::StringFormat^ sf = gcnew System::Drawing::StringFormat();
-                sf->Alignment = System::Drawing::StringAlignment::Center;
-                sf->LineAlignment = System::Drawing::StringAlignment::Center;
+                System::Drawing::Brush^ brush = (blockedBits & (1 << d))
+                    ? System::Drawing::Brushes::Red
+                    : System::Drawing::Brushes::DimGray;
                 g->DrawString(d.ToString(), font, brush, rect, sf);
             }
         }
