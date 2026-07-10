@@ -260,6 +260,9 @@ namespace Sudoku_3_0
            // Whether pencil mode is active
     private: bool pencilMode;
 
+           // Index of the cell currently hovered by the mouse (-1 if none)
+    private: int hoveredCellIndex;
+
            // Dragging state
     private: bool dragging;
     private: System::Windows::Forms::ToolStripSeparator^ toolStripSeparator1;
@@ -2513,6 +2516,7 @@ namespace Sudoku_3_0
         this->winStreak = 0;
         this->pencilMarks = gcnew array<int>(this->numberOfCells);
         this->pencilMode = false;
+        this->hoveredCellIndex = -1;
         this->undoStack = gcnew System::Collections::Generic::Stack<System::Tuple<unsigned int, System::String^, int>^>();
         this->gameMode = GameMode::None;
         this->currentDifficulty = 2;
@@ -2520,10 +2524,13 @@ namespace Sudoku_3_0
         this->difficultyComboBox->SelectedIndex = currentDifficulty;
         this->applyLanguage();
 
-        // Wire Paint events for pencil marks on each cell
+        // Wire Paint, MouseEnter, MouseLeave, and MouseClick events for each cell
         for each (System::Windows::Forms::Button ^ cell in this->cells)
         {
             cell->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &SudokuForm::cell_Paint);
+            cell->MouseEnter += gcnew System::EventHandler(this, &SudokuForm::cell_MouseEnter);
+            cell->MouseLeave += gcnew System::EventHandler(this, &SudokuForm::cell_MouseLeave);
+            cell->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &SudokuForm::cell_MouseClick);
         }
 
         // Start a new game
@@ -2957,6 +2964,12 @@ namespace Sudoku_3_0
         // The button that has been clicked
         System::Windows::Forms::Button^ currentButton = this->cells[number - 1];
 
+        // In pencil mode, mouse clicks are handled by cell_MouseClick (zone hit-test);
+        // a plain button Click in pencil mode means the user clicked outside a digit zone
+        // or used keyboard — keyboard path goes through choiceMade directly, so just return.
+        if (this->pencilMode && currentButton->Enabled && !this->isHint)
+            return;
+
         // If this is a hint option, show the cell value
         if (this->isHint)
         {
@@ -3304,8 +3317,10 @@ namespace Sudoku_3_0
     {
         System::Windows::Forms::Button^ cell = safe_cast<System::Windows::Forms::Button^>(sender);
         int idx = array<System::Windows::Forms::Button^>::IndexOf(this->cells, cell);
-        if (idx < 0 || this->pencilMarks[idx] == 0 || cell->Text->Length > 0)
-            return;
+        if (idx < 0 || cell->Text->Length > 0) return;
+
+        bool isHovered = this->pencilMode && cell->Enabled && idx == this->hoveredCellIndex;
+        if (this->pencilMarks[idx] == 0 && !isHovered) return;
 
         System::Drawing::Graphics^ g = e->Graphics;
         float w = (float)cell->ClientSize.Width;
@@ -3348,18 +3363,23 @@ namespace Sudoku_3_0
 
         for (int d = 1; d <= 9; ++d)
         {
-            if (this->pencilMarks[idx] & (1 << d))
-            {
-                int col3 = (d - 1) % 3;
-                int row3 = (d - 1) / 3;
-                float x = pad + col3 * cw;
-                float y = pad + row3 * ch;
-                System::Drawing::RectangleF rect(x, y, cw, ch);
-                System::Drawing::Brush^ brush = (blockedBits & (1 << d))
-                    ? System::Drawing::Brushes::Red
-                    : System::Drawing::Brushes::DimGray;
-                g->DrawString(d.ToString(), font, brush, rect, sf);
-            }
+            bool isMarked = (this->pencilMarks[idx] & (1 << d)) != 0;
+            bool isConflict = (blockedBits & (1 << d)) != 0;
+
+            System::Drawing::Brush^ brush;
+            if (isMarked)
+                brush = isConflict ? System::Drawing::Brushes::Red : System::Drawing::Brushes::DimGray;
+            else if (isHovered && !isConflict)
+                brush = System::Drawing::Brushes::Silver;
+            else
+                continue;
+
+            int col3 = (d - 1) % 3;
+            int row3 = (d - 1) / 3;
+            float x = pad + col3 * cw;
+            float y = pad + row3 * ch;
+            System::Drawing::RectangleF rect(x, y, cw, ch);
+            g->DrawString(d.ToString(), font, brush, rect, sf);
         }
     }
 
@@ -3433,6 +3453,58 @@ namespace Sudoku_3_0
             }
             break;
         }
+    }
+
+           // Pencil-mode hover: track which cell is under the mouse for ghost-mark rendering
+    private: void cell_MouseEnter(System::Object^ sender, System::EventArgs^ e)
+    {
+        int idx = array<Button^>::IndexOf(this->cells, safe_cast<Button^>(sender));
+        if (idx < 0) return;
+        this->hoveredCellIndex = idx;
+        if (this->pencilMode && this->cells[idx]->Enabled && this->cells[idx]->Text->Length == 0)
+            this->cells[idx]->Invalidate();
+    }
+
+    private: void cell_MouseLeave(System::Object^ sender, System::EventArgs^ e)
+    {
+        int idx = array<Button^>::IndexOf(this->cells, safe_cast<Button^>(sender));
+        if (idx < 0) return;
+        if (this->hoveredCellIndex == idx)
+            this->hoveredCellIndex = -1;
+        if (this->pencilMode && this->cells[idx]->Enabled && this->cells[idx]->Text->Length == 0)
+            this->cells[idx]->Invalidate();
+    }
+
+           // Pencil-mode mouse click: hit-test which digit zone was clicked and toggle that mark
+    private: void cell_MouseClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
+    {
+        if (!this->pencilMode || this->isHint) return;
+
+        Button^ cell = safe_cast<Button^>(sender);
+        int idx = array<Button^>::IndexOf(this->cells, cell);
+        if (idx < 0 || !cell->Enabled || cell->Text->Length > 0) return;
+
+        float w = (float)cell->ClientSize.Width;
+        float h = (float)cell->ClientSize.Height;
+        float pad = Math::Max(2.0f, Math::Min(w, h) * 0.04f);
+        float cw = (w - 2.0f * pad) / 3.0f;
+        float ch = (h - 2.0f * pad) / 3.0f;
+
+        float relX = e->X - pad;
+        float relY = e->Y - pad;
+        if (relX < 0 || relY < 0 || relX >= cw * 3.0f || relY >= ch * 3.0f) return;
+
+        int col3 = (int)(relX / cw);
+        int row3 = (int)(relY / ch);
+        int digit = row3 * 3 + col3 + 1;
+        if (digit < 1 || digit > 9) return;
+
+        this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
+            idx, cell->Text, this->pencilMarks[idx]));
+        this->undoToolStripMenuItem->Enabled = true;
+        this->undoButton->Enabled = true;
+        this->pencilMarks[idx] ^= (1 << digit);
+        cell->Invalidate();
     }
 
            // Prompt the user to save if a saveable game is in progress.
