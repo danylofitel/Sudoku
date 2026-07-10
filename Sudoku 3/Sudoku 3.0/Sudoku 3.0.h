@@ -2519,9 +2519,13 @@ namespace Sudoku_3_0
         this->hoveredCellIndex = -1;
         this->undoStack = gcnew System::Collections::Generic::Stack<System::Tuple<unsigned int, System::String^, int>^>();
         this->gameMode = GameMode::None;
+
+        // Set default difficulty
         this->currentDifficulty = 2;
-        this->currentLanguage = Language::English;
         this->difficultyComboBox->SelectedIndex = currentDifficulty;
+
+        // Set default language
+        this->currentLanguage = Language::English;
         this->applyLanguage();
 
         // Wire Paint, MouseEnter, MouseLeave, and MouseClick events for each cell
