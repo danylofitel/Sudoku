@@ -581,8 +581,8 @@ namespace Sudoku_3_0
                 }
             case StringId::WinAssistHints:
                 switch (lang) {
-                case Language::Ukrainian: return L" підказки(-ок)";
-                default:                 return L" hints";
+                case Language::Ukrainian: return L"підказки(-ок)";
+                default:                 return L"hints";
                 }
             case StringId::WinAssistFix:
                 switch (lang) {
@@ -591,8 +591,8 @@ namespace Sudoku_3_0
                 }
             case StringId::WinAssistFixes:
                 switch (lang) {
-                case Language::Ukrainian: return L" виправлень(-ня)";
-                default:                 return L" fixes";
+                case Language::Ukrainian: return L"виправлень(-ня)";
+                default:                 return L"fixes";
                 }
 
                 // ---- Clipboard puzzle ----

@@ -2924,9 +2924,9 @@ namespace Sudoku_3_0
                     msg += Strings::Get(StringId::WinWithAssists, this->currentLanguage);
                     System::Collections::Generic::List<System::String^>^ assists = gcnew System::Collections::Generic::List<System::String^>();
                     if (this->numberOfHints == 1) assists->Add(Strings::Get(StringId::WinAssistHint, this->currentLanguage));
-                    else if (this->numberOfHints > 1) assists->Add(this->numberOfHints + Strings::Get(StringId::WinAssistHints, this->currentLanguage));
+                    else if (this->numberOfHints > 1) assists->Add(this->numberOfHints + " " + Strings::Get(StringId::WinAssistHints, this->currentLanguage));
                     if (this->numberOfFixes == 1) assists->Add(Strings::Get(StringId::WinAssistFix, this->currentLanguage));
-                    else if (this->numberOfFixes > 1) assists->Add(this->numberOfFixes + Strings::Get(StringId::WinAssistFixes, this->currentLanguage));
+                    else if (this->numberOfFixes > 1) assists->Add(this->numberOfFixes + " " + Strings::Get(StringId::WinAssistFixes, this->currentLanguage));
                     msg += " using " + System::String::Join(" and ", assists) + "!";
                 }
                 else
@@ -2934,9 +2934,9 @@ namespace Sudoku_3_0
                     msg += Strings::Get(StringId::WinAfterGiveUp, this->currentLanguage);
                     System::Collections::Generic::List<System::String^>^ assists = gcnew System::Collections::Generic::List<System::String^>();
                     if (this->numberOfHints == 1) assists->Add(Strings::Get(StringId::WinAssistHint, this->currentLanguage));
-                    else if (this->numberOfHints > 1) assists->Add(this->numberOfHints + Strings::Get(StringId::WinAssistHints, this->currentLanguage));
+                    else if (this->numberOfHints > 1) assists->Add(this->numberOfHints + " " + Strings::Get(StringId::WinAssistHints, this->currentLanguage));
                     if (this->numberOfFixes == 1) assists->Add(Strings::Get(StringId::WinAssistFix, this->currentLanguage));
-                    else if (this->numberOfFixes > 1) assists->Add(this->numberOfFixes + Strings::Get(StringId::WinAssistFixes, this->currentLanguage));
+                    else if (this->numberOfFixes > 1) assists->Add(this->numberOfFixes + " " + Strings::Get(StringId::WinAssistFixes, this->currentLanguage));
                     if (assists->Count > 0)
                         msg += ", using " + System::String::Join(" and ", assists);
                     msg += ".";
@@ -3370,7 +3370,7 @@ namespace Sudoku_3_0
             if (isMarked)
                 brush = isConflict ? System::Drawing::Brushes::Red : System::Drawing::Brushes::DimGray;
             else if (isHovered && !isConflict)
-                brush = System::Drawing::Brushes::Silver;
+                brush = System::Drawing::Brushes::DarkGray;
             else
                 continue;
 
