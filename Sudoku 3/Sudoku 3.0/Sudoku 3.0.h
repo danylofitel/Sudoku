@@ -2781,6 +2781,7 @@ namespace Sudoku_3_0
 
         // Prepare the board
         this->fillBoardFromEngine(false);
+        this->conflicts->highlightAll();
         this->undoManager->clear();
         this->restartButton->Enabled = true;
         this->setGameControls(true, true, true, false);
