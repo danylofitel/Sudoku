@@ -5,6 +5,7 @@
 #include "GameMode.h"
 #include "GameSession.h"
 #include "UndoManager.h"
+#include "ConflictDetector.h"
 #include "Numbers.h"
 #include "SavedGame.h"
 #include "SudokuEngine.h"
@@ -51,8 +52,6 @@ namespace Sudoku_3_0
     private: static const System::Drawing::Color giveUpColor = Color::Red;
     private: static const System::Drawing::Color solveColor = Color::DarkCyan;
     private: static const System::Drawing::Color defaultBackColor = SystemColors::Menu;
-    private: static const System::Drawing::Color conflictBackColor = Color::Red;
-    private: static const System::Drawing::Color conflictBackColorImmutable = Color::LightCoral;
 
            // Size of the board
     private: const unsigned int sizeFactor;
@@ -219,6 +218,9 @@ namespace Sudoku_3_0
 
            // Undo manager
     private: UndoManager^ undoManager;
+
+           // Conflict detector
+    private: ConflictDetector^ conflicts;
 
            // Active UI language
     private: Language currentLanguage;
@@ -2479,8 +2481,9 @@ namespace Sudoku_3_0
         this->isHint = false;
         this->hoveredCellIndex = -1;
         this->undoManager = gcnew UndoManager(this->undoButton, this->undoToolStripMenuItem);
+        this->conflicts = gcnew ConflictDetector(this->cells, this->sizeFactor);
 
-        // Set default difficulty selection (combo box preference for the next new game)
+        // Set default difficulty selection
         this->selectedDifficulty = this->session->difficulty;
         this->difficultyComboBox->SelectedIndex = this->selectedDifficulty;
 
@@ -3106,121 +3109,20 @@ namespace Sudoku_3_0
         this->setPencilMode(!this->session->pencilMode);
     }
 
-           // Returns true if cellNumber has a conflict with any peer in its row, column, or block
-    private: bool cellHasConflict(const unsigned int cellNumber)
-    {
-        if (this->cells[cellNumber]->Text->Length == 0)
-        {
-            return false;
-        }
+           private: void highlightCellConflict(const unsigned int cellNumber)
+           {
+               this->conflicts->highlight(cellNumber);
+           }
 
-        const unsigned int rowIndex = cellNumber / this->boardSize;
-        const unsigned int columnIndex = cellNumber % this->boardSize;
+           private: void revalidateAllCells()
+           {
+               this->conflicts->highlightAll();
+           }
 
-        unsigned int row = rowIndex * this->boardSize;
-        unsigned int column = columnIndex;
-
-        while (row < this->numberOfCells && column < this->numberOfCells)
-        {
-            if (row != cellNumber && this->cells[row]->Text->Equals(this->cells[cellNumber]->Text))
-            {
-                return true;
-            }
-
-            if (column != cellNumber && this->cells[column]->Text->Equals(this->cells[cellNumber]->Text))
-            {
-                return true;
-            }
-
-            row += 1;
-            column += this->boardSize;
-        }
-
-        const unsigned int rBegin((rowIndex / this->sizeFactor) * this->sizeFactor);
-        const unsigned int cBegin((columnIndex / this->sizeFactor) * this->sizeFactor);
-        const unsigned int rEnd(rBegin + this->sizeFactor);
-        const unsigned int cEnd(cBegin + this->sizeFactor);
-
-        for (unsigned int i = rBegin; i < rEnd; ++i)
-        {
-            for (unsigned int j = cBegin; j < cEnd; ++j)
-            {
-                const unsigned int peer = i * this->boardSize + j;
-                if (peer != cellNumber && this->cells[peer]->Text->Equals(this->cells[cellNumber]->Text))
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-           // Updates the background color of cellNumber to reflect its current conflict state
-    private: void highlightCellConflict(const unsigned int cellNumber)
-    {
-        if (this->cellHasConflict(cellNumber))
-        {
-            this->cells[cellNumber]->BackColor = this->cells[cellNumber]->Enabled ? conflictBackColor : conflictBackColorImmutable;
-        }
-        else
-        {
-            this->cells[cellNumber]->BackColor = defaultBackColor;
-        }
-        this->cells[cellNumber]->Invalidate();
-    }
-
-           // Re-evaluates conflict highlighting for every cell on the board
-    private: void revalidateAllCells()
-    {
-        for (unsigned int i = 0; i < this->numberOfCells; ++i)
-        {
-            this->highlightCellConflict(i);
-        }
-    }
-
-           // Re-evaluates conflict highlighting for all peers of cellNumber
-    private: void revalidatePeers(const unsigned int cellNumber)
-    {
-        const unsigned int rowIndex = cellNumber / this->boardSize;
-        const unsigned int columnIndex = cellNumber % this->boardSize;
-
-        unsigned int row = rowIndex * this->boardSize;
-        unsigned int column = columnIndex;
-
-        while (row < this->numberOfCells && column < this->numberOfCells)
-        {
-            if (row != cellNumber)
-            {
-                this->highlightCellConflict(row);
-            }
-
-            if (column != cellNumber && column != row)
-            {
-                this->highlightCellConflict(column);
-            }
-
-            row += 1;
-            column += this->boardSize;
-        }
-
-        const unsigned int rBegin((rowIndex / this->sizeFactor) * this->sizeFactor);
-        const unsigned int cBegin((columnIndex / this->sizeFactor) * this->sizeFactor);
-        const unsigned int rEnd(rBegin + this->sizeFactor);
-        const unsigned int cEnd(cBegin + this->sizeFactor);
-
-        for (unsigned int i = rBegin; i < rEnd; ++i)
-        {
-            for (unsigned int j = cBegin; j < cEnd; ++j)
-            {
-                const unsigned int peer = i * this->boardSize + j;
-                if (peer != cellNumber)
-                {
-                    this->highlightCellConflict(peer);
-                }
-            }
-        }
-    }
+           private: void revalidatePeers(const unsigned int cellNumber)
+           {
+               this->conflicts->highlightWithPeers(cellNumber);
+           }
 
            // Paints pencil marks into a cell using a 3x3 mini-grid layout
     private: void cell_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e)
