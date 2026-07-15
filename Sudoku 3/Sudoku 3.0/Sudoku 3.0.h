@@ -3085,6 +3085,7 @@ namespace Sudoku_3_0
 
     private: void pencilToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
+        if (!this->pencilToolStripMenuItem->Enabled) return;
         this->setPencilMode(!this->session->pencilMode);
     }
 
@@ -3230,7 +3231,7 @@ namespace Sudoku_3_0
             }
             break;
         case Keys::P:
-            if (e->Control)
+            if (e->Control && this->pencilButton->Enabled)
             {
                 this->setPencilMode(!this->session->pencilMode);
                 e->Handled = true;
@@ -3657,6 +3658,7 @@ namespace Sudoku_3_0
         this->session->mode = GameMode::Solver;
         this->restartButton->Enabled = false;
         this->undoManager->clear();
+        this->setPencilMode(false);
         this->setGameControls(false, false, false, true);
         this->updateClipboardControls();
     }
