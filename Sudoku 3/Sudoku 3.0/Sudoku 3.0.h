@@ -4,6 +4,7 @@
 
 #include "GameMode.h"
 #include "GameSession.h"
+#include "UndoManager.h"
 #include "Numbers.h"
 #include "SavedGame.h"
 #include "SudokuEngine.h"
@@ -216,13 +217,8 @@ namespace Sudoku_3_0
            // State of the hint
     private: bool isHint;
 
-           // Undo stack:
-           // Atomic batch operations (e.g. Fix) are bracketed by two sentinel entries
-           // (cellIndex == undoGroupSentinel): one pushed first (bottom) and one pushed last (top).
-    private: System::Collections::Generic::Stack<System::Tuple<unsigned int, System::String^, int>^>^ undoStack;
-
-           // Sentinel cellIndex value marking a batch boundary in the undo stack
-    private: static const unsigned int undoGroupSentinel = UINT_MAX;
+           // Undo manager
+    private: UndoManager^ undoManager;
 
            // Active UI language
     private: Language currentLanguage;
@@ -2482,7 +2478,7 @@ namespace Sudoku_3_0
         this->session = gcnew GameSession(this->numberOfCells);
         this->isHint = false;
         this->hoveredCellIndex = -1;
-        this->undoStack = gcnew System::Collections::Generic::Stack<System::Tuple<unsigned int, System::String^, int>^>();
+        this->undoManager = gcnew UndoManager(this->undoButton, this->undoToolStripMenuItem);
 
         // Set default difficulty selection (combo box preference for the next new game)
         this->selectedDifficulty = this->session->difficulty;
@@ -2786,9 +2782,7 @@ namespace Sudoku_3_0
 
         // Prepare the board
         this->fillBoardFromEngine(false);
-        this->undoStack->Clear();
-        this->undoToolStripMenuItem->Enabled = false;
-        this->undoButton->Enabled = false;
+        this->undoManager->clear();
         this->restartButton->Enabled = true;
         this->setGameControls(true, true, true, false);
         this->updateClipboardControls();
@@ -2846,9 +2840,7 @@ namespace Sudoku_3_0
                 this->disableHint();
                 this->setGameControls(false, false, false, false);
                 this->setPencilMode(false);
-                this->undoStack->Clear();
-                this->undoToolStripMenuItem->Enabled = false;
-                this->undoButton->Enabled = false;
+                this->undoManager->clear();
 
                 if (!this->session->hasGivenUp)
                 {
@@ -2922,10 +2914,7 @@ namespace Sudoku_3_0
         if (this->isHint)
         {
             // Push undo entry before applying hint (saves text, marks, and hints delta)
-            this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
-                number - 1, currentButton->Text, this->session->pencilMarks[number - 1]));
-            this->undoToolStripMenuItem->Enabled = true;
-            this->undoButton->Enabled = true;
+            this->undoManager->push(number - 1, currentButton->Text, this->session->pencilMarks[number - 1]);
 
             if (currentButton->Text->Length == 0)
             {
@@ -2987,10 +2976,7 @@ namespace Sudoku_3_0
         {
             if (choice >= 1 && choice <= 9)
             {
-                this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
-                    cellNumber - 1, cell->Text, this->session->pencilMarks[cellNumber - 1]));
-                this->undoToolStripMenuItem->Enabled = true;
-                this->undoButton->Enabled = true;
+                this->undoManager->push(cellNumber - 1, cell->Text, this->session->pencilMarks[cellNumber - 1]);
                 this->session->pencilMarks[cellNumber - 1] ^= (1 << (int)choice);
                 cell->Invalidate();
             }
@@ -3005,14 +2991,11 @@ namespace Sudoku_3_0
                 return;
             }
 
-            this->undoToolStripMenuItem->Enabled = true;
-            this->undoButton->Enabled = true;
             if (cell->Text->Length == 0)
             {
                 if (choice != 0)
                 {
-                    this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
-                        cellNumber - 1, cell->Text, this->session->pencilMarks[cellNumber - 1]));
+                    this->undoManager->push(cellNumber - 1, cell->Text, this->session->pencilMarks[cellNumber - 1]);
                     this->session->pencilMarks[cellNumber - 1] = 0;
                     cell->Text = choice.ToString();
                     ++(this->session->numberOfFilledCells);
@@ -3025,8 +3008,7 @@ namespace Sudoku_3_0
             {
                 if (choice == 0)
                 {
-                    this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
-                        cellNumber - 1, cell->Text, this->session->pencilMarks[cellNumber - 1]));
+                    this->undoManager->push(cellNumber - 1, cell->Text, this->session->pencilMarks[cellNumber - 1]);
                     cell->Text = String::Empty;
                     --(this->session->numberOfFilledCells);
                     cell->BackColor = defaultBackColor;
@@ -3035,8 +3017,7 @@ namespace Sudoku_3_0
                 }
                 else
                 {
-                    this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
-                        cellNumber - 1, cell->Text, this->session->pencilMarks[cellNumber - 1]));
+                    this->undoManager->push(cellNumber - 1, cell->Text, this->session->pencilMarks[cellNumber - 1]);
                     this->session->pencilMarks[cellNumber - 1] = 0;
                     cell->Text = choice.ToString();
                     cell->Invalidate();
@@ -3078,38 +3059,19 @@ namespace Sudoku_3_0
 
     private: void performUndo()
     {
-        if (this->undoStack->Count == 0) return;
+        auto entries = this->undoManager->popOperation();
+        if (entries->Count == 0) return;
 
-        auto top = this->undoStack->Pop();
-
-        if (top->Item1 == undoGroupSentinel)
+        System::Windows::Forms::Button^ lastCell = nullptr;
+        for each (auto entry in entries)
         {
-            // Batch undo: pop and restore all entries until the bottom sentinel
-            System::Windows::Forms::Button^ lastCell = nullptr;
-            while (this->undoStack->Count > 0)
-            {
-                auto entry = this->undoStack->Pop();
-                if (entry->Item1 == undoGroupSentinel)
-                {
-                    break; // bottom sentinel reached
-                }
-                this->restoreCell(entry->Item1, entry->Item2, entry->Item3);
-                lastCell = this->cells[entry->Item1];
-            }
-            if (lastCell != nullptr)
-            {
-                lastCell->Focus();
-            }
+            this->restoreCell(entry->cellIndex, entry->previousText, entry->previousPencilMarks);
+            lastCell = this->cells[entry->cellIndex];
         }
-        else
+        if (lastCell != nullptr)
         {
-            // Single-cell undo
-            this->restoreCell(top->Item1, top->Item2, top->Item3);
-            this->cells[top->Item1]->Focus();
+            lastCell->Focus();
         }
-
-        this->undoToolStripMenuItem->Enabled = this->undoStack->Count > 0;
-        this->undoButton->Enabled = this->undoStack->Count > 0;
     }
 
     private: void undoToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
@@ -3447,10 +3409,7 @@ namespace Sudoku_3_0
         int digit = row3 * 3 + col3 + 1;
         if (digit < 1 || digit > 9) return;
 
-        this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
-            idx, cell->Text, this->session->pencilMarks[idx]));
-        this->undoToolStripMenuItem->Enabled = true;
-        this->undoButton->Enabled = true;
+        this->undoManager->push(idx, cell->Text, this->session->pencilMarks[idx]);
         this->session->pencilMarks[idx] ^= (1 << digit);
         cell->Invalidate();
     }
@@ -3548,9 +3507,7 @@ namespace Sudoku_3_0
         this->closeHelperForms();
         this->disableHint();
 
-        this->undoStack->Clear();
-        this->undoToolStripMenuItem->Enabled = false;
-        this->undoButton->Enabled = false;
+        this->undoManager->clear();
         this->session->numberOfFilledCells = 0;
 
         // Fill the board, using the engine as the authoritative source for which cells are clues
@@ -3622,7 +3579,6 @@ namespace Sudoku_3_0
 
         ++this->session->numberOfFixes;
 
-        auto sentinel = gcnew System::Tuple<unsigned int, System::String^, int>(undoGroupSentinel, System::String::Empty, 0);
         bool anyFixed = false;
 
         unsigned int index = 0;
@@ -3635,13 +3591,11 @@ namespace Sudoku_3_0
                 {
                     if (!anyFixed)
                     {
-                        // Push bottom sentinel before the first fixed-cell entry
-                        this->undoStack->Push(sentinel);
+                        this->undoManager->beginBatch();
                         anyFixed = true;
                     }
 
-                    this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
-                        index, this->cells[index]->Text, this->session->pencilMarks[index]));
+                    this->undoManager->push(index, this->cells[index]->Text, this->session->pencilMarks[index]);
 
                     this->cells[index]->Text = "";
                     this->cells[index]->BackColor = defaultBackColor;
@@ -3653,10 +3607,7 @@ namespace Sudoku_3_0
 
         if (anyFixed)
         {
-            // Push top sentinel to mark the end of the batch
-            this->undoStack->Push(sentinel);
-            this->undoToolStripMenuItem->Enabled = true;
-            this->undoButton->Enabled = true;
+            this->undoManager->endBatch();
         }
 
         this->revalidateAllCells();
@@ -3708,9 +3659,7 @@ namespace Sudoku_3_0
         }
 
         this->setGameControls(false, false, false, false);
-        this->undoStack->Clear();
-        this->undoToolStripMenuItem->Enabled = false;
-        this->undoButton->Enabled = false;
+        this->undoManager->clear();
         this->revalidateAllCells();
     }
 
@@ -3785,9 +3734,7 @@ namespace Sudoku_3_0
 
         this->engine->clear();
         this->clearBoard(true);
-        this->undoStack->Clear();
-        this->undoToolStripMenuItem->Enabled = false;
-        this->undoButton->Enabled = false;
+        this->undoManager->clear();
 
         for (int i = 0; i < (int)(this->numberOfCells); ++i)
         {
@@ -3834,9 +3781,7 @@ namespace Sudoku_3_0
 
         this->session->mode = GameMode::Solver;
         this->restartButton->Enabled = false;
-        this->undoStack->Clear();
-        this->undoToolStripMenuItem->Enabled = false;
-        this->undoButton->Enabled = false;
+        this->undoManager->clear();
         this->setGameControls(false, false, false, true);
         this->updateClipboardControls();
     }
@@ -3873,9 +3818,7 @@ namespace Sudoku_3_0
             this->solveToolStripMenuItem->Enabled = false;
             this->clipboardButton->Enabled = false;
             this->pastePuzzleToolStripMenuItem->Enabled = false;
-            this->undoStack->Clear();
-            this->undoToolStripMenuItem->Enabled = false;
-            this->undoButton->Enabled = false;
+            this->undoManager->clear();
         }
         else if (engine->currentState() == SudokuGameEngine::SudokuEngineState::HasMultipleSolutions)
         {
@@ -4860,9 +4803,7 @@ namespace Sudoku_3_0
             }
 
             // Restore pencil marks if present (new saves only)
-            this->undoStack->Clear();
-            this->undoToolStripMenuItem->Enabled = false;
-            this->undoButton->Enabled = false;
+            this->undoManager->clear();
             this->setPencilMode(false);
             if (save->pencilMarks != nullptr && save->pencilMarks->Length > 0)
             {

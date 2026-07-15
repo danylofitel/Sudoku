@@ -7,8 +7,6 @@
 namespace Sudoku_3_0
 {
     // Holds all mutable state for a single puzzle session.
-    // Centralizing it here ensures every field is reset atomically
-    // when a new game starts, eliminating "forgot to reset X" bugs.
     ref class GameSession
     {
     public:

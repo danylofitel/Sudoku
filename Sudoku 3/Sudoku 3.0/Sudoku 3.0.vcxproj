@@ -109,6 +109,7 @@
     </ClInclude>
     <ClInclude Include="GameMode.h" />
     <ClInclude Include="GameSession.h" />
+    <ClInclude Include="UndoManager.h" />
     <ClInclude Include="SavedGame.h" />
     <ClInclude Include="Strings.h" />
     <ClInclude Include="Sudoku 3.0.h">
