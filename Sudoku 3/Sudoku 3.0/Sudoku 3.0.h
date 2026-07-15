@@ -48,10 +48,10 @@ namespace Sudoku_3_0
     private: static const System::Drawing::Color defaultColor = Color::Black;
     private: static const System::Drawing::Color correctColor = Color::ForestGreen;
     private: static const System::Drawing::Color hintColor = Color::Orange;
-    private: static const System::Drawing::Color hintButtonColor = Color::Orange;
     private: static const System::Drawing::Color giveUpColor = Color::Red;
     private: static const System::Drawing::Color solveColor = Color::DarkCyan;
     private: static const System::Drawing::Color defaultBackColor = SystemColors::Menu;
+    private: static const System::Drawing::Color activeButtonColor = Color::Orange;
 
            // Size of the board
     private: const unsigned int sizeFactor;
@@ -3098,7 +3098,7 @@ namespace Sudoku_3_0
             this->hintButton->ForeColor = defaultColor;
         }
         this->session->pencilMode = active;
-        this->pencilButton->ForeColor = active ? hintButtonColor : defaultColor;
+        this->pencilButton->ForeColor = active ? activeButtonColor : defaultColor;
     }
 
     private: void pencilButton_Click(System::Object^ sender, System::EventArgs^ e)
@@ -3328,7 +3328,7 @@ namespace Sudoku_3_0
     {
         this->setPencilMode(false);
         this->isHint = true;
-        this->hintButton->ForeColor = hintButtonColor;
+        this->hintButton->ForeColor = activeButtonColor;
     }
 
            // Disable hint mode
