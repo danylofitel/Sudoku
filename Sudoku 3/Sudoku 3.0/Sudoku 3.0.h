@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameMode.h"
+#include "GameSession.h"
 #include "Numbers.h"
 #include "SavedGame.h"
 #include "SudokuEngine.h"
@@ -209,34 +210,13 @@ namespace Sudoku_3_0
            // Numbers form active
     private: bool numbersFormActive;
 
-           // Number of filled cells
-    private: unsigned int numberOfFilledCells;
+           // Active game session state (mode, difficulty, counters, pencil marks, etc.)
+    private: GameSession^ session;
 
            // State of the hint
     private: bool isHint;
 
-           // Number of hints used so far
-    private: unsigned int numberOfHints;
-
-           // Number of times Fix was used so far
-    private: unsigned int numberOfFixes;
-
-           // Active game mode
-    private: GameMode gameMode;
-
-           // Difficulty level of current puzzle
-    private: unsigned int currentDifficulty;
-
-           // Whether the user has given up at least once on this puzzle
-    private: bool hasGivenUp;
-
-           // Whether the user has used Fix at least once on this puzzle
-    private: bool hasUsedFix;
-
-           // Session-only win streak (resets to zero on give-up or start of new game)
-    private: unsigned int winStreak;
-
-           // Undo stack: each entry is (cellIndex, previousText, previousPencilMarks).
+           // Undo stack:
            // Atomic batch operations (e.g. Fix) are bracketed by two sentinel entries
            // (cellIndex == undoGroupSentinel): one pushed first (bottom) and one pushed last (top).
     private: System::Collections::Generic::Stack<System::Tuple<unsigned int, System::String^, int>^>^ undoStack;
@@ -247,11 +227,9 @@ namespace Sudoku_3_0
            // Active UI language
     private: Language currentLanguage;
 
-           // Pencil mark bitmask per cell: bit N set means digit N is marked (bits 1-9)
-    private: array<int>^ pencilMarks;
-
-           // Whether pencil mode is active
-    private: bool pencilMode;
+           // Difficulty index that backs the combo box and is used as the next-game preference (0-4).
+           // Distinct from session->difficulty, which records the loaded puzzle's actual difficulty.
+    private: unsigned int selectedDifficulty;
 
            // Index of the cell currently hovered by the mouse (-1 if none)
     private: int hoveredCellIndex;
@@ -1843,6 +1821,7 @@ namespace Sudoku_3_0
                this->difficultyComboBox->Size = System::Drawing::Size(240, 43);
                this->difficultyComboBox->TabIndex = 86;
                this->difficultyComboBox->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &SudokuForm::difficultyComboBox_MouseDown);
+               this->difficultyComboBox->SelectedIndexChanged += gcnew System::EventHandler(this, &SudokuForm::difficultyComboBox_SelectedIndexChanged);
                // 
                // newGameButton
                // 
@@ -2500,22 +2479,14 @@ namespace Sudoku_3_0
 
         // Initialize the form
         this->numbersFormActive = false;
-        this->numberOfFilledCells = 0;
+        this->session = gcnew GameSession(this->numberOfCells);
         this->isHint = false;
-        this->numberOfHints = 0;
-        this->numberOfFixes = 0;
-        this->hasGivenUp = false;
-        this->hasUsedFix = false;
-        this->winStreak = 0;
-        this->pencilMarks = gcnew array<int>(this->numberOfCells);
-        this->pencilMode = false;
         this->hoveredCellIndex = -1;
         this->undoStack = gcnew System::Collections::Generic::Stack<System::Tuple<unsigned int, System::String^, int>^>();
-        this->gameMode = GameMode::None;
 
-        // Set default difficulty
-        this->currentDifficulty = 2;
-        this->difficultyComboBox->SelectedIndex = currentDifficulty;
+        // Set default difficulty selection (combo box preference for the next new game)
+        this->selectedDifficulty = this->session->difficulty;
+        this->difficultyComboBox->SelectedIndex = this->selectedDifficulty;
 
         // Set default language
         this->currentLanguage = Language::English;
@@ -2557,14 +2528,13 @@ namespace Sudoku_3_0
         this->difficultyLabel->Text = Strings::Get(StringId::LabelDifficulty, lang);
 
         // Difficulty combo items
-        int sel = this->difficultyComboBox->SelectedIndex;
         this->difficultyComboBox->Items->Clear();
         this->difficultyComboBox->Items->Add(Strings::Get(StringId::DifficultyVeryEasy, lang));
         this->difficultyComboBox->Items->Add(Strings::Get(StringId::DifficultyEasy, lang));
         this->difficultyComboBox->Items->Add(Strings::Get(StringId::DifficultyMedium, lang));
         this->difficultyComboBox->Items->Add(Strings::Get(StringId::DifficultyHard, lang));
         this->difficultyComboBox->Items->Add(Strings::Get(StringId::DifficultyVeryHard, lang));
-        this->difficultyComboBox->SelectedIndex = sel >= 0 ? sel : 2;
+        this->difficultyComboBox->SelectedIndex = this->selectedDifficulty;
 
         // Menu: File
         this->fileToolStripMenuItem->Text = Strings::Get(StringId::MenuFile, lang);
@@ -2720,7 +2690,7 @@ namespace Sudoku_3_0
            // Clear the board
     private: void clearBoard(const bool enableCells)
     {
-        this->numberOfFilledCells = 0;
+        this->session->numberOfFilledCells = 0;
 
         unsigned int index = 0;
         for (unsigned char i = 0; i < boardSize; ++i)
@@ -2732,7 +2702,7 @@ namespace Sudoku_3_0
                 cell->ForeColor = defaultColor;
                 cell->BackColor = defaultBackColor;
                 cell->Enabled = enableCells;
-                this->pencilMarks[index] = 0;
+                this->session->pencilMarks[index] = 0;
                 ++index;
             }
         }
@@ -2741,7 +2711,7 @@ namespace Sudoku_3_0
            // Fill the board with values from the engine
     private: void fillBoardFromEngine(const bool showHiddenCells)
     {
-        this->numberOfFilledCells = this->engine->numberOfFilledCells();
+        this->session->numberOfFilledCells = this->engine->numberOfFilledCells();
 
         unsigned int index = 0;
         for (unsigned char i = 0; i < boardSize; ++i)
@@ -2802,44 +2772,26 @@ namespace Sudoku_3_0
         // Create a new puzzle
         this->engine->newGame(difficulty);
 
-        // Set current difficulty value
+        // Map difficulty enum to index and reset all per-game session state atomically
+        unsigned int difficultyIndex = 0;
         switch (difficulty)
         {
-        case SudokuGameEngine::DifficultyLevel::VeryEasy:
-            this->currentDifficulty = 0;
-            break;
-        case SudokuGameEngine::DifficultyLevel::Easy:
-            this->currentDifficulty = 1;
-            break;
-        case SudokuGameEngine::DifficultyLevel::Medium:
-            this->currentDifficulty = 2;
-            break;
-        case SudokuGameEngine::DifficultyLevel::Hard:
-            this->currentDifficulty = 3;
-            break;
-        case SudokuGameEngine::DifficultyLevel::VeryHard:
-            this->currentDifficulty = 4;
-            break;
+        case SudokuGameEngine::DifficultyLevel::VeryEasy: difficultyIndex = 0; break;
+        case SudokuGameEngine::DifficultyLevel::Easy:     difficultyIndex = 1; break;
+        case SudokuGameEngine::DifficultyLevel::Medium:   difficultyIndex = 2; break;
+        case SudokuGameEngine::DifficultyLevel::Hard:     difficultyIndex = 3; break;
+        case SudokuGameEngine::DifficultyLevel::VeryHard: difficultyIndex = 4; break;
         }
+        this->session->startNewGame(difficultyIndex, this->numberOfCells);
 
         // Prepare the board
         this->fillBoardFromEngine(false);
-        this->gameMode = GameMode::Game;
-        this->numberOfHints = 0;
-        this->numberOfFixes = 0;
-        this->hasGivenUp = false;
-        this->hasUsedFix = false;
         this->undoStack->Clear();
         this->undoToolStripMenuItem->Enabled = false;
         this->undoButton->Enabled = false;
         this->restartButton->Enabled = true;
         this->setGameControls(true, true, true, false);
         this->updateClipboardControls();
-        for (unsigned int i = 0; i < this->numberOfCells; ++i)
-        {
-            this->pencilMarks[i] = 0;
-        }
-
         this->setPencilMode(false);
 
         // Move focus to the first editable cell
@@ -2878,7 +2830,7 @@ namespace Sudoku_3_0
            // Check if the game has been finished
     private: void checkGameState()
     {
-        if (this->numberOfFilledCells == this->numberOfCells)
+        if (this->session->numberOfFilledCells == this->numberOfCells)
         {
             if (this->checkSolution())
             {
@@ -2892,57 +2844,56 @@ namespace Sudoku_3_0
                 }
 
                 this->disableHint();
-                this->difficultyComboBox->SelectedIndex = this->currentDifficulty;
                 this->setGameControls(false, false, false, false);
                 this->setPencilMode(false);
                 this->undoStack->Clear();
                 this->undoToolStripMenuItem->Enabled = false;
                 this->undoButton->Enabled = false;
 
-                if (!this->hasGivenUp)
+                if (!this->session->hasGivenUp)
                 {
-                    ++this->winStreak;
+                    ++this->session->winStreak;
                 }
                 else
                 {
-                    this->winStreak = 0;
+                    this->session->winStreak = 0;
                 }
 
                 System::String^ msg = "";
 
-                bool clean = !this->hasGivenUp && this->numberOfHints == 0 && this->numberOfFixes == 0;
+                bool clean = !this->session->hasGivenUp && this->session->numberOfHints == 0 && this->session->numberOfFixes == 0;
 
                 if (clean)
                 {
                     msg += Strings::Get(StringId::WinClean, this->currentLanguage);
                 }
-                else if (!this->hasGivenUp)
+                else if (!this->session->hasGivenUp)
                 {
                     msg += Strings::Get(StringId::WinWithAssists, this->currentLanguage);
                     System::Collections::Generic::List<System::String^>^ assists = gcnew System::Collections::Generic::List<System::String^>();
-                    if (this->numberOfHints == 1) assists->Add(Strings::Get(StringId::WinAssistHint, this->currentLanguage));
-                    else if (this->numberOfHints > 1) assists->Add(this->numberOfHints + " " + Strings::Get(StringId::WinAssistHints, this->currentLanguage));
-                    if (this->numberOfFixes == 1) assists->Add(Strings::Get(StringId::WinAssistFix, this->currentLanguage));
-                    else if (this->numberOfFixes > 1) assists->Add(this->numberOfFixes + " " + Strings::Get(StringId::WinAssistFixes, this->currentLanguage));
+                    if (this->session->numberOfHints == 1) assists->Add(Strings::Get(StringId::WinAssistHint, this->currentLanguage));
+                    else if (this->session->numberOfHints > 1) assists->Add(this->session->numberOfHints + " " + Strings::Get(StringId::WinAssistHints, this->currentLanguage));
+                    if (this->session->numberOfFixes == 1) assists->Add(Strings::Get(StringId::WinAssistFix, this->currentLanguage));
+                    else if (this->session->numberOfFixes > 1) assists->Add(this->session->numberOfFixes + " " + Strings::Get(StringId::WinAssistFixes, this->currentLanguage));
                     msg += " using " + System::String::Join(" and ", assists) + "!";
                 }
                 else
                 {
                     msg += Strings::Get(StringId::WinAfterGiveUp, this->currentLanguage);
                     System::Collections::Generic::List<System::String^>^ assists = gcnew System::Collections::Generic::List<System::String^>();
-                    if (this->numberOfHints == 1) assists->Add(Strings::Get(StringId::WinAssistHint, this->currentLanguage));
-                    else if (this->numberOfHints > 1) assists->Add(this->numberOfHints + " " + Strings::Get(StringId::WinAssistHints, this->currentLanguage));
-                    if (this->numberOfFixes == 1) assists->Add(Strings::Get(StringId::WinAssistFix, this->currentLanguage));
-                    else if (this->numberOfFixes > 1) assists->Add(this->numberOfFixes + " " + Strings::Get(StringId::WinAssistFixes, this->currentLanguage));
+                    if (this->session->numberOfHints == 1) assists->Add(Strings::Get(StringId::WinAssistHint, this->currentLanguage));
+                    else if (this->session->numberOfHints > 1) assists->Add(this->session->numberOfHints + " " + Strings::Get(StringId::WinAssistHints, this->currentLanguage));
+                    if (this->session->numberOfFixes == 1) assists->Add(Strings::Get(StringId::WinAssistFix, this->currentLanguage));
+                    else if (this->session->numberOfFixes > 1) assists->Add(this->session->numberOfFixes + " " + Strings::Get(StringId::WinAssistFixes, this->currentLanguage));
                     if (assists->Count > 0)
                         msg += ", using " + System::String::Join(" and ", assists);
                     msg += ".";
                 }
 
-                msg += Strings::Get(StringId::WinDifficulty, this->currentLanguage) + this->difficultyName(this->currentDifficulty);
-                if (this->winStreak > 1)
+                msg += Strings::Get(StringId::WinDifficulty, this->currentLanguage) + this->difficultyName(this->session->difficulty);
+                if (this->session->winStreak > 1)
                 {
-                    msg += Strings::Get(StringId::WinStreak, this->currentLanguage) + this->winStreak;
+                    msg += Strings::Get(StringId::WinStreak, this->currentLanguage) + this->session->winStreak;
                 }
 
                 this->showNotification(msg);
@@ -2964,7 +2915,7 @@ namespace Sudoku_3_0
         // In pencil mode, mouse clicks are handled by cell_MouseClick (zone hit-test);
         // a plain button Click in pencil mode means the user clicked outside a digit zone
         // or used keyboard — keyboard path goes through choiceMade directly, so just return.
-        if (this->pencilMode && currentButton->Enabled && !this->isHint)
+        if (this->session->pencilMode && currentButton->Enabled && !this->isHint)
             return;
 
         // If this is a hint option, show the cell value
@@ -2972,13 +2923,13 @@ namespace Sudoku_3_0
         {
             // Push undo entry before applying hint (saves text, marks, and hints delta)
             this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
-                number - 1, currentButton->Text, this->pencilMarks[number - 1]));
+                number - 1, currentButton->Text, this->session->pencilMarks[number - 1]));
             this->undoToolStripMenuItem->Enabled = true;
             this->undoButton->Enabled = true;
 
             if (currentButton->Text->Length == 0)
             {
-                ++(this->numberOfFilledCells);
+                ++(this->session->numberOfFilledCells);
             }
 
             currentButton->Text =
@@ -2988,7 +2939,7 @@ namespace Sudoku_3_0
             currentButton->BackColor = defaultBackColor;
             currentButton->Enabled = false;
             currentButton->ForeColor = hintColor;
-            ++(this->numberOfHints);
+            ++(this->session->numberOfHints);
             this->revalidatePeers(number - 1);
 
             this->checkGameState();
@@ -3012,7 +2963,7 @@ namespace Sudoku_3_0
             // Show the number choice form
             this->numbersForm->Left = left;
             this->numbersForm->Top = top;
-            this->numbersForm->setPencilMode(this->pencilMode && currentButton->Enabled);
+            this->numbersForm->setPencilMode(this->session->pencilMode && currentButton->Enabled);
             this->numbersForm->setCellNumber(number);
             this->numbersForm->Visible = true;
             this->numbersForm->Activate();
@@ -3032,15 +2983,15 @@ namespace Sudoku_3_0
         System::Windows::Forms::Button^ cell = this->cells[cellNumber - 1];
 
         // Pencil mode: toggle mark bit only, never touch the cell value
-        if (this->pencilMode && cell->Enabled)
+        if (this->session->pencilMode && cell->Enabled)
         {
             if (choice >= 1 && choice <= 9)
             {
                 this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
-                    cellNumber - 1, cell->Text, this->pencilMarks[cellNumber - 1]));
+                    cellNumber - 1, cell->Text, this->session->pencilMarks[cellNumber - 1]));
                 this->undoToolStripMenuItem->Enabled = true;
                 this->undoButton->Enabled = true;
-                this->pencilMarks[cellNumber - 1] ^= (1 << (int)choice);
+                this->session->pencilMarks[cellNumber - 1] ^= (1 << (int)choice);
                 cell->Invalidate();
             }
             return;
@@ -3061,10 +3012,10 @@ namespace Sudoku_3_0
                 if (choice != 0)
                 {
                     this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
-                        cellNumber - 1, cell->Text, this->pencilMarks[cellNumber - 1]));
-                    this->pencilMarks[cellNumber - 1] = 0;
+                        cellNumber - 1, cell->Text, this->session->pencilMarks[cellNumber - 1]));
+                    this->session->pencilMarks[cellNumber - 1] = 0;
                     cell->Text = choice.ToString();
-                    ++(this->numberOfFilledCells);
+                    ++(this->session->numberOfFilledCells);
                     cell->Invalidate();
                     this->highlightCellConflict(cellNumber - 1);
                     this->revalidatePeers(cellNumber - 1);
@@ -3075,9 +3026,9 @@ namespace Sudoku_3_0
                 if (choice == 0)
                 {
                     this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
-                        cellNumber - 1, cell->Text, this->pencilMarks[cellNumber - 1]));
+                        cellNumber - 1, cell->Text, this->session->pencilMarks[cellNumber - 1]));
                     cell->Text = String::Empty;
-                    --(this->numberOfFilledCells);
+                    --(this->session->numberOfFilledCells);
                     cell->BackColor = defaultBackColor;
                     cell->Invalidate();
                     this->revalidatePeers(cellNumber - 1);
@@ -3085,8 +3036,8 @@ namespace Sudoku_3_0
                 else
                 {
                     this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
-                        cellNumber - 1, cell->Text, this->pencilMarks[cellNumber - 1]));
-                    this->pencilMarks[cellNumber - 1] = 0;
+                        cellNumber - 1, cell->Text, this->session->pencilMarks[cellNumber - 1]));
+                    this->session->pencilMarks[cellNumber - 1] = 0;
                     cell->Text = choice.ToString();
                     cell->Invalidate();
                     this->highlightCellConflict(cellNumber - 1);
@@ -3108,16 +3059,16 @@ namespace Sudoku_3_0
 
         if (cell->Text->Length > 0 && previousText->Length == 0)
         {
-            --(this->numberOfFilledCells);
+            --(this->session->numberOfFilledCells);
         }
         else if (cell->Text->Length == 0 && previousText->Length > 0)
         {
-            ++(this->numberOfFilledCells);
+            ++(this->session->numberOfFilledCells);
         }
 
         cell->Text = previousText;
         cell->Enabled = true;
-        this->pencilMarks[index] = previousMarks;
+        this->session->pencilMarks[index] = previousMarks;
         cell->ForeColor = defaultColor;
         cell->BackColor = defaultBackColor;
         cell->Invalidate();
@@ -3173,7 +3124,7 @@ namespace Sudoku_3_0
 
     private: void pencilToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        this->setPencilMode(!this->pencilMode);
+        this->setPencilMode(!this->session->pencilMode);
     }
 
     private: void setPencilMode(bool active)
@@ -3184,13 +3135,13 @@ namespace Sudoku_3_0
             this->isHint = false;
             this->hintButton->ForeColor = defaultColor;
         }
-        this->pencilMode = active;
+        this->session->pencilMode = active;
         this->pencilButton->ForeColor = active ? hintButtonColor : defaultColor;
     }
 
     private: void pencilButton_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        this->setPencilMode(!this->pencilMode);
+        this->setPencilMode(!this->session->pencilMode);
     }
 
            // Returns true if cellNumber has a conflict with any peer in its row, column, or block
@@ -3316,8 +3267,8 @@ namespace Sudoku_3_0
         int idx = array<System::Windows::Forms::Button^>::IndexOf(this->cells, cell);
         if (idx < 0 || cell->Text->Length > 0) return;
 
-        bool isHovered = this->pencilMode && cell->Enabled && idx == this->hoveredCellIndex;
-        if (this->pencilMarks[idx] == 0 && !isHovered) return;
+        bool isHovered = this->session->pencilMode && cell->Enabled && idx == this->hoveredCellIndex;
+        if (this->session->pencilMarks[idx] == 0 && !isHovered) return;
 
         System::Drawing::Graphics^ g = e->Graphics;
         float w = (float)cell->ClientSize.Width;
@@ -3360,7 +3311,7 @@ namespace Sudoku_3_0
 
         for (int d = 1; d <= 9; ++d)
         {
-            bool isMarked = (this->pencilMarks[idx] & (1 << d)) != 0;
+            bool isMarked = (this->session->pencilMarks[idx] & (1 << d)) != 0;
             bool isConflict = (blockedBits & (1 << d)) != 0;
 
             System::Drawing::Brush^ brush;
@@ -3444,7 +3395,7 @@ namespace Sudoku_3_0
         case Keys::P:
             if (e->Control)
             {
-                this->setPencilMode(!this->pencilMode);
+                this->setPencilMode(!this->session->pencilMode);
                 e->Handled = true;
                 e->SuppressKeyPress = true;
             }
@@ -3458,7 +3409,7 @@ namespace Sudoku_3_0
         int idx = array<Button^>::IndexOf(this->cells, safe_cast<Button^>(sender));
         if (idx < 0) return;
         this->hoveredCellIndex = idx;
-        if (this->pencilMode && this->cells[idx]->Enabled && this->cells[idx]->Text->Length == 0)
+        if (this->session->pencilMode && this->cells[idx]->Enabled && this->cells[idx]->Text->Length == 0)
             this->cells[idx]->Invalidate();
     }
 
@@ -3468,14 +3419,14 @@ namespace Sudoku_3_0
         if (idx < 0) return;
         if (this->hoveredCellIndex == idx)
             this->hoveredCellIndex = -1;
-        if (this->pencilMode && this->cells[idx]->Enabled && this->cells[idx]->Text->Length == 0)
+        if (this->session->pencilMode && this->cells[idx]->Enabled && this->cells[idx]->Text->Length == 0)
             this->cells[idx]->Invalidate();
     }
 
            // Pencil-mode mouse click: hit-test which digit zone was clicked and toggle that mark
     private: void cell_MouseClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
     {
-        if (!this->pencilMode || this->isHint) return;
+        if (!this->session->pencilMode || this->isHint) return;
 
         Button^ cell = safe_cast<Button^>(sender);
         int idx = array<Button^>::IndexOf(this->cells, cell);
@@ -3497,10 +3448,10 @@ namespace Sudoku_3_0
         if (digit < 1 || digit > 9) return;
 
         this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
-            idx, cell->Text, this->pencilMarks[idx]));
+            idx, cell->Text, this->session->pencilMarks[idx]));
         this->undoToolStripMenuItem->Enabled = true;
         this->undoButton->Enabled = true;
-        this->pencilMarks[idx] ^= (1 << digit);
+        this->session->pencilMarks[idx] ^= (1 << digit);
         cell->Invalidate();
     }
 
@@ -3508,7 +3459,7 @@ namespace Sudoku_3_0
            // Returns true if the action should proceed, false if it was cancelled.
     private: bool promptSaveIfNeeded()
     {
-        if (this->gameMode == GameMode::Game || this->gameMode == GameMode::Solver)
+        if (this->session->mode == GameMode::Game || this->session->mode == GameMode::Solver)
         {
             System::Windows::Forms::DialogResult result = MessageBox::Show(
                 Strings::Get(StringId::DialogSavePrompt, this->currentLanguage),
@@ -3600,7 +3551,7 @@ namespace Sudoku_3_0
         this->undoStack->Clear();
         this->undoToolStripMenuItem->Enabled = false;
         this->undoButton->Enabled = false;
-        this->numberOfFilledCells = 0;
+        this->session->numberOfFilledCells = 0;
 
         // Fill the board, using the engine as the authoritative source for which cells are clues
         unsigned int index = 0;
@@ -3612,7 +3563,7 @@ namespace Sudoku_3_0
                 if (this->engine->getFilled(i, j))
                 {
                     // Clue cell: keep text, restore clean appearance
-                    ++this->numberOfFilledCells;
+                    ++this->session->numberOfFilledCells;
                     cell->Enabled = false;
                     cell->ForeColor = defaultColor;
                     cell->BackColor = defaultBackColor;
@@ -3624,14 +3575,13 @@ namespace Sudoku_3_0
                     cell->ForeColor = defaultColor;
                     cell->BackColor = defaultBackColor;
                     cell->Enabled = true;
-                    this->pencilMarks[index] = 0;
+                    this->session->pencilMarks[index] = 0;
                     cell->Invalidate();
                 }
                 ++index;
             }
         }
 
-        this->difficultyComboBox->SelectedIndex = this->currentDifficulty;
         this->setGameControls(true, true, true, false);
         this->setPencilMode(false);
     }
@@ -3654,7 +3604,7 @@ namespace Sudoku_3_0
     {
         this->closeHelperForms();
 
-        if (!this->hasUsedFix)
+        if (!this->session->hasUsedFix)
         {
             System::Windows::Forms::DialogResult confirm = MessageBox::Show(
                 Strings::Get(StringId::DialogFixPrompt, this->currentLanguage),
@@ -3667,10 +3617,10 @@ namespace Sudoku_3_0
                 return;
             }
 
-            this->hasUsedFix = true;
+            this->session->hasUsedFix = true;
         }
 
-        ++this->numberOfFixes;
+        ++this->session->numberOfFixes;
 
         auto sentinel = gcnew System::Tuple<unsigned int, System::String^, int>(undoGroupSentinel, System::String::Empty, 0);
         bool anyFixed = false;
@@ -3691,11 +3641,11 @@ namespace Sudoku_3_0
                     }
 
                     this->undoStack->Push(gcnew System::Tuple<unsigned int, System::String^, int>(
-                        index, this->cells[index]->Text, this->pencilMarks[index]));
+                        index, this->cells[index]->Text, this->session->pencilMarks[index]));
 
                     this->cells[index]->Text = "";
                     this->cells[index]->BackColor = defaultBackColor;
-                    --(this->numberOfFilledCells);
+                    --(this->session->numberOfFilledCells);
                 }
 
                 ++index;
@@ -3714,7 +3664,7 @@ namespace Sudoku_3_0
 
     private: void giveUpButton_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        if (!this->hasGivenUp)
+        if (!this->session->hasGivenUp)
         {
             System::Windows::Forms::DialogResult confirm = MessageBox::Show(
                 Strings::Get(StringId::DialogGiveUpPrompt, this->currentLanguage),
@@ -3731,8 +3681,8 @@ namespace Sudoku_3_0
         this->closeHelperForms();
         this->disableHint();
 
-        this->hasGivenUp = true;
-        this->winStreak = 0;
+        this->session->hasGivenUp = true;
+        this->session->winStreak = 0;
 
         unsigned int index = 0;
         for (unsigned char i = 0; i < boardSize; ++i)
@@ -3744,7 +3694,7 @@ namespace Sudoku_3_0
                 {
                     if (cell->Text->Length == 0)
                     {
-                        ++this->numberOfFilledCells;
+                        ++this->session->numberOfFilledCells;
                     }
 
                     cell->Text = ((int)engine->getCellValue(i, j)).ToString();
@@ -3757,7 +3707,6 @@ namespace Sudoku_3_0
             }
         }
 
-        this->difficultyComboBox->SelectedIndex = this->currentDifficulty;
         this->setGameControls(false, false, false, false);
         this->undoStack->Clear();
         this->undoToolStripMenuItem->Enabled = false;
@@ -3767,7 +3716,7 @@ namespace Sudoku_3_0
 
     private: void updateClipboardControls()
     {
-        if (this->gameMode == GameMode::Game)
+        if (this->session->mode == GameMode::Game)
         {
             this->clipboardButton->Text = Strings::Get(StringId::ButtonCopyPuzzle, this->currentLanguage);
             this->clipboardButton->Enabled = true;
@@ -3776,7 +3725,7 @@ namespace Sudoku_3_0
             this->pastePuzzleToolStripMenuItem->Text = Strings::Get(StringId::MenuPastePuzzle, this->currentLanguage);
             this->pastePuzzleToolStripMenuItem->Enabled = false;
         }
-        else if (this->gameMode == GameMode::Solver)
+        else if (this->session->mode == GameMode::Solver)
         {
             this->clipboardButton->Text = Strings::Get(StringId::ButtonPastePuzzle, this->currentLanguage);
             this->clipboardButton->Enabled = true;
@@ -3847,7 +3796,7 @@ namespace Sudoku_3_0
             {
                 this->cells[i]->Text = digit.ToString();
                 this->cells[i]->ForeColor = defaultColor;
-                ++this->numberOfFilledCells;
+                ++this->session->numberOfFilledCells;
             }
         }
 
@@ -3856,21 +3805,21 @@ namespace Sudoku_3_0
 
     private: void clipboardButton_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        if (this->gameMode == GameMode::Game)
+        if (this->session->mode == GameMode::Game)
             this->copyPuzzleToClipboard();
-        else if (this->gameMode == GameMode::Solver)
+        else if (this->session->mode == GameMode::Solver)
             this->pastePuzzleFromClipboard();
     }
 
     private: void copyPuzzleToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        if (this->gameMode == GameMode::Game)
+        if (this->session->mode == GameMode::Game)
             this->copyPuzzleToClipboard();
     }
 
     private: void pastePuzzleToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        if (this->gameMode == GameMode::Solver)
+        if (this->session->mode == GameMode::Solver)
             this->pastePuzzleFromClipboard();
     }
 
@@ -3883,7 +3832,7 @@ namespace Sudoku_3_0
         this->engine->clear();
         this->clearBoard(true);
 
-        this->gameMode = GameMode::Solver;
+        this->session->mode = GameMode::Solver;
         this->restartButton->Enabled = false;
         this->undoStack->Clear();
         this->undoToolStripMenuItem->Enabled = false;
@@ -3910,7 +3859,7 @@ namespace Sudoku_3_0
                     System::Windows::Forms::Button^ cell = this->cells[index];
                     if (cell->Text->Length == 0)
                     {
-                        ++this->numberOfFilledCells;
+                        ++this->session->numberOfFilledCells;
                         cell->Text = ((int)engine->getCellValue(i, j)).ToString();
                         cell->ForeColor = solveColor;
                     }
@@ -3951,7 +3900,7 @@ namespace Sudoku_3_0
 
     private: void saveToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        if (this->gameMode == GameMode::Game || this->gameMode == GameMode::Solver)
+        if (this->session->mode == GameMode::Game || this->session->mode == GameMode::Solver)
         {
             this->saveGameDialog->ShowDialog();
         }
@@ -4516,6 +4465,12 @@ namespace Sudoku_3_0
         this->closeHelperForms();
     }
 
+    private: void difficultyComboBox_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e)
+    {
+        if (this->difficultyComboBox->SelectedIndex >= 0)
+            this->selectedDifficulty = this->difficultyComboBox->SelectedIndex;
+    }
+
     private: void buttonMinimize_Click(System::Object^ sender, System::EventArgs^ e)
     {
         this->closeHelperForms();
@@ -4628,13 +4583,13 @@ namespace Sudoku_3_0
     {
         SavedGame^ save = gcnew SavedGame();
         save->sizeFactor = this->engine->sizeOfTheBlock();
-        save->difficulty = this->currentDifficulty;
-        save->numberOfHints = this->numberOfHints;
-        save->numberOfFixes = this->numberOfFixes;
-        save->hasGivenUp = this->hasGivenUp;
-        save->hasUsedFix = this->hasUsedFix;
-        save->gameMode = static_cast<unsigned int>(this->gameMode);
-        if (this->gameMode == GameMode::Game)
+        save->difficulty = this->session->difficulty;
+        save->numberOfHints = this->session->numberOfHints;
+        save->numberOfFixes = this->session->numberOfFixes;
+        save->hasGivenUp = this->session->hasGivenUp;
+        save->hasUsedFix = this->session->hasUsedFix;
+        save->gameMode = static_cast<unsigned int>(this->session->mode);
+        if (this->session->mode == GameMode::Game)
         {
             save->gameFinished = !this->giveUpButton->Enabled;
         }
@@ -4704,7 +4659,7 @@ namespace Sudoku_3_0
         for (unsigned int i = 0; i < this->numberOfCells; ++i)
         {
             if (i > 0) save->pencilMarks += " ";
-            save->pencilMarks += this->pencilMarks[i].ToString();
+            save->pencilMarks += this->session->pencilMarks[i].ToString();
         }
 
         FileStream^ fileStream = nullptr;
@@ -4760,20 +4715,20 @@ namespace Sudoku_3_0
             this->clearBoard(false);
             this->engine->clear();
             this->disableHint();
-            this->currentDifficulty = save->difficulty;
+            this->session->difficulty = save->difficulty;
             this->difficultyComboBox->SelectedIndex = save->difficulty;
-            this->numberOfFilledCells = 0;
-            this->numberOfHints = save->numberOfHints;
-            this->numberOfFixes = save->numberOfFixes;
-            this->hasGivenUp = save->hasGivenUp;
-            this->hasUsedFix = save->hasUsedFix;
-            this->gameMode = static_cast<GameMode>(save->gameMode);
-            this->restartButton->Enabled = this->gameMode == GameMode::Game;
+            this->session->numberOfFilledCells = 0;
+            this->session->numberOfHints = save->numberOfHints;
+            this->session->numberOfFixes = save->numberOfFixes;
+            this->session->hasGivenUp = save->hasGivenUp;
+            this->session->hasUsedFix = save->hasUsedFix;
+            this->session->mode = static_cast<GameMode>(save->gameMode);
+            this->restartButton->Enabled = this->session->mode == GameMode::Game;
             this->setGameControls(
-                this->gameMode == GameMode::Game && !save->gameFinished,
-                this->gameMode == GameMode::Game && !save->gameFinished,
-                this->gameMode == GameMode::Game && !save->gameFinished,
-                this->gameMode == GameMode::Solver && !save->gameFinished);
+                this->session->mode == GameMode::Game && !save->gameFinished,
+                this->session->mode == GameMode::Game && !save->gameFinished,
+                this->session->mode == GameMode::Game && !save->gameFinished,
+                this->session->mode == GameMode::Solver && !save->gameFinished);
             this->updateClipboardControls();
 
             // Fill each cell
@@ -4810,7 +4765,7 @@ namespace Sudoku_3_0
                     }
 
                     // Fill the engine based on game mode
-                    if (this->gameMode == GameMode::Game)
+                    if (this->session->mode == GameMode::Game)
                     {
                         // If the cell was filled by the engine (immutable clue)
                         if (state->Equals("0"))
@@ -4824,7 +4779,7 @@ namespace Sudoku_3_0
                             this->engine->setFilled(i, j, false);
                         }
                     }
-                    else if (this->gameMode == GameMode::Solver)
+                    else if (this->session->mode == GameMode::Solver)
                     {
                         if (state->Equals("0") || state->Equals("6"))
                         {
@@ -4848,7 +4803,7 @@ namespace Sudoku_3_0
                     // If the cell is not empty
                     if (!state->Equals("1"))
                     {
-                        ++(this->numberOfFilledCells);
+                        ++(this->session->numberOfFilledCells);
                     }
 
                     // Fill the cell with its value
@@ -4866,7 +4821,7 @@ namespace Sudoku_3_0
                     }
 
                     // Change cell color if needed
-                    if (this->gameMode == GameMode::Game)
+                    if (this->session->mode == GameMode::Game)
                     {
                         if (state->Equals("3"))
                         {
@@ -4885,7 +4840,7 @@ namespace Sudoku_3_0
                             throw "Invalid state " + state + " in game mode " + save->gameMode.ToString();
                         }
                     }
-                    else if (this->gameMode == GameMode::Solver)
+                    else if (this->session->mode == GameMode::Solver)
                     {
                         if (state->Equals("6"))
                         {
@@ -4916,7 +4871,7 @@ namespace Sudoku_3_0
                 {
                     int mark = 0;
                     if (int::TryParse(parts[i], mark))
-                        this->pencilMarks[i] = mark;
+                        this->session->pencilMarks[i] = mark;
                 }
                 // Repaint all cells to show loaded marks
                 for each (Button ^ cell in this->cells)
@@ -4928,7 +4883,7 @@ namespace Sudoku_3_0
             // The engine needs to solve the puzzle for 2 reasons:
             // 1) It needs the solution to validate hints/check progress later (game mode)
             // 2) It allows detection of corrupted saves
-            if (this->gameMode == GameMode::Game || (this->gameMode == GameMode::Solver && engine->numberOfFilledCells() > 0))
+            if (this->session->mode == GameMode::Game || (this->session->mode == GameMode::Solver && engine->numberOfFilledCells() > 0))
             {
                 this->engine->trySolve();
                 if (engine->currentState() != SudokuGameEngine::SudokuEngineState::FilledValid)
