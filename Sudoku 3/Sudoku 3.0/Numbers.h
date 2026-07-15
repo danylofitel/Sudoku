@@ -4,8 +4,8 @@
 
 #include "Strings.h"
 
-namespace Sudoku_3_0 {
-
+namespace Sudoku_3_0
+{
     using namespace System;
     using namespace System::ComponentModel;
     using namespace System::Collections;

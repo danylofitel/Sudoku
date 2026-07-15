@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "GameMode.h"
 #include "Numbers.h"
 #include "SavedGame.h"
 #include "SudokuEngine.h"
@@ -14,14 +15,6 @@ namespace Sudoku_3_0
     using namespace System::Drawing;
     using namespace System::Runtime::Serialization::Formatters::Binary;
     using namespace System::Windows::Forms;
-
-    // Active game mode
-    enum class GameMode : unsigned int
-    {
-        None = 0, // No active game (initial state or finished)
-        Game = 1, // Standard puzzle game session
-        Solver = 2, // Custom puzzle solver session
-    };
 
     /// <summary>
     /// Sudoku game form

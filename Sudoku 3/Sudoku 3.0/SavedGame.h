@@ -5,7 +5,8 @@
 using namespace System;
 
 [Serializable]
-public ref class SavedGame {
+public ref class SavedGame
+{
 public:
     // Size of a single block
     unsigned int sizeFactor;
