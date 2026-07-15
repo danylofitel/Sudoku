@@ -23,9 +23,9 @@ namespace Sudoku_3_0
             array<System::Windows::Forms::Button^>^ cells,
             unsigned int sizeFactor)
             : cells(cells),
-              sizeFactor(sizeFactor),
-              boardSize(sizeFactor * sizeFactor),
-              numberOfCells(sizeFactor * sizeFactor * sizeFactor * sizeFactor)
+            sizeFactor(sizeFactor),
+            boardSize(sizeFactor * sizeFactor),
+            numberOfCells(sizeFactor * sizeFactor * sizeFactor * sizeFactor)
         {
             if (cells == nullptr)
             {
@@ -41,15 +41,11 @@ namespace Sudoku_3_0
             }
         }
 
-        // Returns true if the cell at cellIndex has a conflict with any peer in its row, column, or block.
-        bool hasConflict(unsigned int cellIndex)
+        // Returns a bitmask of digits present in any peer of cellIndex (row, column, or block).
+        // Bit N is set if digit N appears in at least one peer. Bit 0 is unused.
+        int getBlockedDigits(unsigned int cellIndex)
         {
-            if (this->cells[cellIndex]->Text->Length == 0)
-            {
-                return false;
-            }
-
-            System::String^ value = this->cells[cellIndex]->Text;
+            int blocked = 0;
             const unsigned int rowIndex = cellIndex / this->boardSize;
             const unsigned int columnIndex = cellIndex % this->boardSize;
 
@@ -58,16 +54,10 @@ namespace Sudoku_3_0
 
             while (row < this->numberOfCells && column < this->numberOfCells)
             {
-                if (row != cellIndex && this->cells[row]->Text->Equals(value))
-                {
-                    return true;
-                }
-
-                if (column != cellIndex && this->cells[column]->Text->Equals(value))
-                {
-                    return true;
-                }
-
+                if (row != cellIndex && this->cells[row]->Text->Length > 0)
+                    blocked |= (1 << int::Parse(this->cells[row]->Text));
+                if (column != cellIndex && column != row && this->cells[column]->Text->Length > 0)
+                    blocked |= (1 << int::Parse(this->cells[column]->Text));
                 row += 1;
                 column += this->boardSize;
             }
@@ -78,18 +68,25 @@ namespace Sudoku_3_0
             const unsigned int cEnd = cBegin + this->sizeFactor;
 
             for (unsigned int i = rBegin; i < rEnd; ++i)
-            {
                 for (unsigned int j = cBegin; j < cEnd; ++j)
                 {
                     const unsigned int peer = i * this->boardSize + j;
-                    if (peer != cellIndex && this->cells[peer]->Text->Equals(value))
-                    {
-                        return true;
-                    }
+                    if (peer != cellIndex && this->cells[peer]->Text->Length > 0)
+                        blocked |= (1 << int::Parse(this->cells[peer]->Text));
                 }
-            }
 
-            return false;
+            return blocked;
+        }
+
+        // Returns true if the cell at cellIndex has a conflict with any peer in its row, column, or block.
+        bool hasConflict(unsigned int cellIndex)
+        {
+            if (this->cells[cellIndex]->Text->Length == 0)
+            {
+                return false;
+            }
+            int digit = int::Parse(this->cells[cellIndex]->Text);
+            return (getBlockedDigits(cellIndex) & (1 << digit)) != 0;
         }
 
         // Updates the background color of cellIndex to reflect its current conflict state.

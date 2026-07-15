@@ -3141,32 +3141,9 @@ namespace Sudoku_3_0
             System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point);
 
         // Pre-compute which digits are blocked by a filled peer
-        int blockedBits = 0;
-        const unsigned int rowIndex = (unsigned int)idx / this->boardSize;
-        const unsigned int colIndex = (unsigned int)idx % this->boardSize;
-        unsigned int row = rowIndex * this->boardSize;
-        unsigned int col = colIndex;
-        while (row < this->numberOfCells && col < this->numberOfCells)
-        {
-            if (row != (unsigned int)idx && this->cells[row]->Text->Length > 0)
-                blockedBits |= (1 << int::Parse(this->cells[row]->Text));
-            if (col != (unsigned int)idx && col != row && this->cells[col]->Text->Length > 0)
-                blockedBits |= (1 << int::Parse(this->cells[col]->Text));
-            row += 1;
-            col += this->boardSize;
-        }
-        const unsigned int rBegin = (rowIndex / this->sizeFactor) * this->sizeFactor;
-        const unsigned int cBegin = (colIndex / this->sizeFactor) * this->sizeFactor;
-        for (unsigned int i = rBegin; i < rBegin + this->sizeFactor; ++i)
-            for (unsigned int j = cBegin; j < cBegin + this->sizeFactor; ++j)
-            {
-                unsigned int peer = i * this->boardSize + j;
-                if (peer != (unsigned int)idx && this->cells[peer]->Text->Length > 0)
-                    blockedBits |= (1 << int::Parse(this->cells[peer]->Text));
-            }
+        int blockedBits = this->conflicts->getBlockedDigits((unsigned int)idx);
 
         System::Drawing::StringFormat^ sf = gcnew System::Drawing::StringFormat();
-        sf->Alignment = System::Drawing::StringAlignment::Center;
         sf->LineAlignment = System::Drawing::StringAlignment::Center;
 
         for (int d = 1; d <= 9; ++d)
