@@ -3628,21 +3628,21 @@ namespace Sudoku_3_0
 
     private: void clipboardButton_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        if (this->session->mode == GameMode::Game)
+        if (this->copyPuzzleToolStripMenuItem->Enabled)
             this->copyPuzzleToClipboard();
-        else if (this->session->mode == GameMode::Solver)
+        else if (this->pastePuzzleToolStripMenuItem->Enabled)
             this->pastePuzzleFromClipboard();
     }
 
     private: void copyPuzzleToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        if (this->session->mode == GameMode::Game)
+        if (this->copyPuzzleToolStripMenuItem->Enabled)
             this->copyPuzzleToClipboard();
     }
 
     private: void pastePuzzleToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        if (this->session->mode == GameMode::Solver)
+        if (this->pastePuzzleToolStripMenuItem->Enabled)
             this->pastePuzzleFromClipboard();
     }
 
