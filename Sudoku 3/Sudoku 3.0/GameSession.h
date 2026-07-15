@@ -40,6 +40,9 @@ namespace Sudoku_3_0
         // Whether pencil mode is active
         bool pencilMode;
 
+        // Index of the cell currently under the mouse (-1 if none); used for pencil ghost-mark rendering
+        int hoveredCellIndex;
+
         // One-time initialization; call once from SudokuForm::initialize.
         GameSession(unsigned int numberOfCells)
         {
@@ -53,6 +56,7 @@ namespace Sudoku_3_0
             this->winStreak = 0;
             this->pencilMarks = gcnew array<int>(numberOfCells);
             this->pencilMode = false;
+            this->hoveredCellIndex = -1;
         }
 
         // Resets all per-game fields for a new standard game.

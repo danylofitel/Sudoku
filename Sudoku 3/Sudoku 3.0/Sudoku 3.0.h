@@ -229,9 +229,6 @@ namespace Sudoku_3_0
            // Distinct from session->difficulty, which records the loaded puzzle's actual difficulty.
     private: unsigned int selectedDifficulty;
 
-           // Index of the cell currently hovered by the mouse (-1 if none)
-    private: int hoveredCellIndex;
-
            // Dragging state
     private: bool dragging;
     private: System::Windows::Forms::ToolStripSeparator^ toolStripSeparator1;
@@ -2479,7 +2476,6 @@ namespace Sudoku_3_0
         this->numbersFormActive = false;
         this->session = gcnew GameSession(this->numberOfCells);
         this->isHint = false;
-        this->hoveredCellIndex = -1;
         this->undoManager = gcnew UndoManager(this->undoButton, this->undoToolStripMenuItem);
         this->conflicts = gcnew ConflictDetector(this->cells, this->sizeFactor);
 
@@ -3131,7 +3127,7 @@ namespace Sudoku_3_0
         int idx = array<System::Windows::Forms::Button^>::IndexOf(this->cells, cell);
         if (idx < 0 || cell->Text->Length > 0) return;
 
-        bool isHovered = this->session->pencilMode && cell->Enabled && idx == this->hoveredCellIndex;
+        bool isHovered = this->session->pencilMode && cell->Enabled && idx == this->session->hoveredCellIndex;
         if (this->session->pencilMarks[idx] == 0 && !isHovered) return;
 
         System::Drawing::Graphics^ g = e->Graphics;
@@ -3272,7 +3268,7 @@ namespace Sudoku_3_0
     {
         int idx = array<Button^>::IndexOf(this->cells, safe_cast<Button^>(sender));
         if (idx < 0) return;
-        this->hoveredCellIndex = idx;
+        this->session->hoveredCellIndex = idx;
         if (this->session->pencilMode && this->cells[idx]->Enabled && this->cells[idx]->Text->Length == 0)
             this->cells[idx]->Invalidate();
     }
@@ -3281,8 +3277,8 @@ namespace Sudoku_3_0
     {
         int idx = array<Button^>::IndexOf(this->cells, safe_cast<Button^>(sender));
         if (idx < 0) return;
-        if (this->hoveredCellIndex == idx)
-            this->hoveredCellIndex = -1;
+        if (this->session->hoveredCellIndex == idx)
+            this->session->hoveredCellIndex = -1;
         if (this->session->pencilMode && this->cells[idx]->Enabled && this->cells[idx]->Text->Length == 0)
             this->cells[idx]->Invalidate();
     }
