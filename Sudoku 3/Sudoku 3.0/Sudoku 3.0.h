@@ -6,6 +6,7 @@
 #include "GameSession.h"
 #include "UndoManager.h"
 #include "ConflictDetector.h"
+#include "WindowDragger.h"
 #include "Numbers.h"
 #include "SavedGame.h"
 #include "SudokuEngine.h"
@@ -199,6 +200,7 @@ namespace Sudoku_3_0
     private: System::Windows::Forms::ToolStripMenuItem^ featuresToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ hintsAndTipsToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ keyboardToolStripMenuItem;
+    private: System::Windows::Forms::ToolStripSeparator^ toolStripSeparator1;
 
            // Dialogs
     private: System::Windows::Forms::SaveFileDialog^ saveGameDialog;
@@ -229,10 +231,8 @@ namespace Sudoku_3_0
            // Distinct from session->difficulty, which records the loaded puzzle's actual difficulty.
     private: unsigned int selectedDifficulty;
 
-           // Dragging state
-    private: bool dragging;
-    private: System::Windows::Forms::ToolStripSeparator^ toolStripSeparator1;
-    private: Point offset;
+           // Window dragging
+    private: WindowDragger^ dragger;
 
 #pragma region Windows Form Designer generated code
 
@@ -2464,9 +2464,8 @@ namespace Sudoku_3_0
         this->numbersForm->Visible = true;
         this->numbersForm->Visible = false;
 
-        // Initialize dragging state
-        this->dragging = false;
-        this->offset = this->Location;
+        // Initialize dragging
+        this->dragger = gcnew WindowDragger(this);
 
         // Initialize cells
         this->cells = gcnew array<System::Windows::Forms::Button^>(this->numberOfCells);
@@ -4308,24 +4307,18 @@ namespace Sudoku_3_0
     private: void SudokuForm_MouseDown(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
     {
         this->closeHelperForms();
-
-        this->dragging = true;
-        this->offset = Point(e->X, e->Y);
+        this->dragger->onMouseDown(e);
     }
 
     private: void SudokuForm_MouseMove(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
     {
-        if (this->dragging)
-        {
-            Point currentScreenPos = PointToScreen(e->Location);
-            Location = Point(currentScreenPos.X - this->offset.X, currentScreenPos.Y - this->offset.Y);
-        }
+        this->dragger->onMouseMove(e);
     }
 
     private: void SudokuForm_MouseUp(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
     {
         this->closeHelperForms();
-        this->dragging = false;
+        this->dragger->onMouseUp();
     }
 
     private: void menuStrip_MouseDown(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
