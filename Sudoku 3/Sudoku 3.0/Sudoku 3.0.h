@@ -25,7 +25,7 @@ namespace Sudoku_3_0
     public ref class SudokuForm : public System::Windows::Forms::Form
     {
     public:
-        SudokuForm(void) : sizeFactor(3), boardSize(sizeFactor* sizeFactor), numberOfCells(boardSize* boardSize)
+        SudokuForm(void) : sizeFactor(3), boardSize(sizeFactor * sizeFactor), numberOfCells(boardSize * boardSize)
         {
             InitializeComponent();
             this->initialize();
