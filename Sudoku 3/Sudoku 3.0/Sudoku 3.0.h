@@ -3109,20 +3109,20 @@ namespace Sudoku_3_0
         this->setPencilMode(!this->session->pencilMode);
     }
 
-           private: void highlightCellConflict(const unsigned int cellNumber)
-           {
-               this->conflicts->highlight(cellNumber);
-           }
+    private: void highlightCellConflict(const unsigned int cellNumber)
+    {
+        this->conflicts->highlight(cellNumber);
+    }
 
-           private: void revalidateAllCells()
-           {
-               this->conflicts->highlightAll();
-           }
+    private: void revalidateAllCells()
+    {
+        this->conflicts->highlightAll();
+    }
 
-           private: void revalidatePeers(const unsigned int cellNumber)
-           {
-               this->conflicts->highlightWithPeers(cellNumber);
-           }
+    private: void revalidatePeers(const unsigned int cellNumber)
+    {
+        this->conflicts->highlightWithPeers(cellNumber);
+    }
 
            // Paints pencil marks into a cell using a 3x3 mini-grid layout
     private: void cell_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e)
