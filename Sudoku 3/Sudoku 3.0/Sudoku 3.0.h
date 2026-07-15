@@ -3238,6 +3238,15 @@ namespace Sudoku_3_0
                 e->SuppressKeyPress = true;
             }
             break;
+        default:
+            // Suppress all Ctrl+key combinations so their KeyChar (e.g. Ctrl+H -> '\b')
+            // does not reach buttonKeyPress and get misinterpreted as a digit/clear action.
+            if (e->Control)
+            {
+                e->Handled = true;
+                e->SuppressKeyPress = true;
+            }
+            break;
         }
     }
 
