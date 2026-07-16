@@ -2,16 +2,17 @@
 
 #pragma once
 
+#include "ClipboardPuzzleFormatter.h"
+#include "ConflictDetector.h"
 #include "GameMode.h"
 #include "GameSession.h"
-#include "UndoManager.h"
-#include "ConflictDetector.h"
-#include "ClipboardPuzzleFormatter.h"
-#include "WindowDragger.h"
 #include "Numbers.h"
 #include "SavedGame.h"
-#include "SudokuEngine.h"
+#include "SaveGameStore.h"
 #include "Strings.h"
+#include "SudokuEngine.h"
+#include "UndoManager.h"
+#include "WindowDragger.h"
 
 namespace Sudoku_3_0
 {
@@ -3374,19 +3375,20 @@ namespace Sudoku_3_0
         this->undoManager->clear();
         this->session->numberOfFilledCells = 0;
 
-        // Fill the board, using the engine as the authoritative source for which cells are clues
+        // Fill the board, using cell visual state as the authoritative source for which cells are clues.
+        // engine->getFilled() cannot be used here because trySolve() (called during load) marks
+        // all cells as filled, making it unreliable after a load+give-up sequence.
+        // Clue cells are always !Enabled && ForeColor == defaultColor regardless of prior actions.
         unsigned int index = 0;
         for (unsigned char i = 0; i < boardSize; ++i)
         {
             for (unsigned char j = 0; j < boardSize; ++j)
             {
                 Button^ cell = this->cells[index];
-                if (this->engine->getFilled(i, j))
+                if (!cell->Enabled && cell->ForeColor == defaultColor)
                 {
                     // Clue cell: keep text, restore clean appearance
                     ++this->session->numberOfFilledCells;
-                    cell->Enabled = false;
-                    cell->ForeColor = defaultColor;
                     cell->BackColor = defaultBackColor;
                 }
                 else
@@ -4370,285 +4372,150 @@ namespace Sudoku_3_0
 
     private: void saveGameDialog_FileOk(System::Object^ sender, System::ComponentModel::CancelEventArgs^ e)
     {
-        SavedGame^ save = gcnew SavedGame();
-        save->sizeFactor = this->engine->sizeOfTheBlock();
-        save->difficulty = this->session->difficulty;
-        save->numberOfHints = this->session->numberOfHints;
-        save->numberOfFixes = this->session->numberOfFixes;
-        save->hasGivenUp = this->session->hasGivenUp;
-        save->hasUsedFix = this->session->hasUsedFix;
-        save->gameMode = static_cast<unsigned int>(this->session->mode);
-        if (this->session->mode == GameMode::Game)
-        {
-            save->gameFinished = !this->giveUpButton->Enabled;
-        }
-        else
-        {
-            save->gameFinished = !this->solveButton->Enabled;
-        }
-        save->value = gcnew String("");
-        save->state = gcnew String("");
-        save->pencilMarks = gcnew String("");
+        array<unsigned char>^ values = gcnew array<unsigned char>(this->numberOfCells);
+        array<unsigned char>^ states = gcnew array<unsigned char>(this->numberOfCells);
 
-        unsigned int index = 0;
-        for (unsigned int i = 0; i < this->engine->sizeOfTheBoard(); ++i)
-        {
-            for (unsigned int j = 0; j < this->engine->sizeOfTheBoard(); ++j)
-            {
-                save->value += this->cells[index]->Text->Length > 0 ? this->cells[index]->Text : "0";
-
-                // Save the cell's state
-                if (!this->cells[index]->Enabled && this->cells[index]->ForeColor == defaultColor)
-                {
-                    save->state += "0";
-                }
-                else
-                {
-                    if (this->cells[index]->Enabled)
-                    {
-                        if (this->cells[index]->Text->Length == 0)
-                        {
-                            save->state += "1";
-                        }
-                        else
-                        {
-                            save->state += "2";
-                        }
-                    }
-                    else
-                    {
-                        if (this->cells[index]->ForeColor == defaultColor)
-                        {
-                            save->state += "0";
-                        }
-                        else if (this->cells[index]->ForeColor == correctColor)
-                        {
-                            save->state += "3";
-                        }
-                        else if (this->cells[index]->ForeColor == hintColor)
-                        {
-                            save->state += "4";
-                        }
-                        else if (this->cells[index]->ForeColor == giveUpColor)
-                        {
-                            save->state += "5";
-                        }
-                        else if (this->cells[index]->ForeColor == solveColor)
-                        {
-                            save->state += "6";
-                        }
-                    }
-                }
-
-                ++index;
-            }
-        }
-
-        // Serialize pencil marks as 81 space-separated integers
         for (unsigned int i = 0; i < this->numberOfCells; ++i)
         {
-            if (i > 0) save->pencilMarks += " ";
-            save->pencilMarks += this->session->pencilMarks[i].ToString();
+            // Value: digit 1-9, or 0 for empty
+            values[i] = this->cells[i]->Text->Length > 0
+                ? (unsigned char)int::Parse(this->cells[i]->Text)
+                : (unsigned char)0;
+
+            // State: 0=engine clue, 1=empty, 2=user-filled, 3=correct, 4=hint, 5=give-up, 6=solver
+            if (!this->cells[i]->Enabled && this->cells[i]->ForeColor == defaultColor)
+                states[i] = 0;
+            else if (this->cells[i]->Enabled && this->cells[i]->Text->Length == 0)
+                states[i] = 1;
+            else if (this->cells[i]->Enabled)
+                states[i] = 2;
+            else if (this->cells[i]->ForeColor == correctColor)
+                states[i] = 3;
+            else if (this->cells[i]->ForeColor == hintColor)
+                states[i] = 4;
+            else if (this->cells[i]->ForeColor == giveUpColor)
+                states[i] = 5;
+            else if (this->cells[i]->ForeColor == solveColor)
+                states[i] = 6;
+            else
+                states[i] = 0;
         }
 
-        FileStream^ fileStream = nullptr;
+        bool gameFinished = this->session->mode == GameMode::Game
+            ? !this->giveUpButton->Enabled
+            : !this->solveButton->Enabled;
 
         try
         {
-            fileStream = File::Create(this->saveGameDialog->FileName);
-            BinaryFormatter^ formatter = gcnew BinaryFormatter();
-            formatter->Serialize(fileStream, save);
+            SaveGameStore::Save(
+                this->saveGameDialog->FileName,
+                this->engine->sizeOfTheBlock(),
+                this->session->difficulty,
+                this->session->numberOfHints,
+                this->session->numberOfFixes,
+                this->session->hasGivenUp,
+                this->session->hasUsedFix,
+                this->session->mode,
+                gameFinished,
+                values,
+                states,
+                this->session->pencilMarks);
         }
         catch (...)
         {
             this->showNotification(Strings::Get(StringId::NotifyFileSaveError, this->currentLanguage));
-        }
-        finally
-        {
-            if (fileStream != nullptr)
-            {
-                fileStream->Close();
-            }
         }
     }
 
     private: void openGameDialog_FileOk(System::Object^ sender, System::ComponentModel::CancelEventArgs^ e)
     {
         SavedGame^ save = nullptr;
-        FileStream^ fileStream = nullptr;
-
         try
         {
-            // Read save object from the file
-            fileStream = File::OpenRead(this->openGameDialog->FileName);
-            BinaryFormatter^ formatter = gcnew BinaryFormatter();
-            save = (SavedGame^)formatter->Deserialize(fileStream);
+            save = SaveGameStore::Load(this->openGameDialog->FileName, this->numberOfCells);
+        }
+        catch (...)
+        {
+            this->showNotification(Strings::Get(StringId::NotifyFileLoadError, this->currentLanguage));
+            return;
+        }
 
-            // Only block size 3 is currently supported
-            if (save->sizeFactor != 3)
-            {
-                throw "Invalid sizeFactor value " + save->sizeFactor.ToString();
-            }
+        // Apply session state
+        this->clearBoard(false);
+        this->engine->clear();
+        this->disableHint();
+        this->session->difficulty          = save->difficulty;
+        this->difficultyComboBox->SelectedIndex = save->difficulty;
+        this->session->numberOfFilledCells = 0;
+        this->session->numberOfHints       = save->numberOfHints;
+        this->session->numberOfFixes       = save->numberOfFixes;
+        this->session->hasGivenUp          = save->hasGivenUp;
+        this->session->hasUsedFix          = save->hasUsedFix;
+        this->session->mode                = static_cast<GameMode>(save->gameMode);
+        this->restartButton->Enabled       = this->session->mode == GameMode::Game;
+        this->setGameControls(
+            this->session->mode == GameMode::Game   && !save->gameFinished,
+            this->session->mode == GameMode::Game   && !save->gameFinished,
+            this->session->mode == GameMode::Game   && !save->gameFinished,
+            this->session->mode == GameMode::Solver && !save->gameFinished);
+        this->updateClipboardControls();
 
-            // Check if the velues and states strings' lengths are of right length
-            if (save->value->Length != this->numberOfCells)
-            {
-                throw "Invalid number of cell values " + save->value->Length.ToString();
-            }
-            else if (save->state->Length != save->value->Length)
-            {
-                throw "Invalid number of cell states " + save->value->Length.ToString();
-            }
-
-            // Reset the board
-            this->clearBoard(false);
-            this->engine->clear();
-            this->disableHint();
-            this->session->difficulty = save->difficulty;
-            this->difficultyComboBox->SelectedIndex = save->difficulty;
-            this->session->numberOfFilledCells = 0;
-            this->session->numberOfHints = save->numberOfHints;
-            this->session->numberOfFixes = save->numberOfFixes;
-            this->session->hasGivenUp = save->hasGivenUp;
-            this->session->hasUsedFix = save->hasUsedFix;
-            this->session->mode = static_cast<GameMode>(save->gameMode);
-            this->restartButton->Enabled = this->session->mode == GameMode::Game;
-            this->setGameControls(
-                this->session->mode == GameMode::Game && !save->gameFinished,
-                this->session->mode == GameMode::Game && !save->gameFinished,
-                this->session->mode == GameMode::Game && !save->gameFinished,
-                this->session->mode == GameMode::Solver && !save->gameFinished);
-            this->updateClipboardControls();
-
-            // Fill each cell
-            unsigned int index = 0;
-            unsigned int numberOfEnabledCells = 0;
+        // Apply each cell
+        try
+        {
             for (unsigned int i = 0; i < this->boardSize; ++i)
             {
                 for (unsigned int j = 0; j < this->boardSize; ++j)
                 {
-                    System::String^ value = save->value[index].ToString();
-                    System::String^ state = save->state[index].ToString();
+                    unsigned int index = i * this->boardSize + j;
+                    wchar_t v = save->value[index];
+                    wchar_t s = save->state[index];
 
-                    // Check if the values are valid
-                    if (value != "1" && value != "2" && value != "3" &&
-                        value != "4" && value != "5" && value != "6" &&
-                        value != "7" && value != "8" && value != "9" &&
-                        value != "0")
-                    {
-                        throw "Invalid cell value " + value;
-                    }
-
-                    // Check if the state properties are valid
-                    if (state != "0" && state != "1" && state != "2" &&
-                        state != "3" && state != "4" && state != "5" &&
-                        state != "6")
-                    {
-                        throw "Invalid cell state " + state;
-                    }
-
-                    // Check if cell value does not conflict with cell state
-                    if (value->Equals("0") != state->Equals("1"))
-                    {
-                        throw "Invalid cell value and cell state pair";
-                    }
-
-                    // Fill the engine based on game mode
+                    // Fill engine
                     if (this->session->mode == GameMode::Game)
                     {
-                        // If the cell was filled by the engine (immutable clue)
-                        if (state->Equals("0"))
+                        if (s == L'0')
                         {
                             this->engine->setFilled(i, j, true);
-                            this->engine->setCellValue(i, j, value[0] - '0');
+                            this->engine->setCellValue(i, j, v - L'0');
                         }
                         else
                         {
-                            // It was hidden by the engine
                             this->engine->setFilled(i, j, false);
                         }
                     }
-                    else if (this->session->mode == GameMode::Solver)
+                    else // Solver
                     {
-                        if (state->Equals("0") || state->Equals("6"))
+                        if (s == L'0' || s == L'6')
                         {
                             this->engine->setFilled(i, j, true);
-                            this->engine->setCellValue(i, j, value[0] - '0');
-                        }
-                        else if (state->Equals("1") || state->Equals("2"))
-                        {
-                            this->engine->setFilled(i, j, false);
+                            this->engine->setCellValue(i, j, v - L'0');
                         }
                         else
                         {
-                            throw "Invalid cell state value " + state + " for game mode " + save->gameMode.ToString();
-                        }
-                    }
-                    else
-                    {
-                        throw "Invalid gameMode value " + save->gameMode.ToString();
-                    }
-
-                    // If the cell is not empty
-                    if (!state->Equals("1"))
-                    {
-                        ++(this->session->numberOfFilledCells);
-                    }
-
-                    // Fill the cell with its value
-                    this->cells[index]->Text = value->Equals("0") ? "" : value;
-
-                    // Check if the cell is enabled
-                    if (state->Equals("1") || state->Equals("2"))
-                    {
-                        this->cells[index]->Enabled = true;
-                        ++numberOfEnabledCells;
-                    }
-                    else
-                    {
-                        this->cells[index]->Enabled = false;
-                    }
-
-                    // Change cell color if needed
-                    if (this->session->mode == GameMode::Game)
-                    {
-                        if (state->Equals("3"))
-                        {
-                            this->cells[index]->ForeColor = correctColor;
-                        }
-                        else if (state->Equals("4"))
-                        {
-                            this->cells[index]->ForeColor = hintColor;
-                        }
-                        else if (state->Equals("5"))
-                        {
-                            this->cells[index]->ForeColor = giveUpColor;
-                        }
-                        else if (state->Equals("6"))
-                        {
-                            throw "Invalid state " + state + " in game mode " + save->gameMode.ToString();
-                        }
-                    }
-                    else if (this->session->mode == GameMode::Solver)
-                    {
-                        if (state->Equals("6"))
-                        {
-                            this->cells[index]->ForeColor = solveColor;
-                        }
-                        else if (
-                            state->Equals("3") ||
-                            state->Equals("4") ||
-                            state->Equals("5"))
-                        {
-                            throw "Invalid state " + state + " in game mode " + save->gameMode.ToString();
+                            this->engine->setFilled(i, j, false);
                         }
                     }
 
-                    ++index;
+                    // Cell text
+                    this->cells[index]->Text = (v == L'0') ? "" : v.ToString();
+
+                    // Enabled state
+                    this->cells[index]->Enabled = (s == L'1' || s == L'2');
+
+                    // Fore color
+                    if (s == L'3') this->cells[index]->ForeColor = correctColor;
+                    else if (s == L'4') this->cells[index]->ForeColor = hintColor;
+                    else if (s == L'5') this->cells[index]->ForeColor = giveUpColor;
+                    else if (s == L'6') this->cells[index]->ForeColor = solveColor;
+
+                    // Count filled cells
+                    if (s != L'1')
+                        ++this->session->numberOfFilledCells;
                 }
             }
 
-            // Restore pencil marks if present (new saves only)
+            // Restore pencil marks
             this->undoManager->clear();
             this->setPencilMode(false);
             if (save->pencilMarks != nullptr && save->pencilMarks->Length > 0)
@@ -4660,40 +4527,28 @@ namespace Sudoku_3_0
                     if (int::TryParse(parts[i], mark))
                         this->session->pencilMarks[i] = mark;
                 }
-                // Repaint all cells to show loaded marks
-                for each (Button ^ cell in this->cells)
-                {
+                for each (Button^ cell in this->cells)
                     cell->Invalidate();
-                }
             }
 
-            // The engine needs to solve the puzzle for 2 reasons:
-            // 1) It needs the solution to validate hints/check progress later (game mode)
-            // 2) It allows detection of corrupted saves
-            if (this->session->mode == GameMode::Game || (this->session->mode == GameMode::Solver && engine->numberOfFilledCells() > 0))
+            // Solve engine to enable hint validation and detect corrupt saves
+            if (this->session->mode == GameMode::Game ||
+                (this->session->mode == GameMode::Solver && engine->numberOfFilledCells() > 0))
             {
                 this->engine->trySolve();
                 if (engine->currentState() != SudokuGameEngine::SudokuEngineState::FilledValid)
-                {
                     throw "Invalid cell values";
-                }
             }
             else
             {
-                // Solver mode with an empty board: resolve BeingEdited state without solving
                 this->engine->updateState();
             }
+
+            this->conflicts->highlightAll();
         }
         catch (...)
         {
             this->showNotification(Strings::Get(StringId::NotifyFileLoadError, this->currentLanguage));
-        }
-        finally
-        {
-            if (fileStream != nullptr)
-            {
-                fileStream->Close();
-            }
         }
     }
     };

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -104,23 +104,24 @@
     <ClCompile Include="Sudoku 3.0.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ClipboardPuzzleFormatter.h" />
+    <ClInclude Include="ConflictDetector.h" />
+    <ClInclude Include="GameMode.h" />
+    <ClInclude Include="GameSession.h" />
     <ClInclude Include="Numbers.h">
       <FileType>CppForm</FileType>
     </ClInclude>
-    <ClInclude Include="ClipboardPuzzleFormatter.h" />
-    <ClInclude Include="ConflictDetector.h" />
-    <ClInclude Include="WindowDragger.h" />
-    <ClInclude Include="GameMode.h" />
-    <ClInclude Include="GameSession.h" />
-    <ClInclude Include="UndoManager.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="SavedGame.h" />
+    <ClInclude Include="SaveGameStore.h" />
     <ClInclude Include="Strings.h" />
     <ClInclude Include="Sudoku 3.0.h">
       <FileType>CppForm</FileType>
     </ClInclude>
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="stdafx.h" />
     <ClInclude Include="SudokuEngine.h" />
+    <ClInclude Include="UndoManager.h" />
+    <ClInclude Include="WindowDragger.h" />
+    <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="app.rc" />
