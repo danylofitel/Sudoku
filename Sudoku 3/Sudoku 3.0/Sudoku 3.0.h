@@ -2694,24 +2694,17 @@ namespace Sudoku_3_0
     }
 
            // Resets the board to its initial clue state from session->puzzle.
-           // showHiddenCells=true reveals the full solution (used by give-up).
-    private: void resetBoardToClues(const bool showHiddenCells)
+    private: void resetBoardToClues()
     {
         this->session->numberOfFilledCells = 0;
 
         for (unsigned int index = 0; index < this->numberOfCells; ++index)
         {
             System::Windows::Forms::Button^ cell = this->cells[index];
-            unsigned char clue     = this->session->puzzle->clues[index];
-            unsigned char solution = this->session->puzzle->solution[index];
+            unsigned char clue = this->session->puzzle->clues[index];
             bool isClue = clue != 0;
 
-            if (showHiddenCells)
-            {
-                cell->Text = ((int)solution).ToString();
-                ++this->session->numberOfFilledCells;
-            }
-            else if (isClue)
+            if (isClue)
             {
                 cell->Text = ((int)clue).ToString();
                 ++this->session->numberOfFilledCells;
@@ -2781,7 +2774,7 @@ namespace Sudoku_3_0
         this->session->puzzle = gcnew Puzzle(clues, solution);
 
         // Prepare the board
-        this->resetBoardToClues(false);
+        this->resetBoardToClues();
         this->conflicts->highlightAll();
         this->undoManager->clear();
         this->restartButton->Enabled = true;
