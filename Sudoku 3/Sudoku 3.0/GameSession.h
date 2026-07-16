@@ -40,6 +40,9 @@ namespace Sudoku_3_0
         // Whether pencil mode is active
         bool pencilMode;
 
+        // Whether hint mode is active (next cell click reveals the solution value)
+        bool hintMode;
+
         // Index of the cell currently under the mouse (-1 if none); used for pencil ghost-mark rendering
         int hoveredCellIndex;
 
@@ -56,6 +59,7 @@ namespace Sudoku_3_0
             this->winStreak = 0;
             this->pencilMarks = gcnew array<int>(numberOfCells);
             this->pencilMode = false;
+            this->hintMode = false;
             this->hoveredCellIndex = -1;
         }
 
@@ -72,6 +76,7 @@ namespace Sudoku_3_0
             this->hasGivenUp = false;
             this->hasUsedFix = false;
             this->pencilMode = false;
+            this->hintMode = false;
             this->pencilMarks = gcnew array<int>(numberOfCells);
         }
     };

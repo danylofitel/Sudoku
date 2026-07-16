@@ -215,9 +215,6 @@ namespace Sudoku_3_0
            // Active game session state (mode, difficulty, counters, pencil marks, etc.)
     private: GameSession^ session;
 
-           // State of the hint
-    private: bool isHint;
-
            // Undo manager
     private: UndoManager^ undoManager;
 
@@ -2474,7 +2471,6 @@ namespace Sudoku_3_0
         // Initialize the form
         this->numbersFormActive = false;
         this->session = gcnew GameSession(this->numberOfCells);
-        this->isHint = false;
         this->undoManager = gcnew UndoManager(this->undoButton, this->undoToolStripMenuItem);
         this->conflicts = gcnew ConflictDetector(this->cells, this->sizeFactor);
 
@@ -2903,13 +2899,13 @@ namespace Sudoku_3_0
         // In pencil mode, mouse clicks are handled by cell_MouseClick (zone hit-test);
         // a plain button Click in pencil mode means the user clicked outside a digit zone
         // or used keyboard — keyboard path goes through choiceMade directly, so just return.
-        if (this->session->pencilMode && currentButton->Enabled && !this->isHint)
+        if (this->session->pencilMode && currentButton->Enabled && !this->session->hintMode)
             return;
 
         // If this is a hint option, show the cell value
-        if (this->isHint)
+        if (this->session->hintMode)
         {
-            // Push undo entry before applying hint (saves text, marks, and hints delta)
+            // Push undo entry before applying hint
             this->undoManager->push(number - 1, currentButton->Text, this->session->pencilMarks[number - 1]);
 
             if (currentButton->Text->Length == 0)
@@ -2925,7 +2921,7 @@ namespace Sudoku_3_0
             currentButton->Enabled = false;
             currentButton->ForeColor = hintColor;
             ++(this->session->numberOfHints);
-            this->revalidatePeers(number - 1);
+            this->conflicts->highlightWithPeers(number - 1);
 
             this->checkGameState();
         }
@@ -2996,8 +2992,8 @@ namespace Sudoku_3_0
                     cell->Text = choice.ToString();
                     ++(this->session->numberOfFilledCells);
                     cell->Invalidate();
-                    this->highlightCellConflict(cellNumber - 1);
-                    this->revalidatePeers(cellNumber - 1);
+                    this->conflicts->highlight(cellNumber - 1);
+                    this->conflicts->highlightWithPeers(cellNumber - 1);
                 }
             }
             else
@@ -3009,7 +3005,7 @@ namespace Sudoku_3_0
                     --(this->session->numberOfFilledCells);
                     cell->BackColor = defaultBackColor;
                     cell->Invalidate();
-                    this->revalidatePeers(cellNumber - 1);
+                    this->conflicts->highlightWithPeers(cellNumber - 1);
                 }
                 else
                 {
@@ -3017,8 +3013,8 @@ namespace Sudoku_3_0
                     this->session->pencilMarks[cellNumber - 1] = 0;
                     cell->Text = choice.ToString();
                     cell->Invalidate();
-                    this->highlightCellConflict(cellNumber - 1);
-                    this->revalidatePeers(cellNumber - 1);
+                    this->conflicts->highlight(cellNumber - 1);
+                    this->conflicts->highlightWithPeers(cellNumber - 1);
                 }
             }
 
@@ -3026,7 +3022,7 @@ namespace Sudoku_3_0
         }
         else
         {
-            this->highlightCellConflict(cellNumber - 1);
+            this->conflicts->highlight(cellNumber - 1);
         }
     }
 
@@ -3049,8 +3045,8 @@ namespace Sudoku_3_0
         cell->ForeColor = defaultColor;
         cell->BackColor = defaultBackColor;
         cell->Invalidate();
-        this->highlightCellConflict(index);
-        this->revalidatePeers(index);
+        this->conflicts->highlight(index);
+        this->conflicts->highlightWithPeers(index);
     }
 
     private: void performUndo()
@@ -3091,7 +3087,7 @@ namespace Sudoku_3_0
         if (active)
         {
             // Deactivate hint mode so both modes cannot be active simultaneously
-            this->isHint = false;
+            this->session->hintMode = false;
             this->hintButton->ForeColor = defaultColor;
         }
         this->session->pencilMode = active;
@@ -3103,22 +3099,7 @@ namespace Sudoku_3_0
         this->setPencilMode(!this->session->pencilMode);
     }
 
-    private: void highlightCellConflict(const unsigned int cellNumber)
-    {
-        this->conflicts->highlight(cellNumber);
-    }
-
-    private: void revalidateAllCells()
-    {
-        this->conflicts->highlightAll();
-    }
-
-    private: void revalidatePeers(const unsigned int cellNumber)
-    {
-        this->conflicts->highlightWithPeers(cellNumber);
-    }
-
-           // Paints pencil marks into a cell using a 3x3 mini-grid layout
+    // Paints pencil marks
     private: void cell_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e)
     {
         System::Windows::Forms::Button^ cell = safe_cast<System::Windows::Forms::Button^>(sender);
@@ -3219,7 +3200,7 @@ namespace Sudoku_3_0
             e->Handled = true;
             break;
         case Keys::Delete:
-            if (!this->isHint)
+            if (!this->session->hintMode)
             {
                 Button^ btn = safe_cast<Button^>(sender);
                 bool changed = btn->Text->Length != 0;
@@ -3270,7 +3251,7 @@ namespace Sudoku_3_0
            // Pencil-mode mouse click: hit-test which digit zone was clicked and toggle that mark
     private: void cell_MouseClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
     {
-        if (!this->session->pencilMode || this->isHint) return;
+        if (!this->session->pencilMode || this->session->hintMode) return;
 
         Button^ cell = safe_cast<Button^>(sender);
         int idx = array<Button^>::IndexOf(this->cells, cell);
@@ -3333,14 +3314,14 @@ namespace Sudoku_3_0
     private: void enableHint()
     {
         this->setPencilMode(false);
-        this->isHint = true;
+        this->session->hintMode = true;
         this->hintButton->ForeColor = activeButtonColor;
     }
 
            // Disable hint mode
     private: void disableHint()
     {
-        this->isHint = false;
+        this->session->hintMode = false;
         this->hintButton->ForeColor = defaultColor;
     }
 
@@ -3429,7 +3410,7 @@ namespace Sudoku_3_0
     {
         this->closeHelperForms();
 
-        if (this->isHint)
+        if (this->session->hintMode)
         {
             this->disableHint();
         }
@@ -3492,7 +3473,7 @@ namespace Sudoku_3_0
             this->undoManager->endBatch();
         }
 
-        this->revalidateAllCells();
+        this->conflicts->highlightAll();
     }
 
     private: void giveUpButton_Click(System::Object^ sender, System::EventArgs^ e)
@@ -3542,7 +3523,7 @@ namespace Sudoku_3_0
 
         this->setGameControls(false, false, false, false);
         this->undoManager->clear();
-        this->revalidateAllCells();
+        this->conflicts->highlightAll();
     }
 
     private: void updateClipboardControls()
@@ -3629,7 +3610,7 @@ namespace Sudoku_3_0
             }
         }
 
-        this->revalidateAllCells();
+        this->conflicts->highlightAll();
     }
 
     private: void clipboardButton_Click(System::Object^ sender, System::EventArgs^ e)
@@ -4361,7 +4342,7 @@ namespace Sudoku_3_0
 
     private: void buttonKeyPress(System::Object^ sender, System::Windows::Forms::KeyPressEventArgs^ e)
     {
-        if (!this->isHint)
+        if (!this->session->hintMode)
         {
             unsigned int choice = 0;
             if (e->KeyChar >= '1' && e->KeyChar <= '9')
