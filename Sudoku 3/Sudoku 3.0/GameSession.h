@@ -48,7 +48,7 @@ namespace Sudoku_3_0
         // Index of the cell currently under the mouse (-1 if none); used for pencil ghost-mark rendering
         int hoveredCellIndex;
 
-        // One-time initialization; call once from SudokuForm::initialize.
+        // One-time initialization.
         GameSession(unsigned int numberOfCells)
         {
             this->mode = GameMode::None;
