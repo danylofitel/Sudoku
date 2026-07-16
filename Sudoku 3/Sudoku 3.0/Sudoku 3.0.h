@@ -7,6 +7,7 @@
 #include "GameMode.h"
 #include "GameSession.h"
 #include "Numbers.h"
+#include "PlayerStats.h"
 #include "SavedGame.h"
 #include "SaveGameStore.h"
 #include "Strings.h"
@@ -213,6 +214,9 @@ namespace Sudoku_3_0
 
            // Active game session state (mode, difficulty, counters, pencil marks, etc.)
     private: GameSession^ session;
+
+           // Cross-game statistics that persist for the lifetime of the application
+    private: PlayerStats^ playerStats;
 
            // Undo manager
     private: UndoManager^ undoManager;
@@ -2469,6 +2473,7 @@ namespace Sudoku_3_0
 
         // Initialize the form
         this->session = gcnew GameSession(this->numberOfCells);
+        this->playerStats = gcnew PlayerStats();
         this->undoManager = gcnew UndoManager(this->undoButton, this->undoToolStripMenuItem);
         this->conflicts = gcnew ConflictDetector(this->cells, this->sizeFactor);
 
@@ -2830,9 +2835,9 @@ namespace Sudoku_3_0
         this->undoManager->clear();
 
         if (!this->session->hasGivenUp)
-            ++this->session->winStreak;
+            ++this->playerStats->winStreak;
         else
-            this->session->winStreak = 0;
+            this->playerStats->winStreak = 0;
     }
 
            // Builds the victory notification message from current session statistics.
@@ -2872,8 +2877,8 @@ namespace Sudoku_3_0
         }
 
         msg += Strings::Get(StringId::WinDifficulty, this->currentLanguage) + this->difficultyName(this->session->difficulty);
-        if (this->session->winStreak > 1)
-            msg += Strings::Get(StringId::WinStreak, this->currentLanguage) + this->session->winStreak;
+        if (this->playerStats->winStreak > 1)
+            msg += Strings::Get(StringId::WinStreak, this->currentLanguage) + this->playerStats->winStreak;
 
         return msg;
     }
@@ -3490,7 +3495,7 @@ namespace Sudoku_3_0
         this->disableHint();
 
         this->session->hasGivenUp = true;
-        this->session->winStreak = 0;
+        this->playerStats->winStreak = 0;
 
         for (unsigned int index = 0; index < this->numberOfCells; ++index)
         {

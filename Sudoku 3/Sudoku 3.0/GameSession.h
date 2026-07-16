@@ -36,10 +36,7 @@ namespace Sudoku_3_0
         // Whether the user has used Fix at least once on this puzzle
         bool hasUsedFix;
 
-        // Session-only win streak; persists across games and resets to zero on give-up
-        unsigned int winStreak;
-
-        // Pencil mark bitmask per cell: bit N set means digit N is marked (bits 1-9)
+        // Pencil mark bitmask per cell
         array<int>^ pencilMarks;
 
         // Whether pencil mode is active
@@ -62,7 +59,6 @@ namespace Sudoku_3_0
             this->numberOfFixes = 0;
             this->hasGivenUp = false;
             this->hasUsedFix = false;
-            this->winStreak = 0;
             this->pencilMarks = gcnew array<int>(numberOfCells);
             this->pencilMode = false;
             this->hintMode = false;
@@ -70,8 +66,6 @@ namespace Sudoku_3_0
         }
 
         // Resets all per-game fields for a new standard game.
-        // winStreak is intentionally NOT reset here; it is managed by
-        // checkGameState and giveUpButton_Click.
         void startNewGame(unsigned int difficultyIndex, unsigned int numberOfCells)
         {
             this->mode = GameMode::Game;

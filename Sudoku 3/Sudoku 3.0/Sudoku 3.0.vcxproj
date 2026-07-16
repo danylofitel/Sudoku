@@ -111,6 +111,7 @@
     <ClInclude Include="Numbers.h">
       <FileType>CppForm</FileType>
     </ClInclude>
+    <ClInclude Include="PlayerStats.h" />
     <ClInclude Include="Puzzle.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SavedGame.h" />
