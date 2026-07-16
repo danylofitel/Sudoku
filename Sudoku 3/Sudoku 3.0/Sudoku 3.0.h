@@ -2890,8 +2890,12 @@ namespace Sudoku_3_0
     }
 
            // Checks if the board is fully and correctly filled; triggers win flow if so.
+           // Only meaningful in Game mode: Solver mode has no win condition and session->puzzle
+           // may not be set (or may be stale from a prior game) while the user is still entering.
     private: void checkGameState()
     {
+        if (this->session->mode != GameMode::Game) return;
+
         if (this->session->numberOfFilledCells == this->numberOfCells && this->checkSolution())
         {
             this->applyWin();
@@ -3411,6 +3415,9 @@ namespace Sudoku_3_0
 
         this->setGameControls(true, true, true, false);
         this->setPencilMode(false);
+        // hasGivenUp is intentionally NOT reset: once the user has seen the solution,
+        // no re-prompt is needed and a win after restart still counts as a post-give-up win.
+        this->conflicts->highlightAll();
     }
 
     private: void hintButton_Click(System::Object^ sender, System::EventArgs^ e)
@@ -3519,6 +3526,7 @@ namespace Sudoku_3_0
         }
 
         this->setGameControls(false, false, false, false);
+        this->setPencilMode(false);
         this->undoManager->clear();
         this->conflicts->highlightAll();
     }
@@ -3577,6 +3585,7 @@ namespace Sudoku_3_0
         this->engine->clear();
         this->clearBoard(true);
         this->undoManager->clear();
+        this->session->puzzle = nullptr;  // no valid puzzle until Solve succeeds
 
         for (int i = 0; i < (int)(this->numberOfCells); ++i)
         {
@@ -3621,6 +3630,7 @@ namespace Sudoku_3_0
         this->clearBoard(true);
 
         this->session->mode = GameMode::Solver;
+        this->session->puzzle = nullptr;  // no valid puzzle until Solve succeeds
         this->restartButton->Enabled = false;
         this->undoManager->clear();
         this->setPencilMode(false);
