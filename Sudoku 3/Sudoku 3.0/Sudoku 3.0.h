@@ -211,9 +211,6 @@ namespace Sudoku_3_0
            // Numbers form
     private: Sudoku_3_0::Numbers^ numbersForm;
 
-           // Numbers form active
-    private: bool numbersFormActive;
-
            // Active game session state (mode, difficulty, counters, pencil marks, etc.)
     private: GameSession^ session;
 
@@ -2471,7 +2468,6 @@ namespace Sudoku_3_0
         this->initializeCells();
 
         // Initialize the form
-        this->numbersFormActive = false;
         this->session = gcnew GameSession(this->numberOfCells);
         this->undoManager = gcnew UndoManager(this->undoButton, this->undoToolStripMenuItem);
         this->conflicts = gcnew ConflictDetector(this->cells, this->sizeFactor);
@@ -2963,9 +2959,6 @@ namespace Sudoku_3_0
             this->numbersForm->setCellNumber(number);
             this->numbersForm->Visible = true;
             this->numbersForm->Activate();
-
-            // Change the form state
-            this->numbersFormActive = true;
         }
     }
 
@@ -3321,8 +3314,6 @@ namespace Sudoku_3_0
     {
         // Close numbers form
         this->numbersForm->Visible = false;
-        this->numbersFormActive = false;
-
     }
 
            // Enable hint mode (deactivates pencil mode so both cannot be active simultaneously)
