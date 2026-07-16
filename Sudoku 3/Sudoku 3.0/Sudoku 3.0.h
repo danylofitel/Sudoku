@@ -2478,13 +2478,12 @@ namespace Sudoku_3_0
         this->undoManager = gcnew UndoManager(this->undoButton, this->undoToolStripMenuItem);
         this->conflicts = gcnew ConflictDetector(this->cells, this->sizeFactor);
 
-        // Set default difficulty selection
+        // Set default difficulty
         this->selectedDifficulty = this->session->difficulty;
         this->difficultyComboBox->SelectedIndex = this->selectedDifficulty;
 
         // Set default language
-        this->currentLanguage = Language::English;
-        this->applyLanguage();
+        this->setLanguage(Language::English);
 
         // Wire Paint, MouseEnter, MouseLeave, and MouseClick events for each cell
         for each (System::Windows::Forms::Button ^ cell in this->cells)
@@ -2499,10 +2498,10 @@ namespace Sudoku_3_0
         this->newGame(SudokuGameEngine::DifficultyLevel::Medium);
     }
 
-           // Apply the current language to all UI controls and update the language menu checkmarks
-    private: void applyLanguage()
+           // Apply the given language to all UI controls and update the language menu checkmarks
+    private: void setLanguage(Language lang)
     {
-        Language lang = this->currentLanguage;
+        this->currentLanguage = lang;
 
         // Window title
         this->Text = Strings::Get(StringId::WindowTitle, lang);
@@ -2580,100 +2579,98 @@ namespace Sudoku_3_0
 
     private: void englishToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        this->currentLanguage = Language::English;
-        this->applyLanguage();
+        this->setLanguage(Language::English);
     }
 
     private: void ukrainianToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        this->currentLanguage = Language::Ukrainian;
-        this->applyLanguage();
+        this->setLanguage(Language::Ukrainian);
     }
 
-           void initializeCells()
-           {
-               this->cells[80] = this->button81;
-               this->cells[79] = this->button80;
-               this->cells[78] = this->button79;
-               this->cells[77] = this->button78;
-               this->cells[76] = this->button77;
-               this->cells[75] = this->button76;
-               this->cells[74] = this->button75;
-               this->cells[73] = this->button74;
-               this->cells[72] = this->button73;
-               this->cells[71] = this->button72;
-               this->cells[70] = this->button71;
-               this->cells[69] = this->button70;
-               this->cells[68] = this->button69;
-               this->cells[67] = this->button68;
-               this->cells[66] = this->button67;
-               this->cells[65] = this->button66;
-               this->cells[64] = this->button65;
-               this->cells[63] = this->button64;
-               this->cells[62] = this->button63;
-               this->cells[61] = this->button62;
-               this->cells[60] = this->button61;
-               this->cells[59] = this->button60;
-               this->cells[58] = this->button59;
-               this->cells[57] = this->button58;
-               this->cells[56] = this->button57;
-               this->cells[55] = this->button56;
-               this->cells[54] = this->button55;
-               this->cells[53] = this->button54;
-               this->cells[52] = this->button53;
-               this->cells[51] = this->button52;
-               this->cells[50] = this->button51;
-               this->cells[49] = this->button50;
-               this->cells[48] = this->button49;
-               this->cells[47] = this->button48;
-               this->cells[46] = this->button47;
-               this->cells[45] = this->button46;
-               this->cells[44] = this->button45;
-               this->cells[43] = this->button44;
-               this->cells[42] = this->button43;
-               this->cells[41] = this->button42;
-               this->cells[40] = this->button41;
-               this->cells[39] = this->button40;
-               this->cells[38] = this->button39;
-               this->cells[37] = this->button38;
-               this->cells[36] = this->button37;
-               this->cells[35] = this->button36;
-               this->cells[34] = this->button35;
-               this->cells[33] = this->button34;
-               this->cells[32] = this->button33;
-               this->cells[31] = this->button32;
-               this->cells[30] = this->button31;
-               this->cells[29] = this->button30;
-               this->cells[28] = this->button29;
-               this->cells[27] = this->button28;
-               this->cells[26] = this->button27;
-               this->cells[25] = this->button26;
-               this->cells[24] = this->button25;
-               this->cells[23] = this->button24;
-               this->cells[22] = this->button23;
-               this->cells[21] = this->button22;
-               this->cells[20] = this->button21;
-               this->cells[19] = this->button20;
-               this->cells[18] = this->button19;
-               this->cells[17] = this->button18;
-               this->cells[16] = this->button17;
-               this->cells[15] = this->button16;
-               this->cells[14] = this->button15;
-               this->cells[13] = this->button14;
-               this->cells[12] = this->button13;
-               this->cells[11] = this->button12;
-               this->cells[10] = this->button11;
-               this->cells[9] = this->button10;
-               this->cells[8] = this->button9;
-               this->cells[7] = this->button8;
-               this->cells[6] = this->button7;
-               this->cells[5] = this->button6;
-               this->cells[4] = this->button5;
-               this->cells[3] = this->button4;
-               this->cells[2] = this->button3;
-               this->cells[1] = this->button2;
-               this->cells[0] = this->button1;
-           }
+    private: void initializeCells()
+    {
+        this->cells[80] = this->button81;
+        this->cells[79] = this->button80;
+        this->cells[78] = this->button79;
+        this->cells[77] = this->button78;
+        this->cells[76] = this->button77;
+        this->cells[75] = this->button76;
+        this->cells[74] = this->button75;
+        this->cells[73] = this->button74;
+        this->cells[72] = this->button73;
+        this->cells[71] = this->button72;
+        this->cells[70] = this->button71;
+        this->cells[69] = this->button70;
+        this->cells[68] = this->button69;
+        this->cells[67] = this->button68;
+        this->cells[66] = this->button67;
+        this->cells[65] = this->button66;
+        this->cells[64] = this->button65;
+        this->cells[63] = this->button64;
+        this->cells[62] = this->button63;
+        this->cells[61] = this->button62;
+        this->cells[60] = this->button61;
+        this->cells[59] = this->button60;
+        this->cells[58] = this->button59;
+        this->cells[57] = this->button58;
+        this->cells[56] = this->button57;
+        this->cells[55] = this->button56;
+        this->cells[54] = this->button55;
+        this->cells[53] = this->button54;
+        this->cells[52] = this->button53;
+        this->cells[51] = this->button52;
+        this->cells[50] = this->button51;
+        this->cells[49] = this->button50;
+        this->cells[48] = this->button49;
+        this->cells[47] = this->button48;
+        this->cells[46] = this->button47;
+        this->cells[45] = this->button46;
+        this->cells[44] = this->button45;
+        this->cells[43] = this->button44;
+        this->cells[42] = this->button43;
+        this->cells[41] = this->button42;
+        this->cells[40] = this->button41;
+        this->cells[39] = this->button40;
+        this->cells[38] = this->button39;
+        this->cells[37] = this->button38;
+        this->cells[36] = this->button37;
+        this->cells[35] = this->button36;
+        this->cells[34] = this->button35;
+        this->cells[33] = this->button34;
+        this->cells[32] = this->button33;
+        this->cells[31] = this->button32;
+        this->cells[30] = this->button31;
+        this->cells[29] = this->button30;
+        this->cells[28] = this->button29;
+        this->cells[27] = this->button28;
+        this->cells[26] = this->button27;
+        this->cells[25] = this->button26;
+        this->cells[24] = this->button25;
+        this->cells[23] = this->button24;
+        this->cells[22] = this->button23;
+        this->cells[21] = this->button22;
+        this->cells[20] = this->button21;
+        this->cells[19] = this->button20;
+        this->cells[18] = this->button19;
+        this->cells[17] = this->button18;
+        this->cells[16] = this->button17;
+        this->cells[15] = this->button16;
+        this->cells[14] = this->button15;
+        this->cells[13] = this->button14;
+        this->cells[12] = this->button13;
+        this->cells[11] = this->button12;
+        this->cells[10] = this->button11;
+        this->cells[9] = this->button10;
+        this->cells[8] = this->button9;
+        this->cells[7] = this->button8;
+        this->cells[6] = this->button7;
+        this->cells[5] = this->button6;
+        this->cells[4] = this->button5;
+        this->cells[3] = this->button4;
+        this->cells[2] = this->button3;
+        this->cells[1] = this->button2;
+        this->cells[0] = this->button1;
+    }
 
            // Get cell button by its coordinates
     private: System::Windows::Forms::Button^ getButton(const unsigned int row, const unsigned int column)
