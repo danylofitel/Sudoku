@@ -6,6 +6,7 @@
 #include "GameSession.h"
 #include "UndoManager.h"
 #include "ConflictDetector.h"
+#include "ClipboardPuzzleFormatter.h"
 #include "WindowDragger.h"
 #include "Numbers.h"
 #include "SavedGame.h"
@@ -3559,18 +3560,15 @@ namespace Sudoku_3_0
 
     private: void copyPuzzleToClipboard()
     {
-        System::String^ s = gcnew System::String(L"");
+        array<unsigned char>^ digits = gcnew array<unsigned char>(this->numberOfCells);
+        unsigned int index = 0;
         for (unsigned char i = 0; i < boardSize; ++i)
-        {
             for (unsigned char j = 0; j < boardSize; ++j)
-            {
-                if (engine->getFilled(i, j))
-                    s += ((int)engine->getCellValue(i, j)).ToString();
-                else
-                    s += L"0";
-            }
-        }
-        System::Windows::Forms::Clipboard::SetText(s);
+                digits[index++] = engine->getFilled(i, j)
+                    ? (unsigned char)engine->getCellValue(i, j)
+                    : (unsigned char)0;
+
+        System::Windows::Forms::Clipboard::SetText(ClipboardPuzzleFormatter::Encode(digits));
     }
 
     private: void pastePuzzleFromClipboard()
@@ -3579,17 +3577,8 @@ namespace Sudoku_3_0
             ? System::Windows::Forms::Clipboard::GetText()
             : gcnew System::String(L"");
 
-        // Extract digits, treating '.' as '0'
-        System::String^ digits = gcnew System::String(L"");
-        for each (wchar_t c in raw)
-        {
-            if (c >= L'0' && c <= L'9')
-                digits += c.ToString();
-            else if (c == L'.')
-                digits += L"0";
-        }
-
-        if (digits->Length != (int)(this->numberOfCells))
+        array<unsigned char>^ digits = ClipboardPuzzleFormatter::Decode(raw, (int)this->numberOfCells);
+        if (digits == nullptr)
         {
             this->showNotification(Strings::Get(StringId::NotifyInvalidPuzzleString, this->currentLanguage));
             return;
@@ -3601,10 +3590,9 @@ namespace Sudoku_3_0
 
         for (int i = 0; i < (int)(this->numberOfCells); ++i)
         {
-            int digit = int::Parse(digits[i].ToString());
-            if (digit >= 1 && digit <= 9)
+            if (digits[i] >= 1 && digits[i] <= 9)
             {
-                this->cells[i]->Text = digit.ToString();
+                this->cells[i]->Text = digits[i].ToString();
                 this->cells[i]->ForeColor = defaultColor;
                 ++this->session->numberOfFilledCells;
             }
