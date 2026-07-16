@@ -68,6 +68,9 @@ namespace Sudoku_3_0
            // Access to buttons by their numbers
     private: array<System::Windows::Forms::Button^>^ cells;
 
+           // Reverse lookup map from cell button to its 0-based index; built once in initializeCells()
+    private: System::Collections::Generic::Dictionary<System::Windows::Forms::Button^, int>^ cellIndex;
+
            // Cell buttons
     private: System::Windows::Forms::Button^ button1;
     private: System::Windows::Forms::Button^ button2;
@@ -2669,6 +2672,10 @@ namespace Sudoku_3_0
         this->cells[2] = this->button3;
         this->cells[1] = this->button2;
         this->cells[0] = this->button1;
+
+        this->cellIndex = gcnew System::Collections::Generic::Dictionary<System::Windows::Forms::Button^, int>();
+        for (int i = 0; i < (int)this->numberOfCells; ++i)
+            this->cellIndex[this->cells[i]] = i;
     }
 
            // Get cell button by its coordinates
@@ -3109,7 +3116,7 @@ namespace Sudoku_3_0
     private: void cell_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e)
     {
         System::Windows::Forms::Button^ cell = safe_cast<System::Windows::Forms::Button^>(sender);
-        int idx = array<System::Windows::Forms::Button^>::IndexOf(this->cells, cell);
+        int idx = this->cellIndex[cell];
         if (idx < 0 || cell->Text->Length > 0) return;
 
         bool isHovered = this->session->pencilMode && cell->Enabled && idx == this->session->hoveredCellIndex;
@@ -3184,7 +3191,7 @@ namespace Sudoku_3_0
 
     private: void buttonKeyDown(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e)
     {
-        int index = array<Button^>::IndexOf(this->cells, safe_cast<Button^>(sender));
+        int index = this->cellIndex[safe_cast<Button^>(sender)];
         if (index < 0) return;
 
         switch (e->KeyCode)
@@ -3237,7 +3244,7 @@ namespace Sudoku_3_0
            // Pencil-mode hover: track which cell is under the mouse for ghost-mark rendering
     private: void cell_MouseEnter(System::Object^ sender, System::EventArgs^ e)
     {
-        int idx = array<Button^>::IndexOf(this->cells, safe_cast<Button^>(sender));
+        int idx = this->cellIndex[safe_cast<Button^>(sender)];
         if (idx < 0) return;
         this->session->hoveredCellIndex = idx;
         if (this->session->pencilMode && this->cells[idx]->Enabled && this->cells[idx]->Text->Length == 0)
@@ -3246,7 +3253,7 @@ namespace Sudoku_3_0
 
     private: void cell_MouseLeave(System::Object^ sender, System::EventArgs^ e)
     {
-        int idx = array<Button^>::IndexOf(this->cells, safe_cast<Button^>(sender));
+        int idx = this->cellIndex[safe_cast<Button^>(sender)];
         if (idx < 0) return;
         if (this->session->hoveredCellIndex == idx)
             this->session->hoveredCellIndex = -1;
@@ -3260,7 +3267,7 @@ namespace Sudoku_3_0
         if (!this->session->pencilMode || this->session->hintMode) return;
 
         Button^ cell = safe_cast<Button^>(sender);
-        int idx = array<Button^>::IndexOf(this->cells, cell);
+        int idx = this->cellIndex[cell];
         if (idx < 0 || !cell->Enabled || cell->Text->Length > 0) return;
 
         float w = (float)cell->ClientSize.Width;
@@ -4352,7 +4359,7 @@ namespace Sudoku_3_0
                 return;
             }
 
-            int buttonIndex = array<Button^>::IndexOf(this->cells, ((Button^)sender)) + 1;
+            int buttonIndex = this->cellIndex[((Button^)sender)] + 1;
 
             bool changed = false;
             if (((Button^)sender)->Text->Length == 0 && choice != 0 ||
