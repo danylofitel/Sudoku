@@ -42,4 +42,10 @@ public:
 
     // Pencil mark bitmasks for all cells, space-separated (may be null for old saves)
     System::String^ pencilMarks;
+
+    // Original puzzle clues: digit 1-9, or '0' for empty (user-fillable cells)
+    System::String^ clues;
+
+    // Full solution: digit 1-9 for every cell
+    System::String^ solution;
 };

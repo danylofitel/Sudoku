@@ -2697,38 +2697,37 @@ namespace Sudoku_3_0
         }
     }
 
-           // Fill the board with values from the engine
+           // Fill the board with clues from session->puzzle.
+           // showHiddenCells=true reveals the full solution (used by give-up).
     private: void fillBoardFromEngine(const bool showHiddenCells)
     {
-        this->session->numberOfFilledCells = this->engine->numberOfFilledCells();
+        this->session->numberOfFilledCells = 0;
 
-        unsigned int index = 0;
-        for (unsigned char i = 0; i < boardSize; ++i)
+        for (unsigned int index = 0; index < this->numberOfCells; ++index)
         {
-            for (unsigned char j = 0; j < boardSize; ++j)
-            {
-                System::Windows::Forms::Button^ cell = this->cells[index];
-                if (showHiddenCells)
-                {
-                    cell->Text = ((int)engine->getCellValue(i, j)).ToString();
-                }
-                else
-                {
-                    if (engine->getFilled(i, j))
-                    {
-                        cell->Text = ((int)engine->operator()(i, j)).ToString();
-                    }
-                    else
-                    {
-                        cell->Text = String::Empty;
-                        cell->Invalidate(); // clear any stale pencil marks painted by cell_Paint
-                    }
-                }
+            System::Windows::Forms::Button^ cell = this->cells[index];
+            unsigned char clue     = this->session->puzzle->clues[index];
+            unsigned char solution = this->session->puzzle->solution[index];
+            bool isClue = clue != 0;
 
-                cell->ForeColor = defaultColor;
-                cell->Enabled = !engine->getFilled(i, j);
-                ++index;
+            if (showHiddenCells)
+            {
+                cell->Text = ((int)solution).ToString();
+                ++this->session->numberOfFilledCells;
             }
+            else if (isClue)
+            {
+                cell->Text = ((int)clue).ToString();
+                ++this->session->numberOfFilledCells;
+            }
+            else
+            {
+                cell->Text = String::Empty;
+                cell->Invalidate(); // clear any stale pencil marks painted by cell_Paint
+            }
+
+            cell->ForeColor = defaultColor;
+            cell->Enabled = !isClue;
         }
     }
 
@@ -2758,8 +2757,19 @@ namespace Sudoku_3_0
            // Start a new game
     private: void newGame(const SudokuGameEngine::DifficultyLevel difficulty)
     {
-        // Create a new puzzle
+        // Generate a new puzzle
         this->engine->newGame(difficulty);
+
+        // Capture the immutable puzzle snapshot before any session state changes
+        array<unsigned char>^ clues    = gcnew array<unsigned char>(this->numberOfCells);
+        array<unsigned char>^ solution = gcnew array<unsigned char>(this->numberOfCells);
+        for (unsigned int idx = 0; idx < this->numberOfCells; ++idx)
+        {
+            unsigned char i = (unsigned char)(idx / this->boardSize);
+            unsigned char j = (unsigned char)(idx % this->boardSize);
+            solution[idx] = (unsigned char)this->engine->getCellValue(i, j);
+            clues[idx]    = this->engine->getFilled(i, j) ? solution[idx] : (unsigned char)0;
+        }
 
         // Map difficulty enum to index and reset all per-game session state atomically
         unsigned int difficultyIndex = 0;
@@ -2772,6 +2782,7 @@ namespace Sudoku_3_0
         case SudokuGameEngine::DifficultyLevel::VeryHard: difficultyIndex = 4; break;
         }
         this->session->startNewGame(difficultyIndex, this->numberOfCells);
+        this->session->puzzle = gcnew Puzzle(clues, solution);
 
         // Prepare the board
         this->fillBoardFromEngine(false);
@@ -2796,20 +2807,15 @@ namespace Sudoku_3_0
            // Check if the solution is correct
     private: const bool checkSolution()
     {
-        unsigned int index = 0;
-        for (unsigned char i = 0; i < this->boardSize; ++i)
+        for (unsigned int index = 0; index < this->numberOfCells; ++index)
         {
-            for (unsigned char j = 0; j < this->boardSize; ++j)
+            System::Windows::Forms::Button^ cell = this->cells[index];
+            if (cell->Enabled)
             {
-                System::Windows::Forms::Button^ cell = this->cells[index];
-                if (cell->Enabled)
+                if (!cell->Text->Equals(((int)this->session->puzzle->solution[index]).ToString()))
                 {
-                    if (!cell->Text->Equals(((int)this->engine->getCellValue(i, j)).ToString()))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
-                ++index;
             }
         }
         return true;
@@ -2915,10 +2921,7 @@ namespace Sudoku_3_0
                 ++(this->session->numberOfFilledCells);
             }
 
-            currentButton->Text =
-                ((int)this->engine->getCellValue(
-                    ((number - 1) / this->boardSize),
-                    ((number - 1) % this->boardSize))).ToString();
+            currentButton->Text = ((int)this->session->puzzle->solution[number - 1]).ToString();
             currentButton->BackColor = defaultBackColor;
             currentButton->Enabled = false;
             currentButton->ForeColor = hintColor;
@@ -3375,33 +3378,28 @@ namespace Sudoku_3_0
         this->undoManager->clear();
         this->session->numberOfFilledCells = 0;
 
-        // Fill the board, using cell visual state as the authoritative source for which cells are clues.
-        // engine->getFilled() cannot be used here because trySolve() (called during load) marks
-        // all cells as filled, making it unreliable after a load+give-up sequence.
-        // Clue cells are always !Enabled && ForeColor == defaultColor regardless of prior actions.
-        unsigned int index = 0;
-        for (unsigned char i = 0; i < boardSize; ++i)
+        // Restore the board to its initial clue state using the puzzle snapshot.
+        for (unsigned int index = 0; index < this->numberOfCells; ++index)
         {
-            for (unsigned char j = 0; j < boardSize; ++j)
+            Button^ cell = this->cells[index];
+            bool isClue = this->session->puzzle->clues[index] != 0;
+            if (isClue)
             {
-                Button^ cell = this->cells[index];
-                if (!cell->Enabled && cell->ForeColor == defaultColor)
-                {
-                    // Clue cell: keep text, restore clean appearance
-                    ++this->session->numberOfFilledCells;
-                    cell->BackColor = defaultBackColor;
-                }
-                else
-                {
-                    // User cell: clear everything
-                    cell->Text = System::String::Empty;
-                    cell->ForeColor = defaultColor;
-                    cell->BackColor = defaultBackColor;
-                    cell->Enabled = true;
-                    this->session->pencilMarks[index] = 0;
-                    cell->Invalidate();
-                }
-                ++index;
+                // Clue cell: keep text, restore clean appearance
+                ++this->session->numberOfFilledCells;
+                cell->BackColor = defaultBackColor;
+                cell->ForeColor = defaultColor;
+                cell->Enabled = false;
+            }
+            else
+            {
+                // User cell: clear everything
+                cell->Text = System::String::Empty;
+                cell->ForeColor = defaultColor;
+                cell->BackColor = defaultBackColor;
+                cell->Enabled = true;
+                this->session->pencilMarks[index] = 0;
+                cell->Invalidate();
             }
         }
 
@@ -3447,29 +3445,25 @@ namespace Sudoku_3_0
 
         bool anyFixed = false;
 
-        unsigned int index = 0;
-        for (unsigned int i = 0; i < this->boardSize; ++i)
-            for (unsigned int j = 0; j < this->boardSize; ++j)
+        for (unsigned int index = 0; index < this->numberOfCells; ++index)
+        {
+            if (this->cells[index]->Enabled &&
+                !this->cells[index]->Text->Equals(String::Empty) &&
+                !this->cells[index]->Text->Equals(((int)this->session->puzzle->solution[index]).ToString()))
             {
-                if (this->cells[index]->Enabled &&
-                    !this->cells[index]->Text->Equals(String::Empty) &&
-                    !this->cells[index]->Text->Equals(((int)this->engine->getCellValue(i, j)).ToString()))
+                if (!anyFixed)
                 {
-                    if (!anyFixed)
-                    {
-                        this->undoManager->beginBatch();
-                        anyFixed = true;
-                    }
-
-                    this->undoManager->push(index, this->cells[index]->Text, this->session->pencilMarks[index]);
-
-                    this->cells[index]->Text = "";
-                    this->cells[index]->BackColor = defaultBackColor;
-                    --(this->session->numberOfFilledCells);
+                    this->undoManager->beginBatch();
+                    anyFixed = true;
                 }
 
-                ++index;
+                this->undoManager->push(index, this->cells[index]->Text, this->session->pencilMarks[index]);
+
+                this->cells[index]->Text = "";
+                this->cells[index]->BackColor = defaultBackColor;
+                --(this->session->numberOfFilledCells);
             }
+        }
 
         if (anyFixed)
         {
@@ -3501,26 +3495,20 @@ namespace Sudoku_3_0
         this->session->hasGivenUp = true;
         this->session->winStreak = 0;
 
-        unsigned int index = 0;
-        for (unsigned char i = 0; i < boardSize; ++i)
+        for (unsigned int index = 0; index < this->numberOfCells; ++index)
         {
-            for (unsigned char j = 0; j < boardSize; ++j)
+            System::Windows::Forms::Button^ cell = this->cells[index];
+            if (cell->Enabled)
             {
-                System::Windows::Forms::Button^ cell = this->cells[index];
-                if (cell->Enabled)
+                if (cell->Text->Length == 0)
                 {
-                    if (cell->Text->Length == 0)
-                    {
-                        ++this->session->numberOfFilledCells;
-                    }
-
-                    cell->Text = ((int)engine->getCellValue(i, j)).ToString();
-                    cell->BackColor = defaultBackColor;
-                    cell->ForeColor = giveUpColor;
-                    cell->Enabled = false;
+                    ++this->session->numberOfFilledCells;
                 }
 
-                ++index;
+                cell->Text = ((int)this->session->puzzle->solution[index]).ToString();
+                cell->BackColor = defaultBackColor;
+                cell->ForeColor = giveUpColor;
+                cell->Enabled = false;
             }
         }
 
@@ -3562,15 +3550,9 @@ namespace Sudoku_3_0
 
     private: void copyPuzzleToClipboard()
     {
-        array<unsigned char>^ digits = gcnew array<unsigned char>(this->numberOfCells);
-        unsigned int index = 0;
-        for (unsigned char i = 0; i < boardSize; ++i)
-            for (unsigned char j = 0; j < boardSize; ++j)
-                digits[index++] = engine->getFilled(i, j)
-                    ? (unsigned char)engine->getCellValue(i, j)
-                    : (unsigned char)0;
-
-        System::Windows::Forms::Clipboard::SetText(ClipboardPuzzleFormatter::Encode(digits));
+        // Always copies the original clues, never the solution.
+        System::Windows::Forms::Clipboard::SetText(
+            ClipboardPuzzleFormatter::Encode(this->session->puzzle->clues));
     }
 
     private: void pastePuzzleFromClipboard()
@@ -3650,27 +3632,39 @@ namespace Sudoku_3_0
 
         if (engine->currentState() == SudokuGameEngine::SudokuEngineState::FilledValid)
         {
-            unsigned int index = 0;
-            for (unsigned char i = 0; i < boardSize; ++i)
+            // Capture the puzzle snapshot: clues are whatever was pre-filled, solution comes from the engine
+            array<unsigned char>^ clues    = gcnew array<unsigned char>(this->numberOfCells);
+            array<unsigned char>^ solution = gcnew array<unsigned char>(this->numberOfCells);
+            for (unsigned int idx = 0; idx < this->numberOfCells; ++idx)
             {
-                for (unsigned char j = 0; j < boardSize; ++j)
-                {
-                    System::Windows::Forms::Button^ cell = this->cells[index];
-                    if (cell->Text->Length == 0)
-                    {
-                        ++this->session->numberOfFilledCells;
-                        cell->Text = ((int)engine->getCellValue(i, j)).ToString();
-                        cell->ForeColor = solveColor;
-                    }
+                solution[idx] = (unsigned char)this->engine->getCellValue(
+                    (unsigned char)(idx / this->boardSize),
+                    (unsigned char)(idx % this->boardSize));
+                // A cell that already had text before solve was triggered is a clue
+                clues[idx] = (this->cells[idx]->Text->Length > 0)
+                    ? solution[idx] : (unsigned char)0;
+            }
+            this->session->puzzle = gcnew Puzzle(clues, solution);
 
-                    cell->Enabled = false;
-                    ++index;
+            for (unsigned int index = 0; index < this->numberOfCells; ++index)
+            {
+                System::Windows::Forms::Button^ cell = this->cells[index];
+                if (cell->Text->Length == 0)
+                {
+                    ++this->session->numberOfFilledCells;
+                    cell->Text = ((int)solution[index]).ToString();
+                    cell->ForeColor = solveColor;
                 }
+
+                cell->Enabled = false;
             }
 
             this->solveButton->Enabled = false;
             this->solveToolStripMenuItem->Enabled = false;
+            // Copy Puzzle is disabled after solving: the puzzle has been solved and sharing clues
+            // is only meaningful before the solution is revealed.
             this->clipboardButton->Enabled = false;
+            this->copyPuzzleToolStripMenuItem->Enabled = false;
             this->pastePuzzleToolStripMenuItem->Enabled = false;
             this->undoManager->clear();
         }
@@ -4417,6 +4411,8 @@ namespace Sudoku_3_0
                 this->session->hasUsedFix,
                 this->session->mode,
                 gameFinished,
+                this->session->puzzle->clues,
+                this->session->puzzle->solution,
                 values,
                 states,
                 this->session->pencilMarks);
@@ -4458,61 +4454,40 @@ namespace Sudoku_3_0
             this->session->mode == GameMode::Game   && !save->gameFinished,
             this->session->mode == GameMode::Game   && !save->gameFinished,
             this->session->mode == GameMode::Solver && !save->gameFinished);
-        this->updateClipboardControls();
 
         // Apply each cell
         try
         {
-            for (unsigned int i = 0; i < this->boardSize; ++i)
+            // Restore immutable puzzle snapshot from save
+            array<unsigned char>^ clues    = gcnew array<unsigned char>(this->numberOfCells);
+            array<unsigned char>^ solution = gcnew array<unsigned char>(this->numberOfCells);
+            for (unsigned int i = 0; i < this->numberOfCells; ++i)
             {
-                for (unsigned int j = 0; j < this->boardSize; ++j)
-                {
-                    unsigned int index = i * this->boardSize + j;
-                    wchar_t v = save->value[index];
-                    wchar_t s = save->state[index];
+                clues[i]    = (unsigned char)(save->clues[i]    - L'0');
+                solution[i] = (unsigned char)(save->solution[i] - L'0');
+            }
+            this->session->puzzle = gcnew Puzzle(clues, solution);
 
-                    // Fill engine
-                    if (this->session->mode == GameMode::Game)
-                    {
-                        if (s == L'0')
-                        {
-                            this->engine->setFilled(i, j, true);
-                            this->engine->setCellValue(i, j, v - L'0');
-                        }
-                        else
-                        {
-                            this->engine->setFilled(i, j, false);
-                        }
-                    }
-                    else // Solver
-                    {
-                        if (s == L'0' || s == L'6')
-                        {
-                            this->engine->setFilled(i, j, true);
-                            this->engine->setCellValue(i, j, v - L'0');
-                        }
-                        else
-                        {
-                            this->engine->setFilled(i, j, false);
-                        }
-                    }
+            for (unsigned int index = 0; index < this->numberOfCells; ++index)
+            {
+                wchar_t v = save->value[index];
+                wchar_t s = save->state[index];
 
-                    // Cell text
-                    this->cells[index]->Text = (v == L'0') ? "" : v.ToString();
+                // Cell text
+                this->cells[index]->Text = (v == L'0') ? "" : v.ToString();
 
-                    // Enabled state
-                    this->cells[index]->Enabled = (s == L'1' || s == L'2');
+                // Enabled state
+                this->cells[index]->Enabled = (s == L'1' || s == L'2');
 
-                    // Fore color
-                    if (s == L'3') this->cells[index]->ForeColor = correctColor;
-                    else if (s == L'4') this->cells[index]->ForeColor = hintColor;
-                    else if (s == L'5') this->cells[index]->ForeColor = giveUpColor;
-                    else if (s == L'6') this->cells[index]->ForeColor = solveColor;
+                // Fore color
+                if      (s == L'3') this->cells[index]->ForeColor = correctColor;
+                else if (s == L'4') this->cells[index]->ForeColor = hintColor;
+                else if (s == L'5') this->cells[index]->ForeColor = giveUpColor;
+                else if (s == L'6') this->cells[index]->ForeColor = solveColor;
 
-                    // Count filled cells
-                    if (s != L'1')
-                        ++this->session->numberOfFilledCells;
-                }
+                // Count filled cells
+                if (s != L'1')
+                    ++this->session->numberOfFilledCells;
             }
 
             // Restore pencil marks
@@ -4531,17 +4506,13 @@ namespace Sudoku_3_0
                     cell->Invalidate();
             }
 
-            // Solve engine to enable hint validation and detect corrupt saves
-            if (this->session->mode == GameMode::Game ||
-                (this->session->mode == GameMode::Solver && engine->numberOfFilledCells() > 0))
+            // Disable Copy Puzzle if the custom puzzle was already solved
+            this->updateClipboardControls();
+            if (this->session->mode == GameMode::Solver && save->gameFinished)
             {
-                this->engine->trySolve();
-                if (engine->currentState() != SudokuGameEngine::SudokuEngineState::FilledValid)
-                    throw "Invalid cell values";
-            }
-            else
-            {
-                this->engine->updateState();
+                this->clipboardButton->Enabled = false;
+                this->copyPuzzleToolStripMenuItem->Enabled = false;
+                this->pastePuzzleToolStripMenuItem->Enabled = false;
             }
 
             this->conflicts->highlightAll();

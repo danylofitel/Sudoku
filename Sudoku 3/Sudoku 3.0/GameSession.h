@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameMode.h"
+#include "Puzzle.h"
 
 namespace Sudoku_3_0
 {
@@ -12,6 +13,10 @@ namespace Sudoku_3_0
     public:
         // Active game mode
         GameMode mode;
+
+        // Immutable snapshot of the current puzzle (clues + solution).
+        // nullptr in GameMode::None or before the first puzzle is created.
+        Puzzle^ puzzle;
 
         // Difficulty index of current puzzle: 0=VeryEasy, 1=Easy, 2=Medium, 3=Hard, 4=VeryHard
         unsigned int difficulty;
@@ -50,6 +55,7 @@ namespace Sudoku_3_0
         GameSession(unsigned int numberOfCells)
         {
             this->mode = GameMode::None;
+            this->puzzle = nullptr;
             this->difficulty = 2;
             this->numberOfFilledCells = 0;
             this->numberOfHints = 0;
@@ -69,6 +75,7 @@ namespace Sudoku_3_0
         void startNewGame(unsigned int difficultyIndex, unsigned int numberOfCells)
         {
             this->mode = GameMode::Game;
+            this->puzzle = nullptr;
             this->difficulty = difficultyIndex;
             this->numberOfFilledCells = 0;
             this->numberOfHints = 0;

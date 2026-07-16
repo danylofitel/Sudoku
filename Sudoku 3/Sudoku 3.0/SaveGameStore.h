@@ -18,6 +18,8 @@ namespace Sudoku_3_0
         // Builds a SavedGame from the current board state and writes it to the given file path.
         // Throws on I/O error.
         //
+        // clues:        cell clue values 1-9 (0 = user-fillable cell)
+        // solution:     full solution values 1-9 for every cell
         // values:       cell values 0-9, one per cell (0 = empty)
         // states:       cell state codes, one per cell:
         //                 0 = engine clue (immutable), 1 = empty user cell,
@@ -34,6 +36,8 @@ namespace Sudoku_3_0
             bool hasUsedFix,
             GameMode mode,
             bool gameFinished,
+            array<unsigned char>^ clues,
+            array<unsigned char>^ solution,
             array<unsigned char>^ values,
             array<unsigned char>^ states,
             array<int>^ pencilMarks)
@@ -47,6 +51,17 @@ namespace Sudoku_3_0
             save->hasUsedFix    = hasUsedFix;
             save->gameMode      = static_cast<unsigned int>(mode);
             save->gameFinished  = gameFinished;
+
+            // Encode clues and solution
+            System::Text::StringBuilder^ cluesSb    = gcnew System::Text::StringBuilder(clues->Length);
+            System::Text::StringBuilder^ solutionSb = gcnew System::Text::StringBuilder(solution->Length);
+            for (int i = 0; i < clues->Length; ++i)
+            {
+                cluesSb->Append((wchar_t)(L'0' + clues[i]));
+                solutionSb->Append((wchar_t)(L'0' + solution[i]));
+            }
+            save->clues    = cluesSb->ToString();
+            save->solution = solutionSb->ToString();
 
             // Encode values and states as compact strings
             System::Text::StringBuilder^ valueSb = gcnew System::Text::StringBuilder(values->Length);
@@ -105,6 +120,25 @@ namespace Sudoku_3_0
 
             if (save->state->Length != save->value->Length)
                 throw "Invalid number of cell states " + save->state->Length.ToString();
+
+            if (save->clues == nullptr || (unsigned int)save->clues->Length != expectedNumberOfCells)
+                throw "Invalid clues field length";
+
+            if (save->solution == nullptr || (unsigned int)save->solution->Length != expectedNumberOfCells)
+                throw "Invalid solution field length";
+
+            // Validate clues and solution
+            for (int i = 0; i < save->clues->Length; ++i)
+            {
+                wchar_t c = save->clues[i];
+                wchar_t s = save->solution[i];
+                if (c < L'0' || c > L'9')
+                    throw "Invalid clue value " + c.ToString() + " at index " + i.ToString();
+                if (s < L'1' || s > L'9')
+                    throw "Invalid solution value " + s.ToString() + " at index " + i.ToString();
+                if (c != L'0' && c != s)
+                    throw "Clue/solution mismatch at index " + i.ToString();
+            }
 
             unsigned int gameMode = save->gameMode;
             if (gameMode != static_cast<unsigned int>(GameMode::Game) &&
