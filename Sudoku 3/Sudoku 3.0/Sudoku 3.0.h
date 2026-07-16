@@ -2697,9 +2697,9 @@ namespace Sudoku_3_0
         }
     }
 
-           // Fill the board with clues from session->puzzle.
+           // Resets the board to its initial clue state from session->puzzle.
            // showHiddenCells=true reveals the full solution (used by give-up).
-    private: void fillBoardFromEngine(const bool showHiddenCells)
+    private: void resetBoardToClues(const bool showHiddenCells)
     {
         this->session->numberOfFilledCells = 0;
 
@@ -2785,7 +2785,7 @@ namespace Sudoku_3_0
         this->session->puzzle = gcnew Puzzle(clues, solution);
 
         // Prepare the board
-        this->fillBoardFromEngine(false);
+        this->resetBoardToClues(false);
         this->conflicts->highlightAll();
         this->undoManager->clear();
         this->restartButton->Enabled = true;
@@ -2822,74 +2822,80 @@ namespace Sudoku_3_0
     }
 
            // Check if the game has been finished
+           // Locks all correctly-filled user cells, updates win streak, and resets UI controls.
+           // Called once when the puzzle is detected as solved.
+    private: void applyWin()
+    {
+        for (unsigned int i = 0; i < this->numberOfCells; ++i)
+        {
+            if (this->cells[i]->Enabled)
+            {
+                this->cells[i]->Enabled = false;
+                this->cells[i]->ForeColor = correctColor;
+            }
+        }
+
+        this->disableHint();
+        this->setGameControls(false, false, false, false);
+        this->setPencilMode(false);
+        this->undoManager->clear();
+
+        if (!this->session->hasGivenUp)
+            ++this->session->winStreak;
+        else
+            this->session->winStreak = 0;
+    }
+
+           // Builds the victory notification message from current session statistics.
+    private: System::String^ buildWinMessage()
+    {
+        System::String^ msg = "";
+
+        bool clean = !this->session->hasGivenUp
+            && this->session->numberOfHints == 0
+            && this->session->numberOfFixes == 0;
+
+        if (clean)
+        {
+            msg += Strings::Get(StringId::WinClean, this->currentLanguage);
+        }
+        else if (!this->session->hasGivenUp)
+        {
+            msg += Strings::Get(StringId::WinWithAssists, this->currentLanguage);
+            System::Collections::Generic::List<System::String^>^ assists = gcnew System::Collections::Generic::List<System::String^>();
+            if (this->session->numberOfHints == 1)      assists->Add(Strings::Get(StringId::WinAssistHint, this->currentLanguage));
+            else if (this->session->numberOfHints > 1)  assists->Add(this->session->numberOfHints + " " + Strings::Get(StringId::WinAssistHints, this->currentLanguage));
+            if (this->session->numberOfFixes == 1)      assists->Add(Strings::Get(StringId::WinAssistFix, this->currentLanguage));
+            else if (this->session->numberOfFixes > 1)  assists->Add(this->session->numberOfFixes + " " + Strings::Get(StringId::WinAssistFixes, this->currentLanguage));
+            msg += " using " + System::String::Join(" and ", assists) + "!";
+        }
+        else
+        {
+            msg += Strings::Get(StringId::WinAfterGiveUp, this->currentLanguage);
+            System::Collections::Generic::List<System::String^>^ assists = gcnew System::Collections::Generic::List<System::String^>();
+            if (this->session->numberOfHints == 1)      assists->Add(Strings::Get(StringId::WinAssistHint, this->currentLanguage));
+            else if (this->session->numberOfHints > 1)  assists->Add(this->session->numberOfHints + " " + Strings::Get(StringId::WinAssistHints, this->currentLanguage));
+            if (this->session->numberOfFixes == 1)      assists->Add(Strings::Get(StringId::WinAssistFix, this->currentLanguage));
+            else if (this->session->numberOfFixes > 1)  assists->Add(this->session->numberOfFixes + " " + Strings::Get(StringId::WinAssistFixes, this->currentLanguage));
+            if (assists->Count > 0)
+                msg += ", using " + System::String::Join(" and ", assists);
+            msg += ".";
+        }
+
+        msg += Strings::Get(StringId::WinDifficulty, this->currentLanguage) + this->difficultyName(this->session->difficulty);
+        if (this->session->winStreak > 1)
+            msg += Strings::Get(StringId::WinStreak, this->currentLanguage) + this->session->winStreak;
+
+        return msg;
+    }
+
+           // Checks if the board is fully and correctly filled; triggers win flow if so.
     private: void checkGameState()
     {
-        if (this->session->numberOfFilledCells == this->numberOfCells)
+        if (this->session->numberOfFilledCells == this->numberOfCells && this->checkSolution())
         {
-            if (this->checkSolution())
-            {
-                for (unsigned int i = 0; i < this->numberOfCells; ++i)
-                {
-                    if (this->cells[i]->Enabled)
-                    {
-                        this->cells[i]->Enabled = false;
-                        this->cells[i]->ForeColor = correctColor;
-                    }
-                }
-
-                this->disableHint();
-                this->setGameControls(false, false, false, false);
-                this->setPencilMode(false);
-                this->undoManager->clear();
-
-                if (!this->session->hasGivenUp)
-                {
-                    ++this->session->winStreak;
-                }
-                else
-                {
-                    this->session->winStreak = 0;
-                }
-
-                System::String^ msg = "";
-
-                bool clean = !this->session->hasGivenUp && this->session->numberOfHints == 0 && this->session->numberOfFixes == 0;
-
-                if (clean)
-                {
-                    msg += Strings::Get(StringId::WinClean, this->currentLanguage);
-                }
-                else if (!this->session->hasGivenUp)
-                {
-                    msg += Strings::Get(StringId::WinWithAssists, this->currentLanguage);
-                    System::Collections::Generic::List<System::String^>^ assists = gcnew System::Collections::Generic::List<System::String^>();
-                    if (this->session->numberOfHints == 1) assists->Add(Strings::Get(StringId::WinAssistHint, this->currentLanguage));
-                    else if (this->session->numberOfHints > 1) assists->Add(this->session->numberOfHints + " " + Strings::Get(StringId::WinAssistHints, this->currentLanguage));
-                    if (this->session->numberOfFixes == 1) assists->Add(Strings::Get(StringId::WinAssistFix, this->currentLanguage));
-                    else if (this->session->numberOfFixes > 1) assists->Add(this->session->numberOfFixes + " " + Strings::Get(StringId::WinAssistFixes, this->currentLanguage));
-                    msg += " using " + System::String::Join(" and ", assists) + "!";
-                }
-                else
-                {
-                    msg += Strings::Get(StringId::WinAfterGiveUp, this->currentLanguage);
-                    System::Collections::Generic::List<System::String^>^ assists = gcnew System::Collections::Generic::List<System::String^>();
-                    if (this->session->numberOfHints == 1) assists->Add(Strings::Get(StringId::WinAssistHint, this->currentLanguage));
-                    else if (this->session->numberOfHints > 1) assists->Add(this->session->numberOfHints + " " + Strings::Get(StringId::WinAssistHints, this->currentLanguage));
-                    if (this->session->numberOfFixes == 1) assists->Add(Strings::Get(StringId::WinAssistFix, this->currentLanguage));
-                    else if (this->session->numberOfFixes > 1) assists->Add(this->session->numberOfFixes + " " + Strings::Get(StringId::WinAssistFixes, this->currentLanguage));
-                    if (assists->Count > 0)
-                        msg += ", using " + System::String::Join(" and ", assists);
-                    msg += ".";
-                }
-
-                msg += Strings::Get(StringId::WinDifficulty, this->currentLanguage) + this->difficultyName(this->session->difficulty);
-                if (this->session->winStreak > 1)
-                {
-                    msg += Strings::Get(StringId::WinStreak, this->currentLanguage) + this->session->winStreak;
-                }
-
-                this->showNotification(msg);
-            }
+            this->applyWin();
+            this->showNotification(this->buildWinMessage());
         }
     }
 
