@@ -2792,7 +2792,6 @@ namespace Sudoku_3_0
         this->restartButton->Enabled = true;
         this->setGameControls(true, false);
         this->updateClipboardControls();
-        this->setPencilMode(false);
 
         // Move focus to the first editable cell
         for each (Button ^ cell in this->cells)
@@ -2836,9 +2835,8 @@ namespace Sudoku_3_0
             }
         }
 
-        this->disableHint();
+        this->clearActiveModes();
         this->setGameControls(false, false);
-        this->setPencilMode(false);
         this->undoManager->clear();
 
         if (!this->session->hasGivenUp)
@@ -3097,14 +3095,24 @@ namespace Sudoku_3_0
 
     private: void setPencilMode(bool active)
     {
-        if (active)
-        {
-            // Deactivate hint mode so both modes cannot be active simultaneously
-            this->session->hintMode = false;
-            this->hintButton->ForeColor = defaultColor;
-        }
+        if (active) { this->session->hintMode = false; this->hintButton->ForeColor = defaultColor; }
         this->session->pencilMode = active;
         this->pencilButton->ForeColor = active ? activeButtonColor : defaultColor;
+    }
+
+        // Set hint mode; deactivates pencil mode so both cannot be active simultaneously
+    private: void setHintMode(bool active)
+    {
+        if (active) { this->session->pencilMode = false; this->pencilButton->ForeColor = defaultColor; }
+        this->session->hintMode = active;
+        this->hintButton->ForeColor = active ? activeButtonColor : defaultColor;
+    }
+
+        // Deactivates both pencil and hint mode; call at every state transition
+    private: void clearActiveModes()
+    {
+        this->setPencilMode(false);
+        this->setHintMode(false);
     }
 
     private: void pencilButton_Click(System::Object^ sender, System::EventArgs^ e)
@@ -3322,25 +3330,11 @@ namespace Sudoku_3_0
     }
 
            // Enable hint mode (deactivates pencil mode so both cannot be active simultaneously)
-    private: void enableHint()
-    {
-        this->setPencilMode(false);
-        this->session->hintMode = true;
-        this->hintButton->ForeColor = activeButtonColor;
-    }
-
-           // Disable hint mode
-    private: void disableHint()
-    {
-        this->session->hintMode = false;
-        this->hintButton->ForeColor = defaultColor;
-    }
-
     private: void newGameButton_Click(System::Object^ sender, System::EventArgs^ e)
     {
         if (!this->promptSaveIfNeeded()) return;
         this->closeHelperForms();
-        this->disableHint();
+        this->clearActiveModes();
 
         SudokuGameEngine::DifficultyLevel difficulty(SudokuGameEngine::DifficultyLevel::Medium);
         switch (this->difficultyComboBox->SelectedIndex)
@@ -3379,7 +3373,7 @@ namespace Sudoku_3_0
         }
 
         this->closeHelperForms();
-        this->disableHint();
+        this->clearActiveModes();
 
         this->undoManager->clear();
         this->session->numberOfFilledCells = 0;
@@ -3410,7 +3404,6 @@ namespace Sudoku_3_0
         }
 
         this->setGameControls(true, false);
-        this->setPencilMode(false);
         // hasGivenUp is intentionally NOT reset: once the user has seen the solution,
         // no re-prompt is needed and a win after restart still counts as a post-give-up win.
         this->conflicts->highlightAll();
@@ -3419,15 +3412,7 @@ namespace Sudoku_3_0
     private: void hintButton_Click(System::Object^ sender, System::EventArgs^ e)
     {
         this->closeHelperForms();
-
-        if (this->session->hintMode)
-        {
-            this->disableHint();
-        }
-        else
-        {
-            this->enableHint();
-        }
+        this->setHintMode(!this->session->hintMode);
     }
 
     private: void fixButton_Click(System::Object^ sender, System::EventArgs^ e)
@@ -3499,7 +3484,7 @@ namespace Sudoku_3_0
         }
 
         this->closeHelperForms();
-        this->disableHint();
+        this->clearActiveModes();
 
         this->session->hasGivenUp = true;
         this->playerStats->winStreak = 0;
@@ -3522,7 +3507,6 @@ namespace Sudoku_3_0
         }
 
         this->setGameControls(false, false);
-        this->setPencilMode(false);
         this->undoManager->clear();
         this->conflicts->highlightAll();
     }
@@ -3620,7 +3604,7 @@ namespace Sudoku_3_0
     {
         if (!this->promptSaveIfNeeded()) return;
         this->closeHelperForms();
-        this->disableHint();
+        this->clearActiveModes();
 
         this->engine->clear();
         this->clearBoard(true);
@@ -3629,7 +3613,6 @@ namespace Sudoku_3_0
         this->session->puzzle = nullptr;  // no valid puzzle until Solve succeeds
         this->restartButton->Enabled = false;
         this->undoManager->clear();
-        this->setPencilMode(false);
         this->setGameControls(false, true);
         this->updateClipboardControls();
     }
@@ -3637,7 +3620,7 @@ namespace Sudoku_3_0
     private: void solveButton_Click(System::Object^ sender, System::EventArgs^ e)
     {
         this->closeHelperForms();
-        this->disableHint();
+        this->clearActiveModes();
 
         this->fillEngine();
         this->engine->trySolve();
@@ -4451,7 +4434,7 @@ namespace Sudoku_3_0
         // Apply session state
         this->clearBoard(false);
         this->engine->clear();
-        this->disableHint();
+        this->clearActiveModes();
         this->session->difficulty          = save->difficulty;
         this->difficultyComboBox->SelectedIndex = save->difficulty;
         this->session->numberOfFilledCells = 0;
@@ -4502,7 +4485,6 @@ namespace Sudoku_3_0
 
             // Restore pencil marks
             this->undoManager->clear();
-            this->setPencilMode(false);
             if (save->pencilMarks != nullptr && save->pencilMarks->Length > 0)
             {
                 array<System::String^>^ parts = save->pencilMarks->Split(' ');
