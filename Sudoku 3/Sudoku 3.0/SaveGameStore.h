@@ -43,24 +43,24 @@ namespace Sudoku_3_0
             array<int>^ pencilMarks)
         {
             SavedGame^ save = gcnew SavedGame();
-            save->sizeFactor    = sizeFactor;
-            save->difficulty    = difficulty;
+            save->sizeFactor = sizeFactor;
+            save->difficulty = difficulty;
             save->numberOfHints = numberOfHints;
             save->numberOfFixes = numberOfFixes;
-            save->hasGivenUp    = hasGivenUp;
-            save->hasUsedFix    = hasUsedFix;
-            save->gameMode      = static_cast<unsigned int>(mode);
-            save->gameFinished  = gameFinished;
+            save->hasGivenUp = hasGivenUp;
+            save->hasUsedFix = hasUsedFix;
+            save->gameMode = static_cast<unsigned int>(mode);
+            save->gameFinished = gameFinished;
 
             // Encode clues and solution
-            System::Text::StringBuilder^ cluesSb    = gcnew System::Text::StringBuilder(clues->Length);
+            System::Text::StringBuilder^ cluesSb = gcnew System::Text::StringBuilder(clues->Length);
             System::Text::StringBuilder^ solutionSb = gcnew System::Text::StringBuilder(solution->Length);
             for (int i = 0; i < clues->Length; ++i)
             {
                 cluesSb->Append((wchar_t)(L'0' + clues[i]));
                 solutionSb->Append((wchar_t)(L'0' + solution[i]));
             }
-            save->clues    = cluesSb->ToString();
+            save->clues = cluesSb->ToString();
             save->solution = solutionSb->ToString();
 
             // Encode values and states as compact strings

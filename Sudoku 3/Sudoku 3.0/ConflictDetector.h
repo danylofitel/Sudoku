@@ -24,8 +24,8 @@ namespace Sudoku_3_0
             unsigned int sizeFactor)
             : cells(cells),
             sizeFactor(sizeFactor),
-            boardSize(sizeFactor * sizeFactor),
-            numberOfCells(boardSize * boardSize)
+            boardSize(sizeFactor* sizeFactor),
+            numberOfCells(boardSize* boardSize)
         {
             if (cells == nullptr)
             {

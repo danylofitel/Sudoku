@@ -29,7 +29,7 @@ namespace Sudoku_3_0
     public ref class SudokuForm : public System::Windows::Forms::Form
     {
     public:
-        SudokuForm(void) : sizeFactor(3), boardSize(sizeFactor * sizeFactor), numberOfCells(boardSize * boardSize)
+        SudokuForm(void) : sizeFactor(3), boardSize(sizeFactor* sizeFactor), numberOfCells(boardSize* boardSize)
         {
             InitializeComponent();
             this->initialize();
@@ -2762,14 +2762,14 @@ namespace Sudoku_3_0
         this->engine->newGame(difficulty);
 
         // Capture the immutable puzzle snapshot before any session state changes
-        array<unsigned char>^ clues    = gcnew array<unsigned char>(this->numberOfCells);
+        array<unsigned char>^ clues = gcnew array<unsigned char>(this->numberOfCells);
         array<unsigned char>^ solution = gcnew array<unsigned char>(this->numberOfCells);
         for (unsigned int idx = 0; idx < this->numberOfCells; ++idx)
         {
             unsigned char i = (unsigned char)(idx / this->boardSize);
             unsigned char j = (unsigned char)(idx % this->boardSize);
             solution[idx] = (unsigned char)this->engine->getCellValue(i, j);
-            clues[idx]    = this->engine->getFilled(i, j) ? solution[idx] : (unsigned char)0;
+            clues[idx] = this->engine->getFilled(i, j) ? solution[idx] : (unsigned char)0;
         }
 
         // Map difficulty enum to index and reset all per-game session state atomically
@@ -3100,7 +3100,7 @@ namespace Sudoku_3_0
         this->pencilButton->ForeColor = active ? activeButtonColor : defaultColor;
     }
 
-        // Set hint mode; deactivates pencil mode so both cannot be active simultaneously
+           // Set hint mode; deactivates pencil mode so both cannot be active simultaneously
     private: void setHintMode(bool active)
     {
         if (active) { this->session->pencilMode = false; this->pencilButton->ForeColor = defaultColor; }
@@ -3108,7 +3108,7 @@ namespace Sudoku_3_0
         this->hintButton->ForeColor = active ? activeButtonColor : defaultColor;
     }
 
-        // Deactivates both pencil and hint mode; call at every state transition
+           // Deactivates both pencil and hint mode; call at every state transition
     private: void clearActiveModes()
     {
         this->setPencilMode(false);
@@ -3120,7 +3120,7 @@ namespace Sudoku_3_0
         this->setPencilMode(!this->session->pencilMode);
     }
 
-    // Paints pencil marks
+           // Paints pencil marks
     private: void cell_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e)
     {
         System::Windows::Forms::Button^ cell = safe_cast<System::Windows::Forms::Button^>(sender);
@@ -3628,7 +3628,7 @@ namespace Sudoku_3_0
         if (engine->currentState() == SudokuGameEngine::SudokuEngineState::FilledValid)
         {
             // Capture the puzzle snapshot: clues are whatever was pre-filled, solution comes from the engine
-            array<unsigned char>^ clues    = gcnew array<unsigned char>(this->numberOfCells);
+            array<unsigned char>^ clues = gcnew array<unsigned char>(this->numberOfCells);
             array<unsigned char>^ solution = gcnew array<unsigned char>(this->numberOfCells);
             for (unsigned int idx = 0; idx < this->numberOfCells; ++idx)
             {
@@ -4435,28 +4435,28 @@ namespace Sudoku_3_0
         this->clearBoard(false);
         this->engine->clear();
         this->clearActiveModes();
-        this->session->difficulty          = save->difficulty;
+        this->session->difficulty = save->difficulty;
         this->difficultyComboBox->SelectedIndex = save->difficulty;
         this->session->numberOfFilledCells = 0;
-        this->session->numberOfHints       = save->numberOfHints;
-        this->session->numberOfFixes       = save->numberOfFixes;
-        this->session->hasGivenUp          = save->hasGivenUp;
-        this->session->hasUsedFix          = save->hasUsedFix;
-        this->session->mode                = static_cast<GameMode>(save->gameMode);
-        this->restartButton->Enabled       = this->session->mode == GameMode::Game;
+        this->session->numberOfHints = save->numberOfHints;
+        this->session->numberOfFixes = save->numberOfFixes;
+        this->session->hasGivenUp = save->hasGivenUp;
+        this->session->hasUsedFix = save->hasUsedFix;
+        this->session->mode = static_cast<GameMode>(save->gameMode);
+        this->restartButton->Enabled = this->session->mode == GameMode::Game;
         this->setGameControls(
-            this->session->mode == GameMode::Game   && !save->gameFinished,
+            this->session->mode == GameMode::Game && !save->gameFinished,
             this->session->mode == GameMode::Solver && !save->gameFinished);
 
         // Apply each cell
         try
         {
             // Restore immutable puzzle snapshot from save
-            array<unsigned char>^ clues    = gcnew array<unsigned char>(this->numberOfCells);
+            array<unsigned char>^ clues = gcnew array<unsigned char>(this->numberOfCells);
             array<unsigned char>^ solution = gcnew array<unsigned char>(this->numberOfCells);
             for (unsigned int i = 0; i < this->numberOfCells; ++i)
             {
-                clues[i]    = (unsigned char)(save->clues[i]    - L'0');
+                clues[i] = (unsigned char)(save->clues[i] - L'0');
                 solution[i] = (unsigned char)(save->solution[i] - L'0');
             }
             this->session->puzzle = gcnew Puzzle(clues, solution);
@@ -4473,7 +4473,7 @@ namespace Sudoku_3_0
                 this->cells[index]->Enabled = (s == L'1' || s == L'2');
 
                 // Fore color
-                if      (s == L'3') this->cells[index]->ForeColor = correctColor;
+                if (s == L'3') this->cells[index]->ForeColor = correctColor;
                 else if (s == L'4') this->cells[index]->ForeColor = hintColor;
                 else if (s == L'5') this->cells[index]->ForeColor = giveUpColor;
                 else if (s == L'6') this->cells[index]->ForeColor = solveColor;
@@ -4494,7 +4494,7 @@ namespace Sudoku_3_0
                     if (int::TryParse(parts[i], mark))
                         this->session->pencilMarks[i] = mark;
                 }
-                for each (Button^ cell in this->cells)
+                for each (Button ^ cell in this->cells)
                     cell->Invalidate();
             }
 

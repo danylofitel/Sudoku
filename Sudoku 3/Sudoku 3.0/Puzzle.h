@@ -17,7 +17,7 @@ namespace Sudoku_3_0
 
         Puzzle(array<unsigned char>^ clues, array<unsigned char>^ solution)
         {
-            this->clues    = clues;
+            this->clues = clues;
             this->solution = solution;
         }
     };
