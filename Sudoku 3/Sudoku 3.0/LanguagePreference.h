@@ -11,6 +11,7 @@ namespace Sudoku_3_0
     ref class LanguagePreference abstract sealed
     {
     private:
+        static const Language DefaultLanguage = Language::English;
         static System::String^ SubKeyPath = L"Software\\Sudoku_3";
         static System::String^ ValueName = L"Language";
 
@@ -18,17 +19,24 @@ namespace Sudoku_3_0
         // Writes the selected language to the registry.
         static void Save(Language lang)
         {
-            Microsoft::Win32::RegistryKey^ regKey =
-                Microsoft::Win32::Registry::CurrentUser->CreateSubKey(SubKeyPath);
-            if (regKey != nullptr)
+            try
             {
-                regKey->SetValue(ValueName, (int)static_cast<unsigned int>(lang));
-                regKey->Close();
+                Microsoft::Win32::RegistryKey^ regKey =
+                    Microsoft::Win32::Registry::CurrentUser->CreateSubKey(SubKeyPath);
+                if (regKey != nullptr)
+                {
+                    regKey->SetValue(ValueName, (int)static_cast<unsigned int>(lang));
+                    regKey->Close();
+                }
+            }
+            catch (...)
+            {
+                // Ignore errors, as this is not critical.
             }
         }
 
         // Reads the language from the registry.
-        // Returns Language::English if no value has been saved yet or the stored
+        // Returns default language if no value has been saved yet or the stored
         // value does not correspond to a known language.
         static Language Load()
         {
@@ -37,23 +45,26 @@ namespace Sudoku_3_0
                 Microsoft::Win32::RegistryKey^ regKey =
                     Microsoft::Win32::Registry::CurrentUser->OpenSubKey(SubKeyPath);
                 if (regKey == nullptr)
-                    return Language::English;
+                    return DefaultLanguage;
 
                 System::Object^ raw = regKey->GetValue(ValueName);
                 regKey->Close();
 
                 if (raw == nullptr)
-                    return Language::English;
+                    return DefaultLanguage;
 
                 unsigned int stored = (unsigned int)System::Convert::ToInt32(raw);
+                if (stored == static_cast<unsigned int>(Language::English))
+                    return Language::English;
                 if (stored == static_cast<unsigned int>(Language::Ukrainian))
                     return Language::Ukrainian;
 
-                return Language::English;
+                return DefaultLanguage;
             }
             catch (...)
             {
-                return Language::English;
+                // Ignore errors, as this is not critical.
+                return DefaultLanguage;
             }
         }
     };
