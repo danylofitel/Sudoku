@@ -1,6 +1,6 @@
 // Danylo Fitel 2013
 // Persists the user's language choice in the Windows registry.
-// Key: HKEY_CURRENT_USER\Software\Sudoku, value: "Language" (DWORD)
+// Key: HKEY_CURRENT_USER\Software\Sudoku_3, value: "Language" (DWORD)
 
 #pragma once
 
