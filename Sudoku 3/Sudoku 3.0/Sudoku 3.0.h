@@ -4,6 +4,7 @@
 
 #include "ClipboardPuzzleFormatter.h"
 #include "ConflictDetector.h"
+#include "LanguagePreference.h"
 #include "GameMode.h"
 #include "GameSession.h"
 #include "Numbers.h"
@@ -2493,8 +2494,8 @@ namespace Sudoku_3_0
         this->selectedDifficulty = this->session->difficulty;
         this->difficultyComboBox->SelectedIndex = this->selectedDifficulty;
 
-        // Set default language; setLanguage initializes currentLanguage
-        this->setLanguage(Language::English);
+        // Restore the language the user last chose; falls back to English on first run
+        this->setLanguage(LanguagePreference::Load());
 
         // Wire Paint, MouseEnter, MouseLeave, and MouseClick events for each cell
         for each (System::Windows::Forms::Button ^ cell in this->cells)
@@ -2513,6 +2514,7 @@ namespace Sudoku_3_0
     private: void setLanguage(Language lang)
     {
         this->currentLanguage = lang;
+        LanguagePreference::Save(lang);
 
         // Window title
         this->Text = Strings::Get(StringId::WindowTitle, lang);
