@@ -2493,7 +2493,7 @@ namespace Sudoku_3_0
         this->selectedDifficulty = this->session->difficulty;
         this->difficultyComboBox->SelectedIndex = this->selectedDifficulty;
 
-        // Set default language
+        // Set default language; setLanguage initializes currentLanguage
         this->setLanguage(Language::English);
 
         // Wire Paint, MouseEnter, MouseLeave, and MouseClick events for each cell
