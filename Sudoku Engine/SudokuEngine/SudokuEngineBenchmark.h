@@ -177,12 +177,80 @@ namespace SudokuGameEngine
 				std::cout << "loop finished in " << loopElapsed << " microseconds" << std::endl;
 			}
 
-			// Report the result
-			std::cout << std::endl << iterationsPerLoop * loops << " iterations finished in " <<
-				totalElapsedMicros << " microseconds (" << (totalElapsedMicros / 1000000.0) << " seconds)" << std::endl << std::endl;
-
 			// Return time spent in microseconds
 			return totalElapsedMicros;
+		}
+
+		// Side-by-side benchmark: VeryHard target-capped (legacy) vs. maximize-hidden (new).
+		// Runs both modes via the public newGame API and reports timing + cells-hidden stats.
+		//
+		// "legacy" = Hard difficulty, which uses a fixed target with no maximize pass.
+		//   This is the closest public proxy to the old VeryHard target-capped behavior
+		//   (cellsToHide 65% vs 80%, but the same O(n) uniqueness-check structure).
+		// "new"    = VeryHard, which now maximizes hidden cells.
+		static void benchmarkVeryHardMaximizeVsTarget(
+			const unsigned int iterationsPerLoop,
+			const unsigned int loops = 1)
+		{
+			using Engine = SudokuEngine<IndexType, BooleanType, sizeFactor>;
+			const IndexType bSize = sizeFactor * sizeFactor;
+
+			struct Stats
+			{
+				long long totalMicros = 0;
+				long long minHidden   = std::numeric_limits<long long>::max();
+				long long maxHidden   = 0;
+				long long sumHidden   = 0;
+				unsigned int count    = 0;
+			};
+
+			auto runMode = [&](DifficultyLevel d, Stats& s, const char* label)
+			{
+				Engine engine;
+				std::cout << "--- " << label << " ---\n";
+				for (unsigned int loop = 0; loop < loops; ++loop)
+				{
+					for (unsigned int iter = 0; iter < iterationsPerLoop; ++iter)
+					{
+						auto t0 = std::chrono::high_resolution_clock::now();
+						engine.newGame(d);
+						auto t1 = std::chrono::high_resolution_clock::now();
+
+						s.totalMicros += std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count();
+
+						long long hidden = 0;
+						for (IndexType r = 0; r < bSize; ++r)
+							for (IndexType c = 0; c < bSize; ++c)
+								if (!engine.getFilled(r, c)) ++hidden;
+
+						if (hidden < s.minHidden) s.minHidden = hidden;
+						if (hidden > s.maxHidden) s.maxHidden = hidden;
+						s.sumHidden += hidden;
+						++s.count;
+					}
+				}
+				std::cout << "  Total time  : " << s.totalMicros << " us ("
+						  << s.totalMicros / 1000000.0 << " s)\n"
+						  << "  Per puzzle  : " << s.totalMicros / (double)s.count << " us\n"
+						  << "  Cells hidden: min=" << s.minHidden
+						  << "  max=" << s.maxHidden
+						  << "  avg=" << s.sumHidden / (double)s.count << "\n\n";
+			};
+
+			const unsigned int total = iterationsPerLoop * loops;
+			std::cout << "\n========== VeryHard: Target-Capped vs. Maximize-Hidden =========="
+					  << "\nIterations: " << total << "\n\n";
+
+			Stats legacy, newMode;
+			runMode(DifficultyLevel::Hard,     legacy,  "Hard (legacy VeryHard proxy, target-capped)");
+			runMode(DifficultyLevel::VeryHard, newMode, "VeryHard, maximize-hidden (new behavior)");
+
+			if (newMode.count > 0 && legacy.totalMicros > 0)
+			{
+				const double slowdown = (double)newMode.totalMicros / (double)legacy.totalMicros;
+				std::cout << "  Slowdown (VeryHard-maximize / Hard-legacy): " << slowdown << "x\n";
+			}
+			std::cout << "=================================================================\n\n";
 		}
 	};
 }

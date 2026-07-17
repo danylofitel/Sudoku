@@ -295,7 +295,7 @@ namespace SudokuGameEngine
         }
 
         // Generate new game
-        void newGame(const DifficultyLevel difficulty)
+        void newGame(const DifficultyLevel difficulty, const bool forceMaximize = false)
         {
             // Number of cells that need to be hidden
             IndexType cellsToHide(0);
@@ -335,7 +335,8 @@ namespace SudokuGameEngine
             this->generateFullBoard();
 
             // Hide specified number of cells
-            this->hideCells(cellsToHide, cellsToHideFirst);
+            // For VeryHard, maximize the number of hidden cells to produce the tightest possible puzzle
+            this->hideCells(cellsToHide, cellsToHideFirst, forceMaximize || difficulty == DifficultyLevel::VeryHard);
 
             return;
         }
@@ -1414,7 +1415,7 @@ namespace SudokuGameEngine
 #endif
 
         // Hide the specified number of cells in a filled board
-        const bool hideCells(const IndexType numberOfCellsToHide, const IndexType numberOfCellsToHideFirst)
+        const bool hideCells(const IndexType numberOfCellsToHide, const IndexType numberOfCellsToHideFirst, const bool maximizeHidden = false)
         {
             // Check if the method has been called for a completely filled game board
             assert(this->_numberOfFilledCells == this->numberOfCells);
@@ -1475,7 +1476,7 @@ namespace SudokuGameEngine
             assert(this->_solutions == 1);
 
             // Hide remaining cells if possible
-            for (; hidden < numberOfCellsToHide && nextIndex < this->numberOfCells; ++nextIndex)
+            for (; (maximizeHidden || hidden < numberOfCellsToHide) && nextIndex < this->numberOfCells; ++nextIndex)
             {
                 // Get index of next random cell
                 randomValue = this->_numbersToHide[nextIndex];
@@ -1506,7 +1507,7 @@ namespace SudokuGameEngine
             }
 
             // Check if no extra cells have been hidden
-            assert(hidden <= numberOfCellsToHide);
+            assert(maximizeHidden || hidden <= numberOfCellsToHide);
 
 #ifndef NDEBUG
 

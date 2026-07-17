@@ -40,6 +40,7 @@ int main()
 			std::cout << "7. Run new engine (sudoku::) smoke test" << std::endl;
 			std::cout << "8. Solver stress test: original vs new (Very Hard, percentiles)" << std::endl;
 			std::cout << "9. Hide-count distribution: original vs new" << std::endl;
+			std::cout << "A. VeryHard maximize-hidden vs target-capped benchmark" << std::endl;
 			std::cout << "E. Exit" << std::endl;
 			std::cout << "->";
 			std::cin >> input;
@@ -83,6 +84,17 @@ int main()
 					SudokuGameEngine::DifficultyLevel::VeryHard,
 				};
 				sudoku_dist::analyzeDifficultyDistribution(diffs[dchoice - 1], ns);
+				input = 0;
+				continue;
+			}
+			case 'A': case 'a':
+			{
+				int iters = 0, lps = 1;
+				do { std::cout << "Number of iterations per loop (>= 50 recommended)\n-> "; std::cin >> numberInput;
+					try { iters = std::stoi(numberInput); } catch (...) { iters = 0; } } while (iters <= 0);
+				do { std::cout << "Number of loops\n-> "; std::cin >> numberInput;
+					try { lps = std::stoi(numberInput); } catch (...) { lps = 0; } } while (lps <= 0);
+				SudokuGameEngine::SudokuEngineBenchmark<IndexType, BooleanType, sizeFactor>::benchmarkVeryHardMaximizeVsTarget(iters, lps);
 				input = 0;
 				continue;
 			}
