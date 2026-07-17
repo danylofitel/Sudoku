@@ -2426,8 +2426,10 @@ namespace Sudoku_3_0
         MessageBox::Show(message, Strings::Get(StringId::DialogTitleSudoku, this->currentLanguage), MessageBoxButtons::OK, MessageBoxIcon::None);
     }
 
-    private: void setGameControls(bool gameActive, bool solveActive)
+    private: void setGameControls(bool gameActive, bool restartActive, bool solveActive)
     {
+        this->restartButton->Enabled = restartActive;
+        this->restartToolStripMenuItem->Enabled = restartActive;
         this->pencilButton->Enabled = gameActive;
         this->pencilToolStripMenuItem->Enabled = gameActive;
         this->hintButton->Enabled = gameActive;
@@ -2438,6 +2440,13 @@ namespace Sudoku_3_0
         this->giveUpToolStripMenuItem->Enabled = gameActive;
         this->solveButton->Enabled = solveActive;
         this->solveToolStripMenuItem->Enabled = solveActive;
+    }
+
+    private: bool isGameFinished()
+    {
+        if (this->session->mode == GameMode::Game)   return !this->giveUpButton->Enabled;
+        if (this->session->mode == GameMode::Solver) return !this->solveButton->Enabled;
+        return false;
     }
 
     private: System::String^ difficultyName(unsigned int d)
@@ -2789,8 +2798,7 @@ namespace Sudoku_3_0
         this->resetBoardToClues();
         this->conflicts->highlightAll();
         this->undoManager->clear();
-        this->restartButton->Enabled = true;
-        this->setGameControls(true, false);
+        this->setGameControls(true, true, false);
         this->updateClipboardControls();
 
         // Move focus to the first editable cell
@@ -2836,7 +2844,7 @@ namespace Sudoku_3_0
         }
 
         this->clearActiveModes();
-        this->setGameControls(false, false);
+        this->setGameControls(false, true, false);
         this->undoManager->clear();
 
         if (!this->session->hasGivenUp)
@@ -3403,7 +3411,7 @@ namespace Sudoku_3_0
             }
         }
 
-        this->setGameControls(true, false);
+        this->setGameControls(true, true, false);
         // hasGivenUp is intentionally NOT reset: once the user has seen the solution,
         // no re-prompt is needed and a win after restart still counts as a post-give-up win.
         this->conflicts->highlightAll();
@@ -3506,7 +3514,7 @@ namespace Sudoku_3_0
             }
         }
 
-        this->setGameControls(false, false);
+        this->setGameControls(false, true, false);
         this->undoManager->clear();
         this->conflicts->highlightAll();
     }
@@ -3611,9 +3619,8 @@ namespace Sudoku_3_0
 
         this->session->mode = GameMode::Solver;
         this->session->puzzle = nullptr;  // no valid puzzle until Solve succeeds
-        this->restartButton->Enabled = false;
         this->undoManager->clear();
-        this->setGameControls(false, true);
+        this->setGameControls(false, false, true);
         this->updateClipboardControls();
     }
 
@@ -4390,9 +4397,7 @@ namespace Sudoku_3_0
                 states[i] = 0;
         }
 
-        bool gameFinished = this->session->mode == GameMode::Game
-            ? !this->giveUpButton->Enabled
-            : !this->solveButton->Enabled;
+        bool gameFinished = this->isGameFinished();
 
         try
         {
@@ -4443,9 +4448,9 @@ namespace Sudoku_3_0
         this->session->hasGivenUp = save->hasGivenUp;
         this->session->hasUsedFix = save->hasUsedFix;
         this->session->mode = static_cast<GameMode>(save->gameMode);
-        this->restartButton->Enabled = this->session->mode == GameMode::Game;
         this->setGameControls(
             this->session->mode == GameMode::Game && !save->gameFinished,
+            this->session->mode == GameMode::Game,
             this->session->mode == GameMode::Solver && !save->gameFinished);
 
         // Apply each cell
