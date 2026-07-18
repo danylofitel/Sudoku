@@ -2498,7 +2498,7 @@ namespace Sudoku_3_0
         this->setLanguage(LanguagePreference::Load());
 
         // Wire Paint, MouseEnter, MouseLeave, and MouseClick events for each cell
-        for each (System::Windows::Forms::Button ^ cell in this->cells)
+        for each(System::Windows::Forms::Button ^ cell in this->cells)
         {
             cell->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &SudokuForm::cell_Paint);
             cell->MouseEnter += gcnew System::EventHandler(this, &SudokuForm::cell_MouseEnter);
@@ -2804,7 +2804,7 @@ namespace Sudoku_3_0
         this->updateClipboardControls();
 
         // Move focus to the first editable cell
-        for each (Button ^ cell in this->cells)
+        for each(Button ^ cell in this->cells)
         {
             if (cell->Enabled)
             {
@@ -3076,7 +3076,7 @@ namespace Sudoku_3_0
         if (entries->Count == 0) return;
 
         System::Windows::Forms::Button^ lastCell = nullptr;
-        for each (auto entry in entries)
+        for each(auto entry in entries)
         {
             this->restoreCell(entry->cellIndex, entry->previousText, entry->previousPencilMarks);
             lastCell = this->cells[entry->cellIndex];
@@ -3163,7 +3163,7 @@ namespace Sudoku_3_0
 
             System::Drawing::Brush^ brush;
             if (isMarked)
-                brush = isConflict ? System::Drawing::Brushes::Red : System::Drawing::Brushes::DimGray;
+                brush = isConflict ? System::Drawing::Brushes::Red : System::Drawing::Brushes::Black;
             else if (isHovered && !isConflict)
                 brush = System::Drawing::Brushes::DarkGray;
             else
@@ -4501,7 +4501,7 @@ namespace Sudoku_3_0
                     if (int::TryParse(parts[i], mark))
                         this->session->pencilMarks[i] = mark;
                 }
-                for each (Button ^ cell in this->cells)
+                for each(Button ^ cell in this->cells)
                     cell->Invalidate();
             }
 
