@@ -89,6 +89,7 @@ namespace Sudoku_3_0
         DialogFixPrompt,
         DialogGiveUpPrompt,
         DialogAboutText,
+        DialogBuildLabel,
         DialogRulesText,
         DialogFeaturesText,
         DialogHintsAndTipsText,
@@ -431,6 +432,11 @@ namespace Sudoku_3_0
                 switch (lang) {
                 case Language::Ukrainian: return L"Судоку 3.0\n\nУсі права захищені";
                 default:                 return L"Sudoku 3.0\n\nAll rights reserved";
+                }
+            case StringId::DialogBuildLabel:
+                switch (lang) {
+                case Language::Ukrainian: return L"Збірка: ";
+                default:                 return L"Build: ";
                 }
             case StringId::DialogRulesText:
                 switch (lang) {

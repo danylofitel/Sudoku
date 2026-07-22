@@ -3867,11 +3867,29 @@ namespace Sudoku_3_0
 
     private: void aboutToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
+        System::String^ text = Strings::Get(StringId::DialogAboutText, this->currentLanguage);
+
+        System::String^ build = this->buildStamp();
+        if (build->Length > 0)
+            text += "\n\n" + Strings::Get(StringId::DialogBuildLabel, this->currentLanguage) + build;
+
         MessageBox::Show(
-            Strings::Get(StringId::DialogAboutText, this->currentLanguage),
+            text,
             Strings::Get(StringId::DialogTitleAbout, this->currentLanguage),
             MessageBoxButtons::OK,
             MessageBoxIcon::None);
+    }
+
+           // Reads the UTC build stamp baked into the assembly (AssemblyInformationalVersion,
+           // set from BuildInfo.h at build time). Returns an empty string if unavailable.
+    private: System::String^ buildStamp()
+    {
+        System::Reflection::Assembly^ assembly = System::Reflection::Assembly::GetExecutingAssembly();
+        System::Reflection::AssemblyInformationalVersionAttribute^ attribute =
+            safe_cast<System::Reflection::AssemblyInformationalVersionAttribute^>(
+                System::Attribute::GetCustomAttribute(
+                    assembly, System::Reflection::AssemblyInformationalVersionAttribute::typeid));
+        return attribute != nullptr ? attribute->InformationalVersion : System::String::Empty;
     }
 
     private: void rulesToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)

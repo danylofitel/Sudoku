@@ -1,6 +1,7 @@
 // Danylo Fitel 2013
 
 #include "stdafx.h"
+#include "BuildInfo.h" // generated at build time; defines SUDOKU_BUILD_STAMP and SUDOKU_FILE_VERSION
 
 using namespace System;
 using namespace System::Reflection;
@@ -30,10 +31,15 @@ using namespace System::Security::Permissions;
 //      Build Number
 //      Revision
 //
-// You can specify all the value or you can default the Revision and Build Numbers
-// by using the '*' as shown below:
+// AssemblyVersion is the managed identity and is kept fixed so it does not change on every
+// build. The per-build stamp lives in the file and informational versions below, generated in
+// UTC by the GenerateBuildInfo MSBuild target:
+//   AssemblyFileVersion        - numeric "File version" (1.0.<days since 2000>.<half-seconds>)
+//   AssemblyInformationalVersion - human-readable UTC stamp, shown in About and "Product version"
 
-[assembly:AssemblyVersionAttribute("1.0.*")];
+[assembly:AssemblyVersionAttribute("1.0.0.0")];
+[assembly:AssemblyFileVersionAttribute(SUDOKU_FILE_VERSION)];
+[assembly:AssemblyInformationalVersionAttribute(SUDOKU_BUILD_STAMP)];
 
 [assembly:ComVisible(false)];
 
