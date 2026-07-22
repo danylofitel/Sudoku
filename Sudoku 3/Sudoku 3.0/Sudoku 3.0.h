@@ -197,6 +197,7 @@ namespace Sudoku_3_0
     private: System::Windows::Forms::ToolStripMenuItem^ customPuzzleToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ copyPuzzleToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ pastePuzzleToolStripMenuItem;
+    private: System::Windows::Forms::ToolStripMenuItem^ copySolutionToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ solveToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ pencilToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ optionsToolStripMenuItem;
@@ -369,6 +370,7 @@ namespace Sudoku_3_0
                this->customPuzzleToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->copyPuzzleToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->pastePuzzleToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+               this->copySolutionToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->solveToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->undoToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->optionsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -2060,11 +2062,11 @@ namespace Sudoku_3_0
                // 
                // gameToolStripMenuItem
                // 
-               this->gameToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(11) {
+               this->gameToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(12) {
                    this->newGameToolStripMenuItem,
                        this->restartToolStripMenuItem, this->pencilToolStripMenuItem, this->hintToolStripMenuItem, this->fixToolStripMenuItem, this->giveUpToolStripMenuItem,
                        this->undoToolStripMenuItem, this->customPuzzleToolStripMenuItem, this->copyPuzzleToolStripMenuItem, this->pastePuzzleToolStripMenuItem,
-                       this->solveToolStripMenuItem
+                       this->copySolutionToolStripMenuItem, this->solveToolStripMenuItem
                });
                this->gameToolStripMenuItem->Name = L"gameToolStripMenuItem";
                this->gameToolStripMenuItem->Size = System::Drawing::Size(74, 32);
@@ -2143,7 +2145,16 @@ namespace Sudoku_3_0
                this->pastePuzzleToolStripMenuItem->Size = System::Drawing::Size(272, 34);
                this->pastePuzzleToolStripMenuItem->Text = L"Paste Puzzle";
                this->pastePuzzleToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::pastePuzzleToolStripMenuItem_Click);
-               // 
+               //
+               // copySolutionToolStripMenuItem
+               //
+               this->copySolutionToolStripMenuItem->Enabled = false;
+               this->copySolutionToolStripMenuItem->Name = L"copySolutionToolStripMenuItem";
+               this->copySolutionToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Shift | System::Windows::Forms::Keys::C));
+               this->copySolutionToolStripMenuItem->Size = System::Drawing::Size(272, 34);
+               this->copySolutionToolStripMenuItem->Text = L"Copy Solution";
+               this->copySolutionToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::copySolutionToolStripMenuItem_Click);
+               //
                // solveToolStripMenuItem
                // 
                this->solveToolStripMenuItem->Name = L"solveToolStripMenuItem";
@@ -3560,26 +3571,32 @@ namespace Sudoku_3_0
         this->conflicts->highlightAll();
     }
 
+           // Single source of truth for the clipboard button and its three menu items. Exactly one
+           // clipboard action is available at a time, driven purely by session state, so it stays
+           // correct no matter how we reached the state (new game, solve, paste, or file load):
+           //   Game mode            -> Copy Puzzle   (share the clues)
+           //   Solver, solved       -> Copy Solution (share the found solution)
+           //   Solver, being entered-> Paste Puzzle  (load clues from the clipboard)
     private: void updateClipboardControls()
     {
-        if (this->session->mode == GameMode::Game)
-        {
-            this->clipboardButton->Text = Strings::Get(StringId::ButtonCopyPuzzle, this->currentLanguage);
-            this->clipboardButton->Enabled = true;
-            this->copyPuzzleToolStripMenuItem->Text = Strings::Get(StringId::MenuCopyPuzzle, this->currentLanguage);
-            this->copyPuzzleToolStripMenuItem->Enabled = true;
-            this->pastePuzzleToolStripMenuItem->Text = Strings::Get(StringId::MenuPastePuzzle, this->currentLanguage);
-            this->pastePuzzleToolStripMenuItem->Enabled = false;
-        }
-        else // GameMode::Solver
-        {
-            this->clipboardButton->Text = Strings::Get(StringId::ButtonPastePuzzle, this->currentLanguage);
-            this->clipboardButton->Enabled = true;
-            this->pastePuzzleToolStripMenuItem->Text = Strings::Get(StringId::MenuPastePuzzle, this->currentLanguage);
-            this->pastePuzzleToolStripMenuItem->Enabled = true;
-            this->copyPuzzleToolStripMenuItem->Text = Strings::Get(StringId::MenuCopyPuzzle, this->currentLanguage);
-            this->copyPuzzleToolStripMenuItem->Enabled = false;
-        }
+        // Refresh labels every call so a language change is reflected too.
+        this->copyPuzzleToolStripMenuItem->Text = Strings::Get(StringId::MenuCopyPuzzle, this->currentLanguage);
+        this->pastePuzzleToolStripMenuItem->Text = Strings::Get(StringId::MenuPastePuzzle, this->currentLanguage);
+        this->copySolutionToolStripMenuItem->Text = Strings::Get(StringId::MenuCopySolution, this->currentLanguage);
+
+        bool inGame = this->session->mode == GameMode::Game;
+        bool solverSolved = !inGame && this->session->puzzle != nullptr;
+        bool solverEntering = !inGame && this->session->puzzle == nullptr;
+
+        this->copyPuzzleToolStripMenuItem->Enabled = inGame;
+        this->pastePuzzleToolStripMenuItem->Enabled = solverEntering;
+        this->copySolutionToolStripMenuItem->Enabled = solverSolved;
+
+        StringId buttonLabel = inGame ? StringId::ButtonCopyPuzzle
+            : solverSolved ? StringId::ButtonCopySolution
+            : StringId::ButtonPastePuzzle;
+        this->clipboardButton->Text = Strings::Get(buttonLabel, this->currentLanguage);
+        this->clipboardButton->Enabled = true;
     }
 
     private: void copyPuzzleToClipboard()
@@ -3587,6 +3604,13 @@ namespace Sudoku_3_0
         // Always copies the original clues, never the solution.
         System::Windows::Forms::Clipboard::SetText(
             ClipboardPuzzleFormatter::Encode(this->session->puzzle->clues));
+    }
+
+    private: void copySolutionToClipboard()
+    {
+        // Copies the full solution of a solved custom puzzle.
+        System::Windows::Forms::Clipboard::SetText(
+            ClipboardPuzzleFormatter::Encode(this->session->puzzle->solution));
     }
 
     private: void pastePuzzleFromClipboard()
@@ -3626,6 +3650,8 @@ namespace Sudoku_3_0
             this->copyPuzzleToClipboard();
         else if (this->pastePuzzleToolStripMenuItem->Enabled)
             this->pastePuzzleFromClipboard();
+        else if (this->copySolutionToolStripMenuItem->Enabled)
+            this->copySolutionToClipboard();
     }
 
     private: void copyPuzzleToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
@@ -3638,6 +3664,12 @@ namespace Sudoku_3_0
     {
         if (this->pastePuzzleToolStripMenuItem->Enabled)
             this->pastePuzzleFromClipboard();
+    }
+
+    private: void copySolutionToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
+    {
+        if (this->copySolutionToolStripMenuItem->Enabled)
+            this->copySolutionToClipboard();
     }
 
     private: void customPuzzleButton_Click(System::Object^ sender, System::EventArgs^ e)
@@ -3695,11 +3727,8 @@ namespace Sudoku_3_0
 
             this->solveButton->Enabled = false;
             this->solveToolStripMenuItem->Enabled = false;
-            // Copy Puzzle is disabled after solving: the puzzle has been solved and sharing clues
-            // is only meaningful before the solution is revealed.
-            this->clipboardButton->Enabled = false;
-            this->copyPuzzleToolStripMenuItem->Enabled = false;
-            this->pastePuzzleToolStripMenuItem->Enabled = false;
+            // The puzzle now has a solution, so the clipboard offers Copy Solution instead of Paste.
+            this->updateClipboardControls();
             this->undoManager->clear();
         }
         else if (engine->currentState() == SudokuGameEngine::SudokuEngineState::HasMultipleSolutions)
@@ -4556,14 +4585,9 @@ namespace Sudoku_3_0
                     cell->Invalidate();
             }
 
-            // Disable Copy Puzzle if the custom puzzle was already solved
+            // Clipboard controls follow from the restored session state: a solved custom puzzle
+            // (puzzle snapshot present) offers Copy Solution, an in-progress one offers Paste.
             this->updateClipboardControls();
-            if (this->session->mode == GameMode::Solver && save->gameFinished)
-            {
-                this->clipboardButton->Enabled = false;
-                this->copyPuzzleToolStripMenuItem->Enabled = false;
-                this->pastePuzzleToolStripMenuItem->Enabled = false;
-            }
 
             this->conflicts->highlightAll();
         }

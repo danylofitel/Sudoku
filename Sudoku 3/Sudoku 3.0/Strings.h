@@ -122,8 +122,10 @@ namespace Sudoku_3_0
         // ---- Clipboard puzzle ----
         ButtonPastePuzzle,
         ButtonCopyPuzzle,
+        ButtonCopySolution,
         MenuPastePuzzle,
         MenuCopyPuzzle,
+        MenuCopySolution,
         NotifyInvalidPuzzleString,
     };
 
@@ -624,6 +626,11 @@ namespace Sudoku_3_0
                 case Language::Ukrainian: return L"Скопіювати задачу";
                 default:                 return L"Copy Puzzle";
                 }
+            case StringId::ButtonCopySolution:
+                switch (lang) {
+                case Language::Ukrainian: return L"Скопіювати розв'язок";
+                default:                 return L"Copy Solution";
+                }
             case StringId::MenuPastePuzzle:
                 switch (lang) {
                 case Language::Ukrainian: return L"Вставити задачу";
@@ -633,6 +640,11 @@ namespace Sudoku_3_0
                 switch (lang) {
                 case Language::Ukrainian: return L"Скопіювати задачу";
                 default:                 return L"Copy Puzzle";
+                }
+            case StringId::MenuCopySolution:
+                switch (lang) {
+                case Language::Ukrainian: return L"Скопіювати розв'язок";
+                default:                 return L"Copy Solution";
                 }
             case StringId::NotifyInvalidPuzzleString:
                 switch (lang) {
