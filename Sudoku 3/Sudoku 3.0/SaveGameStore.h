@@ -1,17 +1,26 @@
-﻿// Danylo Fitel 2013
+// Danylo Fitel 2013
 
 #pragma once
 
 #include "SavedGame.h"
 #include "GameMode.h"
+#include "UnsupportedSaveVersionException.h"
 
 using namespace System::IO;
-using namespace System::Runtime::Serialization::Formatters::Binary;
+using namespace System::Collections::Generic;
 
 namespace Sudoku_3_0
 {
     // Handles reading and writing SavedGame objects to/from disk.
     // Contains no UI logic — callers are responsible for applying loaded state.
+    //
+    // File format (UTF-8 text, one "key=value" per line):
+    //   Sudoku3Save=<format version>
+    //   sizeFactor, difficulty, numberOfHints, numberOfFixes, hasGivenUp,
+    //   hasUsedFix, gameMode, gameFinished  (all integers; booleans as 0/1)
+    //   clues, solution, value, state       (digit strings, one char per cell)
+    //   pencilMarks                          (space-separated bitmasks, one per cell)
+    // The order of lines is not significant; unknown keys are ignored.
     ref class SaveGameStore abstract sealed
     {
     public:
@@ -83,68 +92,128 @@ namespace Sudoku_3_0
             }
             save->pencilMarks = markSb->ToString();
 
-            FileStream^ fs = nullptr;
+            // Write as UTF-8 text (no BOM), one key=value per line.
+            StreamWriter^ writer = nullptr;
             try
             {
-                fs = File::Create(filePath);
-                (gcnew BinaryFormatter())->Serialize(fs, save);
+                writer = gcnew StreamWriter(filePath, false, gcnew System::Text::UTF8Encoding(false));
+                writer->WriteLine("Sudoku3Save=" + FormatVersion.ToString());
+                writer->WriteLine("sizeFactor=" + save->sizeFactor.ToString());
+                writer->WriteLine("difficulty=" + save->difficulty.ToString());
+                writer->WriteLine("numberOfHints=" + save->numberOfHints.ToString());
+                writer->WriteLine("numberOfFixes=" + save->numberOfFixes.ToString());
+                writer->WriteLine("hasGivenUp=" + (save->hasGivenUp ? 1 : 0).ToString());
+                writer->WriteLine("hasUsedFix=" + (save->hasUsedFix ? 1 : 0).ToString());
+                writer->WriteLine("gameMode=" + save->gameMode.ToString());
+                writer->WriteLine("gameFinished=" + (save->gameFinished ? 1 : 0).ToString());
+                writer->WriteLine("clues=" + save->clues);
+                writer->WriteLine("solution=" + save->solution);
+                writer->WriteLine("value=" + save->value);
+                writer->WriteLine("state=" + save->state);
+                writer->WriteLine("pencilMarks=" + save->pencilMarks);
             }
             finally
             {
-                if (fs != nullptr) fs->Close();
+                if (writer != nullptr) writer->Close();
             }
         }
 
         // Reads and validates a SavedGame from the given file path.
-        // Throws a descriptive string on any validation or I/O failure.
+        // Throws a System::Exception on any validation or I/O failure.
         static SavedGame^ Load(System::String^ filePath, unsigned int expectedNumberOfCells)
         {
-            FileStream^ fs = nullptr;
-            SavedGame^ save = nullptr;
+            Dictionary<System::String^, System::String^>^ fields =
+                gcnew Dictionary<System::String^, System::String^>();
+
+            StreamReader^ reader = nullptr;
             try
             {
-                fs = File::OpenRead(filePath);
-                save = (SavedGame^)(gcnew BinaryFormatter())->Deserialize(fs);
+                reader = gcnew StreamReader(filePath);
+                System::String^ line;
+                while ((line = reader->ReadLine()) != nullptr)
+                {
+                    int eq = line->IndexOf(L'=');
+                    if (eq < 0) continue;
+                    fields[line->Substring(0, eq)] = line->Substring(eq + 1);
+                }
             }
             finally
             {
-                if (fs != nullptr) fs->Close();
+                if (reader != nullptr) reader->Close();
             }
+
+            if (!fields->ContainsKey("Sudoku3Save"))
+                throw gcnew System::Exception("Not a recognized Sudoku save file.");
+
+            // Check the format version before parsing anything else, so a file written by a newer
+            // build fails with a clear "unsupported version" reason instead of a confusing error
+            // deeper in parsing. Files at or below FormatVersion are considered loadable; when a
+            // future breaking change bumps FormatVersion, add per-version migration handling here.
+            unsigned int fileVersion = RequireUInt(fields, "Sudoku3Save");
+            if (fileVersion > FormatVersion)
+                throw gcnew UnsupportedSaveVersionException(fileVersion, FormatVersion);
+
+            SavedGame^ save = gcnew SavedGame();
+            save->sizeFactor = RequireUInt(fields, "sizeFactor");
+            save->difficulty = RequireUInt(fields, "difficulty");
+            save->numberOfHints = RequireUInt(fields, "numberOfHints");
+            save->numberOfFixes = RequireUInt(fields, "numberOfFixes");
+            save->hasGivenUp = RequireUInt(fields, "hasGivenUp") != 0;
+            save->hasUsedFix = RequireUInt(fields, "hasUsedFix") != 0;
+            save->gameMode = RequireUInt(fields, "gameMode");
+            save->gameFinished = RequireUInt(fields, "gameFinished") != 0;
+            save->clues = RequireStr(fields, "clues");
+            save->solution = RequireStr(fields, "solution");
+            save->value = RequireStr(fields, "value");
+            save->state = RequireStr(fields, "state");
+            save->pencilMarks = fields->ContainsKey("pencilMarks")
+                ? fields["pencilMarks"] : gcnew System::String(L"");
 
             // Structural validation
             if (save->sizeFactor != 3)
-                throw "Invalid sizeFactor value " + save->sizeFactor.ToString();
+                throw gcnew System::Exception("Invalid sizeFactor value " + save->sizeFactor.ToString());
 
             if ((unsigned int)save->value->Length != expectedNumberOfCells)
-                throw "Invalid number of cell values " + save->value->Length.ToString();
+                throw gcnew System::Exception("Invalid number of cell values " + save->value->Length.ToString());
 
             if (save->state->Length != save->value->Length)
-                throw "Invalid number of cell states " + save->state->Length.ToString();
-
-            if (save->clues == nullptr || (unsigned int)save->clues->Length != expectedNumberOfCells)
-                throw "Invalid clues field length";
-
-            if (save->solution == nullptr || (unsigned int)save->solution->Length != expectedNumberOfCells)
-                throw "Invalid solution field length";
-
-            // Validate clues and solution
-            for (int i = 0; i < save->clues->Length; ++i)
-            {
-                wchar_t c = save->clues[i];
-                wchar_t s = save->solution[i];
-                if (c < L'0' || c > L'9')
-                    throw "Invalid clue value " + c.ToString() + " at index " + i.ToString();
-                if (s < L'1' || s > L'9')
-                    throw "Invalid solution value " + s.ToString() + " at index " + i.ToString();
-                if (c != L'0' && c != s)
-                    throw "Clue/solution mismatch at index " + i.ToString();
-            }
+                throw gcnew System::Exception("Invalid number of cell states " + save->state->Length.ToString());
 
             unsigned int gameMode = save->gameMode;
             if (gameMode != static_cast<unsigned int>(GameMode::Game) &&
                 gameMode != static_cast<unsigned int>(GameMode::Solver))
             {
-                throw "Invalid gameMode value " + gameMode.ToString();
+                throw gcnew System::Exception("Invalid gameMode value " + gameMode.ToString());
+            }
+
+            // The puzzle snapshot (clues + solution) is optional: a Solver session that has not
+            // been solved yet has no known solution, so both fields are empty. When present, both
+            // must be full-length and consistent. Game mode always requires a solution.
+            bool hasPuzzle = save->clues->Length > 0 || save->solution->Length > 0;
+
+            if (gameMode == static_cast<unsigned int>(GameMode::Game) && !hasPuzzle)
+                throw gcnew System::Exception("A saved game must contain a puzzle solution.");
+
+            if (hasPuzzle)
+            {
+                if ((unsigned int)save->clues->Length != expectedNumberOfCells)
+                    throw gcnew System::Exception("Invalid clues field length");
+
+                if ((unsigned int)save->solution->Length != expectedNumberOfCells)
+                    throw gcnew System::Exception("Invalid solution field length");
+
+                // Validate clues and solution
+                for (int i = 0; i < save->clues->Length; ++i)
+                {
+                    wchar_t c = save->clues[i];
+                    wchar_t s = save->solution[i];
+                    if (c < L'0' || c > L'9')
+                        throw gcnew System::Exception("Invalid clue value " + c.ToString() + " at index " + i.ToString());
+                    if (s < L'1' || s > L'9')
+                        throw gcnew System::Exception("Invalid solution value " + s.ToString() + " at index " + i.ToString());
+                    if (c != L'0' && c != s)
+                        throw gcnew System::Exception("Clue/solution mismatch at index " + i.ToString());
+                }
             }
 
             // Per-cell validation
@@ -154,29 +223,49 @@ namespace Sudoku_3_0
                 wchar_t s = save->state[i];
 
                 if (v < L'0' || v > L'9')
-                    throw "Invalid cell value " + v.ToString() + " at index " + i.ToString();
+                    throw gcnew System::Exception("Invalid cell value " + v.ToString() + " at index " + i.ToString());
 
                 if (s < L'0' || s > L'6')
-                    throw "Invalid cell state " + s.ToString() + " at index " + i.ToString();
+                    throw gcnew System::Exception("Invalid cell state " + s.ToString() + " at index " + i.ToString());
 
                 // state '1' means empty cell, so value must be '0' and vice versa
                 if ((v == L'0') != (s == L'1'))
-                    throw "Mismatched cell value and state at index " + i.ToString();
+                    throw gcnew System::Exception("Mismatched cell value and state at index " + i.ToString());
 
                 // Validate state is legal for the saved game mode
                 if (gameMode == static_cast<unsigned int>(GameMode::Game))
                 {
                     if (s == L'6')
-                        throw "Invalid state 6 in game mode at index " + i.ToString();
+                        throw gcnew System::Exception("Invalid state 6 in game mode at index " + i.ToString());
                 }
                 else // Solver
                 {
                     if (s == L'3' || s == L'4' || s == L'5')
-                        throw "Invalid state " + s.ToString() + " in solver mode at index " + i.ToString();
+                        throw gcnew System::Exception("Invalid state " + s.ToString() + " in solver mode at index " + i.ToString());
                 }
             }
 
             return save;
+        }
+
+    private:
+        // Bumped whenever the on-disk format changes in a breaking way.
+        static const unsigned int FormatVersion = 1;
+
+        static unsigned int RequireUInt(Dictionary<System::String^, System::String^>^ fields, System::String^ key)
+        {
+            System::String^ raw = RequireStr(fields, key);
+            unsigned int result = 0;
+            if (!System::UInt32::TryParse(raw, result))
+                throw gcnew System::Exception("Invalid integer for field '" + key + "': " + raw);
+            return result;
+        }
+
+        static System::String^ RequireStr(Dictionary<System::String^, System::String^>^ fields, System::String^ key)
+        {
+            if (!fields->ContainsKey(key))
+                throw gcnew System::Exception("Missing field: " + key);
+            return fields[key];
         }
     };
 }

@@ -100,6 +100,7 @@ namespace Sudoku_3_0
         NotifyBoardEmpty,
         NotifyFileSaveError,
         NotifyFileLoadError,
+        NotifyUnsupportedVersion,
 
         // ---- Numbers form ----
         ButtonClear,
@@ -115,6 +116,8 @@ namespace Sudoku_3_0
         WinAssistHints,
         WinAssistFix,
         WinAssistFixes,
+        WinAssistUsing,
+        WinAssistAnd,
 
         // ---- Clipboard puzzle ----
         ButtonPastePuzzle,
@@ -535,6 +538,11 @@ namespace Sudoku_3_0
                 case Language::Ukrainian: return L"Файл збереження пошкоджено і не може бути завантажено.";
                 default:                 return L"The save file is corrupted and could not be loaded.";
                 }
+            case StringId::NotifyUnsupportedVersion:
+                switch (lang) {
+                case Language::Ukrainian: return L"Це збереження створено новішою версією Судоку і не може бути відкрите. Версія збереження: ";
+                default:                 return L"This save was created by a newer version of Sudoku and cannot be opened. Save version: ";
+                }
 
                 // ---- Numbers form ----
             case StringId::ButtonClear:
@@ -593,6 +601,16 @@ namespace Sudoku_3_0
                 switch (lang) {
                 case Language::Ukrainian: return L"виправлень(-ня)";
                 default:                 return L"fixes";
+                }
+            case StringId::WinAssistUsing:
+                switch (lang) {
+                case Language::Ukrainian: return L" використавши ";
+                default:                 return L" using ";
+                }
+            case StringId::WinAssistAnd:
+                switch (lang) {
+                case Language::Ukrainian: return L" та ";
+                default:                 return L" and ";
                 }
 
                 // ---- Clipboard puzzle ----

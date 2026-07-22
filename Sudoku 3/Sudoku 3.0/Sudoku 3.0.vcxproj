@@ -117,6 +117,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="SavedGame.h" />
     <ClInclude Include="SaveGameStore.h" />
+    <ClInclude Include="UnsupportedSaveVersionException.h" />
     <ClInclude Include="Strings.h" />
     <ClInclude Include="Sudoku 3.0.h">
       <FileType>CppForm</FileType>

@@ -15,7 +15,8 @@ namespace Sudoku_3_0
         GameMode mode;
 
         // Immutable snapshot of the current puzzle (clues + solution).
-        // nullptr in GameMode::None or before the first puzzle is created.
+        // Always set in Game mode. In Solver mode it is nullptr until Solve succeeds,
+        // so a custom puzzle can be entered (and saved) before it has a known solution.
         Puzzle^ puzzle;
 
         // Difficulty index of current puzzle: 0=VeryEasy, 1=Easy, 2=Medium, 3=Hard, 4=VeryHard
@@ -48,25 +49,23 @@ namespace Sudoku_3_0
         // Index of the cell currently under the mouse (-1 if none); used for pencil ghost-mark rendering
         int hoveredCellIndex;
 
-        // One-time initialization.
+        // One-time initialization with a default difficulty. The caller (SudokuForm)
+        // immediately starts a real game, so the initial difficulty is only transient.
         GameSession(unsigned int numberOfCells)
         {
-            this->mode = GameMode::None;
-            this->puzzle = nullptr;
-            this->difficulty = 2;
-            this->numberOfFilledCells = 0;
-            this->numberOfHints = 0;
-            this->numberOfFixes = 0;
-            this->hasGivenUp = false;
-            this->hasUsedFix = false;
-            this->pencilMarks = gcnew array<int>(numberOfCells);
-            this->pencilMode = false;
-            this->hintMode = false;
-            this->hoveredCellIndex = -1;
+            this->resetForNewGame(2, numberOfCells);
         }
 
         // Resets all per-game fields for a new standard game.
         void startNewGame(unsigned int difficultyIndex, unsigned int numberOfCells)
+        {
+            this->resetForNewGame(difficultyIndex, numberOfCells);
+        }
+
+    private:
+        // Resets every per-puzzle field to its initial state, including switching to Game mode.
+        // Solver mode is entered separately by the form when the user enters a custom puzzle.
+        void resetForNewGame(unsigned int difficultyIndex, unsigned int numberOfCells)
         {
             this->mode = GameMode::Game;
             this->puzzle = nullptr;
@@ -76,9 +75,10 @@ namespace Sudoku_3_0
             this->numberOfFixes = 0;
             this->hasGivenUp = false;
             this->hasUsedFix = false;
+            this->pencilMarks = gcnew array<int>(numberOfCells);
             this->pencilMode = false;
             this->hintMode = false;
-            this->pencilMarks = gcnew array<int>(numberOfCells);
+            this->hoveredCellIndex = -1;
         }
     };
 }

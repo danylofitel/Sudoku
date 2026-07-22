@@ -21,7 +21,6 @@ namespace Sudoku_3_0
     using namespace System;
     using namespace System::IO;
     using namespace System::Drawing;
-    using namespace System::Runtime::Serialization::Formatters::Binary;
     using namespace System::Windows::Forms;
 
     /// <summary>
@@ -41,6 +40,15 @@ namespace Sudoku_3_0
         {
             delete engine;
             engine = nullptr;
+
+            // Font and StringFormat are IDisposable wrappers around native GDI/GDI+ handles.
+            // They are created lazily in cell_Paint and are not part of the Form's component
+            // container, so nothing else disposes them - delete releases their native handles
+            // here rather than leaving it to the finalizer.
+            delete pencilFont;
+            pencilFont = nullptr;
+            delete pencilFormat;
+            pencilFormat = nullptr;
         }
 
         !SudokuForm()
@@ -237,6 +245,12 @@ namespace Sudoku_3_0
 
            // Window dragging
     private: WindowDragger^ dragger;
+
+           // Cached resources for painting pencil marks. The font is rebuilt only when the
+           // cell size (and hence the derived point size) changes; the format is created once.
+    private: System::Drawing::Font^ pencilFont;
+    private: float pencilFontSize;
+    private: System::Drawing::StringFormat^ pencilFormat;
 
 #pragma region Windows Form Designer generated code
 
@@ -2474,6 +2488,11 @@ namespace Sudoku_3_0
         this->numbersForm->Left = this->Left;
         this->numbersForm->Top = this->Top;
         this->numbersForm->setChoiceDelegate(gcnew choiceAction(this, &SudokuForm::choiceMade));
+        // Show then immediately hide the form once at startup. This runs its full first
+        // layout/show pass so AutoScaleMode applies DPI scaling and Width/Height reflect the
+        // final on-screen size. cellButtonClicked relies on those sizes to center the form
+        // over a cell, so without this the very first popup would be mispositioned.
+        // (CreateControl() alone only makes the handle and is not enough.)
         this->numbersForm->Visible = true;
         this->numbersForm->Visible = false;
 
@@ -2494,11 +2513,12 @@ namespace Sudoku_3_0
         this->selectedDifficulty = this->session->difficulty;
         this->difficultyComboBox->SelectedIndex = this->selectedDifficulty;
 
-        // Restore the language the user last chose; falls back to English on first run
-        this->setLanguage(LanguagePreference::Load());
+        // Restore the language the user last chose; falls back to English on first run.
+        // persist = false: this value came straight from the registry, no need to write it back.
+        this->setLanguage(LanguagePreference::Load(), false);
 
         // Wire Paint, MouseEnter, MouseLeave, and MouseClick events for each cell
-        for each(System::Windows::Forms::Button ^ cell in this->cells)
+        for each (System::Windows::Forms::Button ^ cell in this->cells)
         {
             cell->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &SudokuForm::cell_Paint);
             cell->MouseEnter += gcnew System::EventHandler(this, &SudokuForm::cell_MouseEnter);
@@ -2510,11 +2530,14 @@ namespace Sudoku_3_0
         this->newGame(SudokuGameEngine::DifficultyLevel::Medium);
     }
 
-           // Apply the given language to all UI controls and update the language menu checkmarks
-    private: void setLanguage(Language lang)
+           // Apply the given language to all UI controls and update the language menu checkmarks.
+           // Pass persist = false to apply without writing back to the registry (e.g. when the
+           // language was just loaded from it at startup).
+    private: void setLanguage(Language lang, bool persist)
     {
         this->currentLanguage = lang;
-        LanguagePreference::Save(lang);
+        if (persist)
+            LanguagePreference::Save(lang);
 
         // Window title
         this->Text = Strings::Get(StringId::WindowTitle, lang);
@@ -2592,12 +2615,12 @@ namespace Sudoku_3_0
 
     private: void englishToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        this->setLanguage(Language::English);
+        this->setLanguage(Language::English, true);
     }
 
     private: void ukrainianToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        this->setLanguage(Language::Ukrainian);
+        this->setLanguage(Language::Ukrainian, true);
     }
 
     private: void initializeCells()
@@ -2711,6 +2734,9 @@ namespace Sudoku_3_0
                 cell->BackColor = defaultBackColor;
                 cell->Enabled = enableCells;
                 this->session->pencilMarks[index] = 0;
+                // Force a repaint: clearing pencilMarks alone won't trigger one if no visible
+                // control property actually changed, leaving stale marks painted by cell_Paint.
+                cell->Invalidate();
                 ++index;
             }
         }
@@ -2804,7 +2830,7 @@ namespace Sudoku_3_0
         this->updateClipboardControls();
 
         // Move focus to the first editable cell
-        for each(Button ^ cell in this->cells)
+        for each (Button ^ cell in this->cells)
         {
             if (cell->Enabled)
             {
@@ -2855,10 +2881,24 @@ namespace Sudoku_3_0
             this->playerStats->winStreak = 0;
     }
 
+           // Builds the localized, pluralized list of assists used this game (hints, fixes).
+           // Returns an empty list if the game was completed without any assists.
+    private: System::Collections::Generic::List<System::String^>^ buildAssistList()
+    {
+        System::Collections::Generic::List<System::String^>^ assists = gcnew System::Collections::Generic::List<System::String^>();
+        if (this->session->numberOfHints == 1)      assists->Add(Strings::Get(StringId::WinAssistHint, this->currentLanguage));
+        else if (this->session->numberOfHints > 1)  assists->Add(this->session->numberOfHints + " " + Strings::Get(StringId::WinAssistHints, this->currentLanguage));
+        if (this->session->numberOfFixes == 1)      assists->Add(Strings::Get(StringId::WinAssistFix, this->currentLanguage));
+        else if (this->session->numberOfFixes > 1)  assists->Add(this->session->numberOfFixes + " " + Strings::Get(StringId::WinAssistFixes, this->currentLanguage));
+        return assists;
+    }
+
            // Builds the victory notification message from current session statistics.
     private: System::String^ buildWinMessage()
     {
         System::String^ msg = "";
+        System::String^ usingWord = Strings::Get(StringId::WinAssistUsing, this->currentLanguage);
+        System::String^ andWord = Strings::Get(StringId::WinAssistAnd, this->currentLanguage);
 
         bool clean = !this->session->hasGivenUp
             && this->session->numberOfHints == 0
@@ -2871,23 +2911,14 @@ namespace Sudoku_3_0
         else if (!this->session->hasGivenUp)
         {
             msg += Strings::Get(StringId::WinWithAssists, this->currentLanguage);
-            System::Collections::Generic::List<System::String^>^ assists = gcnew System::Collections::Generic::List<System::String^>();
-            if (this->session->numberOfHints == 1)      assists->Add(Strings::Get(StringId::WinAssistHint, this->currentLanguage));
-            else if (this->session->numberOfHints > 1)  assists->Add(this->session->numberOfHints + " " + Strings::Get(StringId::WinAssistHints, this->currentLanguage));
-            if (this->session->numberOfFixes == 1)      assists->Add(Strings::Get(StringId::WinAssistFix, this->currentLanguage));
-            else if (this->session->numberOfFixes > 1)  assists->Add(this->session->numberOfFixes + " " + Strings::Get(StringId::WinAssistFixes, this->currentLanguage));
-            msg += " using " + System::String::Join(" and ", assists) + "!";
+            msg += usingWord + System::String::Join(andWord, this->buildAssistList()) + "!";
         }
         else
         {
             msg += Strings::Get(StringId::WinAfterGiveUp, this->currentLanguage);
-            System::Collections::Generic::List<System::String^>^ assists = gcnew System::Collections::Generic::List<System::String^>();
-            if (this->session->numberOfHints == 1)      assists->Add(Strings::Get(StringId::WinAssistHint, this->currentLanguage));
-            else if (this->session->numberOfHints > 1)  assists->Add(this->session->numberOfHints + " " + Strings::Get(StringId::WinAssistHints, this->currentLanguage));
-            if (this->session->numberOfFixes == 1)      assists->Add(Strings::Get(StringId::WinAssistFix, this->currentLanguage));
-            else if (this->session->numberOfFixes > 1)  assists->Add(this->session->numberOfFixes + " " + Strings::Get(StringId::WinAssistFixes, this->currentLanguage));
+            System::Collections::Generic::List<System::String^>^ assists = this->buildAssistList();
             if (assists->Count > 0)
-                msg += ", using " + System::String::Join(" and ", assists);
+                msg += "," + usingWord + System::String::Join(andWord, assists);
             msg += ".";
         }
 
@@ -3076,7 +3107,7 @@ namespace Sudoku_3_0
         if (entries->Count == 0) return;
 
         System::Windows::Forms::Button^ lastCell = nullptr;
-        for each(auto entry in entries)
+        for each (auto entry in entries)
         {
             this->restoreCell(entry->cellIndex, entry->previousText, entry->previousPencilMarks);
             lastCell = this->cells[entry->cellIndex];
@@ -3147,14 +3178,25 @@ namespace Sudoku_3_0
         float cw = (w - 2.0f * pad) / 3.0f;
         float ch = (h - 2.0f * pad) / 3.0f;
 
-        System::Drawing::Font^ font = gcnew System::Drawing::Font("Calibri", Math::Max(6.0f, Math::Min(cw, ch) * 0.55f),
-            System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point);
+        // Reuse cached rendering resources, rebuilding the font only when the size changes.
+        float fontSize = Math::Max(6.0f, Math::Min(cw, ch) * 0.55f);
+        if (this->pencilFont == nullptr || this->pencilFontSize != fontSize)
+        {
+            delete this->pencilFont;
+            this->pencilFont = gcnew System::Drawing::Font("Calibri", fontSize,
+                System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point);
+            this->pencilFontSize = fontSize;
+        }
+        if (this->pencilFormat == nullptr)
+        {
+            this->pencilFormat = gcnew System::Drawing::StringFormat();
+            this->pencilFormat->LineAlignment = System::Drawing::StringAlignment::Center;
+        }
+        System::Drawing::Font^ font = this->pencilFont;
+        System::Drawing::StringFormat^ sf = this->pencilFormat;
 
         // Pre-compute which digits are blocked by a filled peer
         int blockedBits = this->conflicts->getBlockedDigits((unsigned int)idx);
-
-        System::Drawing::StringFormat^ sf = gcnew System::Drawing::StringFormat();
-        sf->LineAlignment = System::Drawing::StringAlignment::Center;
 
         for (int d = 1; d <= 9; ++d)
         {
@@ -3308,26 +3350,23 @@ namespace Sudoku_3_0
         cell->Invalidate();
     }
 
-           // Prompt the user to save if a saveable game is in progress.
-           // Returns true if the action should proceed, false if it was cancelled.
+           // Offer to save the current session before it is discarded.
+           // Returns true if the action should proceed, false if the user cancelled.
     private: bool promptSaveIfNeeded()
     {
-        if (this->session->mode == GameMode::Game || this->session->mode == GameMode::Solver)
-        {
-            System::Windows::Forms::DialogResult result = MessageBox::Show(
-                Strings::Get(StringId::DialogSavePrompt, this->currentLanguage),
-                Strings::Get(StringId::DialogTitleSave, this->currentLanguage),
-                MessageBoxButtons::YesNoCancel,
-                MessageBoxIcon::Question);
+        System::Windows::Forms::DialogResult result = MessageBox::Show(
+            Strings::Get(StringId::DialogSavePrompt, this->currentLanguage),
+            Strings::Get(StringId::DialogTitleSave, this->currentLanguage),
+            MessageBoxButtons::YesNoCancel,
+            MessageBoxIcon::Question);
 
-            if (result == System::Windows::Forms::DialogResult::Yes)
-            {
-                this->saveGameDialog->ShowDialog();
-            }
-            else if (result == System::Windows::Forms::DialogResult::Cancel)
-            {
-                return false;
-            }
+        if (result == System::Windows::Forms::DialogResult::Yes)
+        {
+            this->saveGameDialog->ShowDialog();
+        }
+        else if (result == System::Windows::Forms::DialogResult::Cancel)
+        {
+            return false;
         }
         return true;
     }
@@ -3532,7 +3571,7 @@ namespace Sudoku_3_0
             this->pastePuzzleToolStripMenuItem->Text = Strings::Get(StringId::MenuPastePuzzle, this->currentLanguage);
             this->pastePuzzleToolStripMenuItem->Enabled = false;
         }
-        else if (this->session->mode == GameMode::Solver)
+        else // GameMode::Solver
         {
             this->clipboardButton->Text = Strings::Get(StringId::ButtonPastePuzzle, this->currentLanguage);
             this->clipboardButton->Enabled = true;
@@ -3540,15 +3579,6 @@ namespace Sudoku_3_0
             this->pastePuzzleToolStripMenuItem->Enabled = true;
             this->copyPuzzleToolStripMenuItem->Text = Strings::Get(StringId::MenuCopyPuzzle, this->currentLanguage);
             this->copyPuzzleToolStripMenuItem->Enabled = false;
-        }
-        else
-        {
-            this->clipboardButton->Text = Strings::Get(StringId::ButtonCopyPuzzle, this->currentLanguage);
-            this->clipboardButton->Enabled = false;
-            this->copyPuzzleToolStripMenuItem->Text = Strings::Get(StringId::MenuCopyPuzzle, this->currentLanguage);
-            this->copyPuzzleToolStripMenuItem->Enabled = false;
-            this->pastePuzzleToolStripMenuItem->Text = Strings::Get(StringId::MenuPastePuzzle, this->currentLanguage);
-            this->pastePuzzleToolStripMenuItem->Enabled = false;
         }
     }
 
@@ -3695,10 +3725,9 @@ namespace Sudoku_3_0
 
     private: void saveToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        if (this->session->mode == GameMode::Game || this->session->mode == GameMode::Solver)
-        {
-            this->saveGameDialog->ShowDialog();
-        }
+        // A session is always saveable: a game, a solved custom puzzle, or a custom puzzle
+        // still being entered (which is recoverable from its cell values alone).
+        this->saveGameDialog->ShowDialog();
     }
 
     private: void openToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
@@ -4401,6 +4430,14 @@ namespace Sudoku_3_0
 
         bool gameFinished = this->isGameFinished();
 
+        // The puzzle snapshot may not exist yet (a custom puzzle still being entered in Solver
+        // mode). In that case we persist empty clues/solution; the board is fully recoverable
+        // from the per-cell values and states alone.
+        array<unsigned char>^ clues = this->session->puzzle != nullptr
+            ? this->session->puzzle->clues : gcnew array<unsigned char>(0);
+        array<unsigned char>^ solution = this->session->puzzle != nullptr
+            ? this->session->puzzle->solution : gcnew array<unsigned char>(0);
+
         try
         {
             SaveGameStore::Save(
@@ -4413,13 +4450,13 @@ namespace Sudoku_3_0
                 this->session->hasUsedFix,
                 this->session->mode,
                 gameFinished,
-                this->session->puzzle->clues,
-                this->session->puzzle->solution,
+                clues,
+                solution,
                 values,
                 states,
                 this->session->pencilMarks);
         }
-        catch (...)
+        catch (System::Exception^)
         {
             this->showNotification(Strings::Get(StringId::NotifyFileSaveError, this->currentLanguage));
         }
@@ -4432,7 +4469,13 @@ namespace Sudoku_3_0
         {
             save = SaveGameStore::Load(this->openGameDialog->FileName, this->numberOfCells);
         }
-        catch (...)
+        catch (UnsupportedSaveVersionException^ ex)
+        {
+            this->showNotification(
+                Strings::Get(StringId::NotifyUnsupportedVersion, this->currentLanguage) + ex->FileVersion);
+            return;
+        }
+        catch (System::Exception^)
         {
             this->showNotification(Strings::Get(StringId::NotifyFileLoadError, this->currentLanguage));
             return;
@@ -4458,15 +4501,23 @@ namespace Sudoku_3_0
         // Apply each cell
         try
         {
-            // Restore immutable puzzle snapshot from save
-            array<unsigned char>^ clues = gcnew array<unsigned char>(this->numberOfCells);
-            array<unsigned char>^ solution = gcnew array<unsigned char>(this->numberOfCells);
-            for (unsigned int i = 0; i < this->numberOfCells; ++i)
+            // Restore the immutable puzzle snapshot if the save has one. A Solver session saved
+            // mid-entry has no solution yet, so the puzzle stays nullptr until the user solves it.
+            if (save->clues->Length > 0)
             {
-                clues[i] = (unsigned char)(save->clues[i] - L'0');
-                solution[i] = (unsigned char)(save->solution[i] - L'0');
+                array<unsigned char>^ clues = gcnew array<unsigned char>(this->numberOfCells);
+                array<unsigned char>^ solution = gcnew array<unsigned char>(this->numberOfCells);
+                for (unsigned int i = 0; i < this->numberOfCells; ++i)
+                {
+                    clues[i] = (unsigned char)(save->clues[i] - L'0');
+                    solution[i] = (unsigned char)(save->solution[i] - L'0');
+                }
+                this->session->puzzle = gcnew Puzzle(clues, solution);
             }
-            this->session->puzzle = gcnew Puzzle(clues, solution);
+            else
+            {
+                this->session->puzzle = nullptr;
+            }
 
             for (unsigned int index = 0; index < this->numberOfCells; ++index)
             {
@@ -4501,7 +4552,7 @@ namespace Sudoku_3_0
                     if (int::TryParse(parts[i], mark))
                         this->session->pencilMarks[i] = mark;
                 }
-                for each(Button ^ cell in this->cells)
+                for each (Button ^ cell in this->cells)
                     cell->Invalidate();
             }
 
@@ -4516,7 +4567,7 @@ namespace Sudoku_3_0
 
             this->conflicts->highlightAll();
         }
-        catch (...)
+        catch (System::Exception^)
         {
             this->showNotification(Strings::Get(StringId::NotifyFileLoadError, this->currentLanguage));
         }
