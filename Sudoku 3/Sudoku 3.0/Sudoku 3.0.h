@@ -405,7 +405,7 @@ namespace Sudoku_3_0
                this->button1->Size = System::Drawing::Size(62, 62);
                this->button1->TabIndex = 3;
                this->button1->UseVisualStyleBackColor = false;
-               this->button1->Click += gcnew System::EventHandler(this, &SudokuForm::button1_Click);
+               this->button1->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button1->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button1->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -422,7 +422,7 @@ namespace Sudoku_3_0
                this->button2->Size = System::Drawing::Size(62, 62);
                this->button2->TabIndex = 4;
                this->button2->UseVisualStyleBackColor = false;
-               this->button2->Click += gcnew System::EventHandler(this, &SudokuForm::button2_Click);
+               this->button2->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button2->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button2->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button2->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -439,7 +439,7 @@ namespace Sudoku_3_0
                this->button3->Size = System::Drawing::Size(62, 62);
                this->button3->TabIndex = 5;
                this->button3->UseVisualStyleBackColor = false;
-               this->button3->Click += gcnew System::EventHandler(this, &SudokuForm::button3_Click);
+               this->button3->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button3->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button3->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button3->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -456,7 +456,7 @@ namespace Sudoku_3_0
                this->button4->Size = System::Drawing::Size(62, 62);
                this->button4->TabIndex = 6;
                this->button4->UseVisualStyleBackColor = false;
-               this->button4->Click += gcnew System::EventHandler(this, &SudokuForm::button4_Click);
+               this->button4->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button4->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button4->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button4->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -473,7 +473,7 @@ namespace Sudoku_3_0
                this->button5->Size = System::Drawing::Size(62, 62);
                this->button5->TabIndex = 7;
                this->button5->UseVisualStyleBackColor = false;
-               this->button5->Click += gcnew System::EventHandler(this, &SudokuForm::button5_Click);
+               this->button5->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button5->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button5->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button5->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -490,7 +490,7 @@ namespace Sudoku_3_0
                this->button6->Size = System::Drawing::Size(62, 62);
                this->button6->TabIndex = 8;
                this->button6->UseVisualStyleBackColor = false;
-               this->button6->Click += gcnew System::EventHandler(this, &SudokuForm::button6_Click);
+               this->button6->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button6->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button6->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button6->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -507,7 +507,7 @@ namespace Sudoku_3_0
                this->button7->Size = System::Drawing::Size(62, 62);
                this->button7->TabIndex = 9;
                this->button7->UseVisualStyleBackColor = false;
-               this->button7->Click += gcnew System::EventHandler(this, &SudokuForm::button7_Click);
+               this->button7->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button7->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button7->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button7->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -524,7 +524,7 @@ namespace Sudoku_3_0
                this->button8->Size = System::Drawing::Size(62, 62);
                this->button8->TabIndex = 10;
                this->button8->UseVisualStyleBackColor = false;
-               this->button8->Click += gcnew System::EventHandler(this, &SudokuForm::button8_Click);
+               this->button8->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button8->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button8->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button8->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -541,7 +541,7 @@ namespace Sudoku_3_0
                this->button9->Size = System::Drawing::Size(62, 62);
                this->button9->TabIndex = 11;
                this->button9->UseVisualStyleBackColor = false;
-               this->button9->Click += gcnew System::EventHandler(this, &SudokuForm::button9_Click);
+               this->button9->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button9->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button9->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button9->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -558,7 +558,7 @@ namespace Sudoku_3_0
                this->button10->Size = System::Drawing::Size(62, 62);
                this->button10->TabIndex = 12;
                this->button10->UseVisualStyleBackColor = false;
-               this->button10->Click += gcnew System::EventHandler(this, &SudokuForm::button10_Click);
+               this->button10->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button10->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button10->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button10->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -575,7 +575,7 @@ namespace Sudoku_3_0
                this->button11->Size = System::Drawing::Size(62, 62);
                this->button11->TabIndex = 13;
                this->button11->UseVisualStyleBackColor = false;
-               this->button11->Click += gcnew System::EventHandler(this, &SudokuForm::button11_Click);
+               this->button11->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button11->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button11->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button11->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -592,7 +592,7 @@ namespace Sudoku_3_0
                this->button12->Size = System::Drawing::Size(62, 62);
                this->button12->TabIndex = 14;
                this->button12->UseVisualStyleBackColor = false;
-               this->button12->Click += gcnew System::EventHandler(this, &SudokuForm::button12_Click);
+               this->button12->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button12->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button12->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button12->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -609,7 +609,7 @@ namespace Sudoku_3_0
                this->button13->Size = System::Drawing::Size(62, 62);
                this->button13->TabIndex = 15;
                this->button13->UseVisualStyleBackColor = false;
-               this->button13->Click += gcnew System::EventHandler(this, &SudokuForm::button13_Click);
+               this->button13->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button13->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button13->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button13->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -626,7 +626,7 @@ namespace Sudoku_3_0
                this->button14->Size = System::Drawing::Size(62, 62);
                this->button14->TabIndex = 16;
                this->button14->UseVisualStyleBackColor = false;
-               this->button14->Click += gcnew System::EventHandler(this, &SudokuForm::button14_Click);
+               this->button14->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button14->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button14->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button14->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -643,7 +643,7 @@ namespace Sudoku_3_0
                this->button15->Size = System::Drawing::Size(62, 62);
                this->button15->TabIndex = 17;
                this->button15->UseVisualStyleBackColor = false;
-               this->button15->Click += gcnew System::EventHandler(this, &SudokuForm::button15_Click);
+               this->button15->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button15->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button15->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button15->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -660,7 +660,7 @@ namespace Sudoku_3_0
                this->button16->Size = System::Drawing::Size(62, 62);
                this->button16->TabIndex = 18;
                this->button16->UseVisualStyleBackColor = false;
-               this->button16->Click += gcnew System::EventHandler(this, &SudokuForm::button16_Click);
+               this->button16->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button16->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button16->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button16->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -677,7 +677,7 @@ namespace Sudoku_3_0
                this->button17->Size = System::Drawing::Size(62, 62);
                this->button17->TabIndex = 19;
                this->button17->UseVisualStyleBackColor = false;
-               this->button17->Click += gcnew System::EventHandler(this, &SudokuForm::button17_Click);
+               this->button17->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button17->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button17->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button17->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -694,7 +694,7 @@ namespace Sudoku_3_0
                this->button18->Size = System::Drawing::Size(62, 62);
                this->button18->TabIndex = 20;
                this->button18->UseVisualStyleBackColor = false;
-               this->button18->Click += gcnew System::EventHandler(this, &SudokuForm::button18_Click);
+               this->button18->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button18->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button18->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button18->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -711,7 +711,7 @@ namespace Sudoku_3_0
                this->button19->Size = System::Drawing::Size(62, 62);
                this->button19->TabIndex = 21;
                this->button19->UseVisualStyleBackColor = false;
-               this->button19->Click += gcnew System::EventHandler(this, &SudokuForm::button19_Click);
+               this->button19->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button19->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button19->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button19->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -728,7 +728,7 @@ namespace Sudoku_3_0
                this->button20->Size = System::Drawing::Size(62, 62);
                this->button20->TabIndex = 22;
                this->button20->UseVisualStyleBackColor = false;
-               this->button20->Click += gcnew System::EventHandler(this, &SudokuForm::button20_Click);
+               this->button20->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button20->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button20->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button20->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -745,7 +745,7 @@ namespace Sudoku_3_0
                this->button21->Size = System::Drawing::Size(62, 62);
                this->button21->TabIndex = 23;
                this->button21->UseVisualStyleBackColor = false;
-               this->button21->Click += gcnew System::EventHandler(this, &SudokuForm::button21_Click);
+               this->button21->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button21->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button21->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button21->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -762,7 +762,7 @@ namespace Sudoku_3_0
                this->button22->Size = System::Drawing::Size(62, 62);
                this->button22->TabIndex = 24;
                this->button22->UseVisualStyleBackColor = false;
-               this->button22->Click += gcnew System::EventHandler(this, &SudokuForm::button22_Click);
+               this->button22->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button22->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button22->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button22->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -779,7 +779,7 @@ namespace Sudoku_3_0
                this->button23->Size = System::Drawing::Size(62, 62);
                this->button23->TabIndex = 25;
                this->button23->UseVisualStyleBackColor = false;
-               this->button23->Click += gcnew System::EventHandler(this, &SudokuForm::button23_Click);
+               this->button23->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button23->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button23->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button23->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -796,7 +796,7 @@ namespace Sudoku_3_0
                this->button24->Size = System::Drawing::Size(62, 62);
                this->button24->TabIndex = 26;
                this->button24->UseVisualStyleBackColor = false;
-               this->button24->Click += gcnew System::EventHandler(this, &SudokuForm::button24_Click);
+               this->button24->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button24->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button24->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button24->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -813,7 +813,7 @@ namespace Sudoku_3_0
                this->button25->Size = System::Drawing::Size(62, 62);
                this->button25->TabIndex = 27;
                this->button25->UseVisualStyleBackColor = false;
-               this->button25->Click += gcnew System::EventHandler(this, &SudokuForm::button25_Click);
+               this->button25->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button25->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button25->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button25->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -830,7 +830,7 @@ namespace Sudoku_3_0
                this->button26->Size = System::Drawing::Size(62, 62);
                this->button26->TabIndex = 28;
                this->button26->UseVisualStyleBackColor = false;
-               this->button26->Click += gcnew System::EventHandler(this, &SudokuForm::button26_Click);
+               this->button26->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button26->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button26->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button26->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -847,7 +847,7 @@ namespace Sudoku_3_0
                this->button27->Size = System::Drawing::Size(62, 62);
                this->button27->TabIndex = 29;
                this->button27->UseVisualStyleBackColor = false;
-               this->button27->Click += gcnew System::EventHandler(this, &SudokuForm::button27_Click);
+               this->button27->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button27->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button27->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button27->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -864,7 +864,7 @@ namespace Sudoku_3_0
                this->button28->Size = System::Drawing::Size(62, 62);
                this->button28->TabIndex = 30;
                this->button28->UseVisualStyleBackColor = false;
-               this->button28->Click += gcnew System::EventHandler(this, &SudokuForm::button28_Click);
+               this->button28->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button28->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button28->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button28->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -881,7 +881,7 @@ namespace Sudoku_3_0
                this->button29->Size = System::Drawing::Size(62, 62);
                this->button29->TabIndex = 31;
                this->button29->UseVisualStyleBackColor = false;
-               this->button29->Click += gcnew System::EventHandler(this, &SudokuForm::button29_Click);
+               this->button29->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button29->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button29->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button29->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -898,7 +898,7 @@ namespace Sudoku_3_0
                this->button30->Size = System::Drawing::Size(62, 62);
                this->button30->TabIndex = 32;
                this->button30->UseVisualStyleBackColor = false;
-               this->button30->Click += gcnew System::EventHandler(this, &SudokuForm::button30_Click);
+               this->button30->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button30->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button30->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button30->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -915,7 +915,7 @@ namespace Sudoku_3_0
                this->button31->Size = System::Drawing::Size(62, 62);
                this->button31->TabIndex = 33;
                this->button31->UseVisualStyleBackColor = false;
-               this->button31->Click += gcnew System::EventHandler(this, &SudokuForm::button31_Click);
+               this->button31->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button31->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button31->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button31->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -932,7 +932,7 @@ namespace Sudoku_3_0
                this->button32->Size = System::Drawing::Size(62, 62);
                this->button32->TabIndex = 34;
                this->button32->UseVisualStyleBackColor = false;
-               this->button32->Click += gcnew System::EventHandler(this, &SudokuForm::button32_Click);
+               this->button32->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button32->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button32->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button32->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -949,7 +949,7 @@ namespace Sudoku_3_0
                this->button33->Size = System::Drawing::Size(62, 62);
                this->button33->TabIndex = 35;
                this->button33->UseVisualStyleBackColor = false;
-               this->button33->Click += gcnew System::EventHandler(this, &SudokuForm::button33_Click);
+               this->button33->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button33->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button33->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button33->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -966,7 +966,7 @@ namespace Sudoku_3_0
                this->button34->Size = System::Drawing::Size(62, 62);
                this->button34->TabIndex = 36;
                this->button34->UseVisualStyleBackColor = false;
-               this->button34->Click += gcnew System::EventHandler(this, &SudokuForm::button34_Click);
+               this->button34->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button34->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button34->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button34->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -983,7 +983,7 @@ namespace Sudoku_3_0
                this->button35->Size = System::Drawing::Size(62, 62);
                this->button35->TabIndex = 37;
                this->button35->UseVisualStyleBackColor = false;
-               this->button35->Click += gcnew System::EventHandler(this, &SudokuForm::button35_Click);
+               this->button35->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button35->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button35->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button35->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1000,7 +1000,7 @@ namespace Sudoku_3_0
                this->button36->Size = System::Drawing::Size(62, 62);
                this->button36->TabIndex = 38;
                this->button36->UseVisualStyleBackColor = false;
-               this->button36->Click += gcnew System::EventHandler(this, &SudokuForm::button36_Click);
+               this->button36->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button36->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button36->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button36->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1017,7 +1017,7 @@ namespace Sudoku_3_0
                this->button37->Size = System::Drawing::Size(62, 62);
                this->button37->TabIndex = 39;
                this->button37->UseVisualStyleBackColor = false;
-               this->button37->Click += gcnew System::EventHandler(this, &SudokuForm::button37_Click);
+               this->button37->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button37->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button37->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button37->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1034,7 +1034,7 @@ namespace Sudoku_3_0
                this->button38->Size = System::Drawing::Size(62, 62);
                this->button38->TabIndex = 40;
                this->button38->UseVisualStyleBackColor = false;
-               this->button38->Click += gcnew System::EventHandler(this, &SudokuForm::button38_Click);
+               this->button38->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button38->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button38->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button38->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1051,7 +1051,7 @@ namespace Sudoku_3_0
                this->button39->Size = System::Drawing::Size(62, 62);
                this->button39->TabIndex = 41;
                this->button39->UseVisualStyleBackColor = false;
-               this->button39->Click += gcnew System::EventHandler(this, &SudokuForm::button39_Click);
+               this->button39->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button39->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button39->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button39->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1068,7 +1068,7 @@ namespace Sudoku_3_0
                this->button40->Size = System::Drawing::Size(62, 62);
                this->button40->TabIndex = 42;
                this->button40->UseVisualStyleBackColor = false;
-               this->button40->Click += gcnew System::EventHandler(this, &SudokuForm::button40_Click);
+               this->button40->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button40->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button40->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button40->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1085,7 +1085,7 @@ namespace Sudoku_3_0
                this->button41->Size = System::Drawing::Size(62, 62);
                this->button41->TabIndex = 43;
                this->button41->UseVisualStyleBackColor = false;
-               this->button41->Click += gcnew System::EventHandler(this, &SudokuForm::button41_Click);
+               this->button41->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button41->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button41->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button41->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1102,7 +1102,7 @@ namespace Sudoku_3_0
                this->button42->Size = System::Drawing::Size(62, 62);
                this->button42->TabIndex = 44;
                this->button42->UseVisualStyleBackColor = false;
-               this->button42->Click += gcnew System::EventHandler(this, &SudokuForm::button42_Click);
+               this->button42->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button42->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button42->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button42->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1119,7 +1119,7 @@ namespace Sudoku_3_0
                this->button43->Size = System::Drawing::Size(62, 62);
                this->button43->TabIndex = 45;
                this->button43->UseVisualStyleBackColor = false;
-               this->button43->Click += gcnew System::EventHandler(this, &SudokuForm::button43_Click);
+               this->button43->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button43->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button43->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button43->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1136,7 +1136,7 @@ namespace Sudoku_3_0
                this->button44->Size = System::Drawing::Size(62, 62);
                this->button44->TabIndex = 46;
                this->button44->UseVisualStyleBackColor = false;
-               this->button44->Click += gcnew System::EventHandler(this, &SudokuForm::button44_Click);
+               this->button44->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button44->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button44->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button44->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1153,7 +1153,7 @@ namespace Sudoku_3_0
                this->button45->Size = System::Drawing::Size(62, 62);
                this->button45->TabIndex = 47;
                this->button45->UseVisualStyleBackColor = false;
-               this->button45->Click += gcnew System::EventHandler(this, &SudokuForm::button45_Click);
+               this->button45->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button45->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button45->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button45->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1170,7 +1170,7 @@ namespace Sudoku_3_0
                this->button46->Size = System::Drawing::Size(62, 62);
                this->button46->TabIndex = 48;
                this->button46->UseVisualStyleBackColor = false;
-               this->button46->Click += gcnew System::EventHandler(this, &SudokuForm::button46_Click);
+               this->button46->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button46->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button46->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button46->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1187,7 +1187,7 @@ namespace Sudoku_3_0
                this->button47->Size = System::Drawing::Size(62, 62);
                this->button47->TabIndex = 49;
                this->button47->UseVisualStyleBackColor = false;
-               this->button47->Click += gcnew System::EventHandler(this, &SudokuForm::button47_Click);
+               this->button47->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button47->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button47->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button47->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1204,7 +1204,7 @@ namespace Sudoku_3_0
                this->button48->Size = System::Drawing::Size(62, 62);
                this->button48->TabIndex = 50;
                this->button48->UseVisualStyleBackColor = false;
-               this->button48->Click += gcnew System::EventHandler(this, &SudokuForm::button48_Click);
+               this->button48->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button48->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button48->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button48->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1221,7 +1221,7 @@ namespace Sudoku_3_0
                this->button49->Size = System::Drawing::Size(62, 62);
                this->button49->TabIndex = 51;
                this->button49->UseVisualStyleBackColor = false;
-               this->button49->Click += gcnew System::EventHandler(this, &SudokuForm::button49_Click);
+               this->button49->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button49->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button49->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button49->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1238,7 +1238,7 @@ namespace Sudoku_3_0
                this->button50->Size = System::Drawing::Size(62, 62);
                this->button50->TabIndex = 52;
                this->button50->UseVisualStyleBackColor = false;
-               this->button50->Click += gcnew System::EventHandler(this, &SudokuForm::button50_Click);
+               this->button50->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button50->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button50->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button50->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1255,7 +1255,7 @@ namespace Sudoku_3_0
                this->button51->Size = System::Drawing::Size(62, 62);
                this->button51->TabIndex = 53;
                this->button51->UseVisualStyleBackColor = false;
-               this->button51->Click += gcnew System::EventHandler(this, &SudokuForm::button51_Click);
+               this->button51->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button51->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button51->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button51->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1272,7 +1272,7 @@ namespace Sudoku_3_0
                this->button52->Size = System::Drawing::Size(62, 62);
                this->button52->TabIndex = 54;
                this->button52->UseVisualStyleBackColor = false;
-               this->button52->Click += gcnew System::EventHandler(this, &SudokuForm::button52_Click);
+               this->button52->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button52->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button52->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button52->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1289,7 +1289,7 @@ namespace Sudoku_3_0
                this->button53->Size = System::Drawing::Size(62, 62);
                this->button53->TabIndex = 55;
                this->button53->UseVisualStyleBackColor = false;
-               this->button53->Click += gcnew System::EventHandler(this, &SudokuForm::button53_Click);
+               this->button53->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button53->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button53->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button53->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1306,7 +1306,7 @@ namespace Sudoku_3_0
                this->button54->Size = System::Drawing::Size(62, 62);
                this->button54->TabIndex = 56;
                this->button54->UseVisualStyleBackColor = false;
-               this->button54->Click += gcnew System::EventHandler(this, &SudokuForm::button54_Click);
+               this->button54->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button54->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button54->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button54->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1323,7 +1323,7 @@ namespace Sudoku_3_0
                this->button55->Size = System::Drawing::Size(62, 62);
                this->button55->TabIndex = 57;
                this->button55->UseVisualStyleBackColor = false;
-               this->button55->Click += gcnew System::EventHandler(this, &SudokuForm::button55_Click);
+               this->button55->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button55->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button55->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button55->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1340,7 +1340,7 @@ namespace Sudoku_3_0
                this->button56->Size = System::Drawing::Size(62, 62);
                this->button56->TabIndex = 58;
                this->button56->UseVisualStyleBackColor = false;
-               this->button56->Click += gcnew System::EventHandler(this, &SudokuForm::button56_Click);
+               this->button56->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button56->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button56->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button56->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1357,7 +1357,7 @@ namespace Sudoku_3_0
                this->button57->Size = System::Drawing::Size(62, 62);
                this->button57->TabIndex = 59;
                this->button57->UseVisualStyleBackColor = false;
-               this->button57->Click += gcnew System::EventHandler(this, &SudokuForm::button57_Click);
+               this->button57->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button57->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button57->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button57->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1374,7 +1374,7 @@ namespace Sudoku_3_0
                this->button58->Size = System::Drawing::Size(62, 62);
                this->button58->TabIndex = 60;
                this->button58->UseVisualStyleBackColor = false;
-               this->button58->Click += gcnew System::EventHandler(this, &SudokuForm::button58_Click);
+               this->button58->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button58->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button58->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button58->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1391,7 +1391,7 @@ namespace Sudoku_3_0
                this->button59->Size = System::Drawing::Size(62, 62);
                this->button59->TabIndex = 61;
                this->button59->UseVisualStyleBackColor = false;
-               this->button59->Click += gcnew System::EventHandler(this, &SudokuForm::button59_Click);
+               this->button59->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button59->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button59->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button59->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1408,7 +1408,7 @@ namespace Sudoku_3_0
                this->button60->Size = System::Drawing::Size(62, 62);
                this->button60->TabIndex = 62;
                this->button60->UseVisualStyleBackColor = false;
-               this->button60->Click += gcnew System::EventHandler(this, &SudokuForm::button60_Click);
+               this->button60->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button60->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button60->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button60->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1425,7 +1425,7 @@ namespace Sudoku_3_0
                this->button61->Size = System::Drawing::Size(62, 62);
                this->button61->TabIndex = 63;
                this->button61->UseVisualStyleBackColor = false;
-               this->button61->Click += gcnew System::EventHandler(this, &SudokuForm::button61_Click);
+               this->button61->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button61->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button61->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button61->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1442,7 +1442,7 @@ namespace Sudoku_3_0
                this->button62->Size = System::Drawing::Size(62, 62);
                this->button62->TabIndex = 64;
                this->button62->UseVisualStyleBackColor = false;
-               this->button62->Click += gcnew System::EventHandler(this, &SudokuForm::button62_Click);
+               this->button62->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button62->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button62->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button62->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1459,7 +1459,7 @@ namespace Sudoku_3_0
                this->button63->Size = System::Drawing::Size(62, 62);
                this->button63->TabIndex = 65;
                this->button63->UseVisualStyleBackColor = false;
-               this->button63->Click += gcnew System::EventHandler(this, &SudokuForm::button63_Click);
+               this->button63->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button63->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button63->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button63->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1476,7 +1476,7 @@ namespace Sudoku_3_0
                this->button64->Size = System::Drawing::Size(62, 62);
                this->button64->TabIndex = 66;
                this->button64->UseVisualStyleBackColor = false;
-               this->button64->Click += gcnew System::EventHandler(this, &SudokuForm::button64_Click);
+               this->button64->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button64->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button64->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button64->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1493,7 +1493,7 @@ namespace Sudoku_3_0
                this->button65->Size = System::Drawing::Size(62, 62);
                this->button65->TabIndex = 67;
                this->button65->UseVisualStyleBackColor = false;
-               this->button65->Click += gcnew System::EventHandler(this, &SudokuForm::button65_Click);
+               this->button65->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button65->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button65->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button65->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1510,7 +1510,7 @@ namespace Sudoku_3_0
                this->button66->Size = System::Drawing::Size(62, 62);
                this->button66->TabIndex = 68;
                this->button66->UseVisualStyleBackColor = false;
-               this->button66->Click += gcnew System::EventHandler(this, &SudokuForm::button66_Click);
+               this->button66->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button66->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button66->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button66->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1527,7 +1527,7 @@ namespace Sudoku_3_0
                this->button67->Size = System::Drawing::Size(62, 62);
                this->button67->TabIndex = 69;
                this->button67->UseVisualStyleBackColor = false;
-               this->button67->Click += gcnew System::EventHandler(this, &SudokuForm::button67_Click);
+               this->button67->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button67->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button67->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button67->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1544,7 +1544,7 @@ namespace Sudoku_3_0
                this->button68->Size = System::Drawing::Size(62, 62);
                this->button68->TabIndex = 70;
                this->button68->UseVisualStyleBackColor = false;
-               this->button68->Click += gcnew System::EventHandler(this, &SudokuForm::button68_Click);
+               this->button68->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button68->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button68->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button68->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1561,7 +1561,7 @@ namespace Sudoku_3_0
                this->button69->Size = System::Drawing::Size(62, 62);
                this->button69->TabIndex = 71;
                this->button69->UseVisualStyleBackColor = false;
-               this->button69->Click += gcnew System::EventHandler(this, &SudokuForm::button69_Click);
+               this->button69->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button69->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button69->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button69->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1578,7 +1578,7 @@ namespace Sudoku_3_0
                this->button70->Size = System::Drawing::Size(62, 62);
                this->button70->TabIndex = 72;
                this->button70->UseVisualStyleBackColor = false;
-               this->button70->Click += gcnew System::EventHandler(this, &SudokuForm::button70_Click);
+               this->button70->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button70->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button70->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button70->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1595,7 +1595,7 @@ namespace Sudoku_3_0
                this->button71->Size = System::Drawing::Size(62, 62);
                this->button71->TabIndex = 73;
                this->button71->UseVisualStyleBackColor = false;
-               this->button71->Click += gcnew System::EventHandler(this, &SudokuForm::button71_Click);
+               this->button71->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button71->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button71->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button71->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1612,7 +1612,7 @@ namespace Sudoku_3_0
                this->button72->Size = System::Drawing::Size(62, 62);
                this->button72->TabIndex = 74;
                this->button72->UseVisualStyleBackColor = false;
-               this->button72->Click += gcnew System::EventHandler(this, &SudokuForm::button72_Click);
+               this->button72->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button72->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button72->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button72->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1629,7 +1629,7 @@ namespace Sudoku_3_0
                this->button73->Size = System::Drawing::Size(62, 62);
                this->button73->TabIndex = 75;
                this->button73->UseVisualStyleBackColor = false;
-               this->button73->Click += gcnew System::EventHandler(this, &SudokuForm::button73_Click);
+               this->button73->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button73->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button73->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button73->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1646,7 +1646,7 @@ namespace Sudoku_3_0
                this->button74->Size = System::Drawing::Size(62, 62);
                this->button74->TabIndex = 76;
                this->button74->UseVisualStyleBackColor = false;
-               this->button74->Click += gcnew System::EventHandler(this, &SudokuForm::button74_Click);
+               this->button74->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button74->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button74->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button74->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1663,7 +1663,7 @@ namespace Sudoku_3_0
                this->button75->Size = System::Drawing::Size(62, 62);
                this->button75->TabIndex = 77;
                this->button75->UseVisualStyleBackColor = false;
-               this->button75->Click += gcnew System::EventHandler(this, &SudokuForm::button75_Click);
+               this->button75->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button75->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button75->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button75->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1680,7 +1680,7 @@ namespace Sudoku_3_0
                this->button76->Size = System::Drawing::Size(62, 62);
                this->button76->TabIndex = 78;
                this->button76->UseVisualStyleBackColor = false;
-               this->button76->Click += gcnew System::EventHandler(this, &SudokuForm::button76_Click);
+               this->button76->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button76->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button76->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button76->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1697,7 +1697,7 @@ namespace Sudoku_3_0
                this->button77->Size = System::Drawing::Size(62, 62);
                this->button77->TabIndex = 79;
                this->button77->UseVisualStyleBackColor = false;
-               this->button77->Click += gcnew System::EventHandler(this, &SudokuForm::button77_Click);
+               this->button77->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button77->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button77->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button77->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1714,7 +1714,7 @@ namespace Sudoku_3_0
                this->button78->Size = System::Drawing::Size(62, 62);
                this->button78->TabIndex = 80;
                this->button78->UseVisualStyleBackColor = false;
-               this->button78->Click += gcnew System::EventHandler(this, &SudokuForm::button78_Click);
+               this->button78->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button78->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button78->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button78->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1731,7 +1731,7 @@ namespace Sudoku_3_0
                this->button79->Size = System::Drawing::Size(62, 62);
                this->button79->TabIndex = 81;
                this->button79->UseVisualStyleBackColor = false;
-               this->button79->Click += gcnew System::EventHandler(this, &SudokuForm::button79_Click);
+               this->button79->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button79->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button79->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button79->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1748,7 +1748,7 @@ namespace Sudoku_3_0
                this->button80->Size = System::Drawing::Size(62, 62);
                this->button80->TabIndex = 82;
                this->button80->UseVisualStyleBackColor = false;
-               this->button80->Click += gcnew System::EventHandler(this, &SudokuForm::button80_Click);
+               this->button80->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button80->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button80->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button80->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -1765,7 +1765,7 @@ namespace Sudoku_3_0
                this->button81->Size = System::Drawing::Size(62, 62);
                this->button81->TabIndex = 83;
                this->button81->UseVisualStyleBackColor = false;
-               this->button81->Click += gcnew System::EventHandler(this, &SudokuForm::button81_Click);
+               this->button81->Click += gcnew System::EventHandler(this, &SudokuForm::cell_Click);
                this->button81->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &SudokuForm::buttonKeyDown);
                this->button81->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &SudokuForm::buttonKeyPress);
                this->button81->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &SudokuForm::buttonPreviewKeyDown);
@@ -2501,7 +2501,7 @@ namespace Sudoku_3_0
         this->numbersForm->setChoiceDelegate(gcnew choiceAction(this, &SudokuForm::choiceMade));
         // Show then immediately hide the form once at startup. This runs its full first
         // layout/show pass so AutoScaleMode applies DPI scaling and Width/Height reflect the
-        // final on-screen size. cellButtonClicked relies on those sizes to center the form
+        // final on-screen size. cell_Click relies on those sizes to center the form
         // over a cell, so without this the very first popup would be mispositioned.
         // (CreateControl() alone only makes the handle and is not enough.)
         this->numbersForm->Visible = true;
@@ -2954,16 +2954,17 @@ namespace Sudoku_3_0
         }
     }
 
-           // Perform action when a cell has been chosen
-    private: void cellButtonClicked(
-        const unsigned int number,
-        System::Object^ sender,
-        System::EventArgs^ e)
+           // Handles a click on any of the 81 cell buttons. Every cell is wired to this one
+           // handler in initialize(); the clicked cell is identified from the sender.
+    private: void cell_Click(System::Object^ sender, System::EventArgs^ e)
     {
+        int index;
+        if (!this->cellIndex->TryGetValue(safe_cast<System::Windows::Forms::Button^>(sender), index)) return;
+
         this->closeHelperForms();
 
         // The button that has been clicked
-        System::Windows::Forms::Button^ currentButton = this->cells[number - 1];
+        System::Windows::Forms::Button^ currentButton = this->cells[index];
 
         // In pencil mode, mouse clicks are handled by cell_MouseClick (zone hit-test);
         // a plain button Click in pencil mode means the user clicked outside a digit zone
@@ -2975,19 +2976,19 @@ namespace Sudoku_3_0
         if (this->session->hintMode)
         {
             // Push undo entry before applying hint
-            this->undoManager->push(number - 1, currentButton->Text, this->session->pencilMarks[number - 1]);
+            this->undoManager->push(index, currentButton->Text, this->session->pencilMarks[index]);
 
             if (currentButton->Text->Length == 0)
             {
                 ++(this->session->numberOfFilledCells);
             }
 
-            currentButton->Text = ((int)this->session->puzzle->solution[number - 1]).ToString();
+            currentButton->Text = ((int)this->session->puzzle->solution[index]).ToString();
             currentButton->BackColor = defaultBackColor;
             currentButton->Enabled = false;
             currentButton->ForeColor = hintColor;
             ++(this->session->numberOfHints);
-            this->conflicts->highlightWithPeers(number - 1);
+            this->conflicts->highlightWithPeers(index);
 
             this->checkGameState();
         }
@@ -3011,7 +3012,8 @@ namespace Sudoku_3_0
             this->numbersForm->Left = left;
             this->numbersForm->Top = top;
             this->numbersForm->setPencilMode(this->session->pencilMode && currentButton->Enabled);
-            this->numbersForm->setCellNumber(number);
+            // The numbers form uses 1-based cell numbers and echoes it back via choiceMade.
+            this->numbersForm->setCellNumber(index + 1);
             this->numbersForm->Visible = true;
             this->numbersForm->Activate();
         }
@@ -3176,8 +3178,8 @@ namespace Sudoku_3_0
     private: void cell_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e)
     {
         System::Windows::Forms::Button^ cell = safe_cast<System::Windows::Forms::Button^>(sender);
-        int idx = this->cellIndex[cell];
-        if (idx < 0 || cell->Text->Length > 0) return;
+        int idx;
+        if (!this->cellIndex->TryGetValue(cell, idx) || cell->Text->Length > 0) return;
 
         bool isHovered = this->session->pencilMode && cell->Enabled && idx == this->session->hoveredCellIndex;
         if (this->session->pencilMarks[idx] == 0 && !isHovered) return;
@@ -3262,8 +3264,8 @@ namespace Sudoku_3_0
 
     private: void buttonKeyDown(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e)
     {
-        int index = this->cellIndex[safe_cast<Button^>(sender)];
-        if (index < 0) return;
+        int index;
+        if (!this->cellIndex->TryGetValue(safe_cast<Button^>(sender), index)) return;
 
         switch (e->KeyCode)
         {
@@ -3315,8 +3317,8 @@ namespace Sudoku_3_0
            // Pencil-mode hover: track which cell is under the mouse for ghost-mark rendering
     private: void cell_MouseEnter(System::Object^ sender, System::EventArgs^ e)
     {
-        int idx = this->cellIndex[safe_cast<Button^>(sender)];
-        if (idx < 0) return;
+        int idx;
+        if (!this->cellIndex->TryGetValue(safe_cast<Button^>(sender), idx)) return;
         this->session->hoveredCellIndex = idx;
         if (this->session->pencilMode && this->cells[idx]->Enabled && this->cells[idx]->Text->Length == 0)
             this->cells[idx]->Invalidate();
@@ -3324,8 +3326,8 @@ namespace Sudoku_3_0
 
     private: void cell_MouseLeave(System::Object^ sender, System::EventArgs^ e)
     {
-        int idx = this->cellIndex[safe_cast<Button^>(sender)];
-        if (idx < 0) return;
+        int idx;
+        if (!this->cellIndex->TryGetValue(safe_cast<Button^>(sender), idx)) return;
         if (this->session->hoveredCellIndex == idx)
             this->session->hoveredCellIndex = -1;
         if (this->session->pencilMode && this->cells[idx]->Enabled && this->cells[idx]->Text->Length == 0)
@@ -3338,8 +3340,8 @@ namespace Sudoku_3_0
         if (!this->session->pencilMode || this->session->hintMode) return;
 
         Button^ cell = safe_cast<Button^>(sender);
-        int idx = this->cellIndex[cell];
-        if (idx < 0 || !cell->Enabled || cell->Text->Length > 0) return;
+        int idx;
+        if (!this->cellIndex->TryGetValue(cell, idx) || !cell->Enabled || cell->Text->Length > 0) return;
 
         float w = (float)cell->ClientSize.Width;
         float h = (float)cell->ClientSize.Height;
@@ -3906,411 +3908,6 @@ namespace Sudoku_3_0
             Strings::Get(StringId::DialogTitleKeyboard, this->currentLanguage),
             MessageBoxButtons::OK,
             MessageBoxIcon::None);
-    }
-
-    private: void button1_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(1, sender, e);
-    }
-
-    private: void button2_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(2, sender, e);
-    }
-
-    private: void button3_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(3, sender, e);
-    }
-
-    private: void button4_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(4, sender, e);
-    }
-
-    private: void button5_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(5, sender, e);
-    }
-
-    private: void button6_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(6, sender, e);
-    }
-
-    private: void button7_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(7, sender, e);
-    }
-
-    private: void button8_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(8, sender, e);
-    }
-
-    private: void button9_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(9, sender, e);
-    }
-
-    private: void button10_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(10, sender, e);
-    }
-
-    private: void button11_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(11, sender, e);
-    }
-
-    private: void button12_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(12, sender, e);
-    }
-
-    private: void button13_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(13, sender, e);
-    }
-
-    private: void button14_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(14, sender, e);
-    }
-
-    private: void button15_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(15, sender, e);
-    }
-
-    private: void button16_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(16, sender, e);
-    }
-
-    private: void button17_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(17, sender, e);
-    }
-
-    private: void button18_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(18, sender, e);
-    }
-
-    private: void button19_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(19, sender, e);
-    }
-
-    private: void button20_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(20, sender, e);
-    }
-
-    private: void button21_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(21, sender, e);
-    }
-
-    private: void button22_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(22, sender, e);
-    }
-
-    private: void button23_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(23, sender, e);
-    }
-
-    private: void button24_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(24, sender, e);
-    }
-
-    private: void button25_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(25, sender, e);
-    }
-
-    private: void button26_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(26, sender, e);
-    }
-
-    private: void button27_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(27, sender, e);
-    }
-
-    private: void button28_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(28, sender, e);
-    }
-
-    private: void button29_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(29, sender, e);
-    }
-
-    private: void button30_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(30, sender, e);
-    }
-
-    private: void button31_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(31, sender, e);
-    }
-
-    private: void button32_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(32, sender, e);
-    }
-
-    private: void button33_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(33, sender, e);
-    }
-
-    private: void button34_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(34, sender, e);
-    }
-
-    private: void button35_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(35, sender, e);
-    }
-
-    private: void button36_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(36, sender, e);
-    }
-
-    private: void button37_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(37, sender, e);
-    }
-
-    private: void button38_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(38, sender, e);
-    }
-
-    private: void button39_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(39, sender, e);
-    }
-
-    private: void button40_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(40, sender, e);
-    }
-
-    private: void button41_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(41, sender, e);
-    }
-
-    private: void button42_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(42, sender, e);
-    }
-
-    private: void button43_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(43, sender, e);
-    }
-
-    private: void button44_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(44, sender, e);
-    }
-
-    private: void button45_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(45, sender, e);
-    }
-
-    private: void button46_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(46, sender, e);
-    }
-
-    private: void button47_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(47, sender, e);
-    }
-
-    private: void button48_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(48, sender, e);
-    }
-
-    private: void button49_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(49, sender, e);
-    }
-
-    private: void button50_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(50, sender, e);
-    }
-
-    private: void button51_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(51, sender, e);
-    }
-
-    private: void button52_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(52, sender, e);
-    }
-
-    private: void button53_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(53, sender, e);
-    }
-
-    private: void button54_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(54, sender, e);
-    }
-
-    private: void button55_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(55, sender, e);
-    }
-
-    private: void button56_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(56, sender, e);
-    }
-
-    private: void button57_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(57, sender, e);
-    }
-
-    private: void button58_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(58, sender, e);
-    }
-
-    private: void button59_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(59, sender, e);
-    }
-
-    private: void button60_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(60, sender, e);
-    }
-
-    private: void button61_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(61, sender, e);
-    }
-
-    private: void button62_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(62, sender, e);
-    }
-
-    private: void button63_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(63, sender, e);
-    }
-
-    private: void button64_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(64, sender, e);
-    }
-
-    private: void button65_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(65, sender, e);
-    }
-
-    private: void button66_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(66, sender, e);
-    }
-
-    private: void button67_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(67, sender, e);
-    }
-
-    private: void button68_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(68, sender, e);
-    }
-
-    private: void button69_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(69, sender, e);
-    }
-
-    private: void button70_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(70, sender, e);
-    }
-
-    private: void button71_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(71, sender, e);
-    }
-
-    private: void button72_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(72, sender, e);
-    }
-
-    private: void button73_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(73, sender, e);
-    }
-
-    private: void button74_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(74, sender, e);
-    }
-
-    private: void button75_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(75, sender, e);
-    }
-
-    private: void button76_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(76, sender, e);
-    }
-
-    private: void button77_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(77, sender, e);
-    }
-
-    private: void button78_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(78, sender, e);
-    }
-
-    private: void button79_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(79, sender, e);
-    }
-
-    private: void button80_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(80, sender, e);
-    }
-
-    private: void button81_Click(System::Object^ sender, System::EventArgs^ e)
-    {
-        this->cellButtonClicked(81, sender, e);
     }
 
     private: void difficultyComboBox_MouseDown(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
