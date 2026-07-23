@@ -2588,8 +2588,12 @@ namespace Sudoku_3_0
             cell->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &SudokuForm::cell_MouseClick);
         }
 
-        // Start a new game at the restored preferred difficulty
-        this->newGame(this->difficultyLevelFromIndex(this->selectedDifficulty));
+        // Resume the session auto-saved when the app last closed, or start a new game
+        // at the restored preferred difficulty
+        if (!this->tryResumeAutoSave())
+        {
+            this->newGame(this->difficultyLevelFromIndex(this->selectedDifficulty));
+        }
     }
 
            // Apply the given language to all UI controls and update the language menu checkmarks.
@@ -4095,7 +4099,9 @@ namespace Sudoku_3_0
            // Single choke point for closing the application, no matter how it was initiated.
     protected: virtual void OnFormClosing(System::Windows::Forms::FormClosingEventArgs^ e) override
     {
-        if (!this->promptSaveIfNeeded())
+        // Auto-save the session for a silent resume on the next launch; only if that
+        // fails do we fall back to asking the user to save manually.
+        if (!this->tryAutoSave() && !this->promptSaveIfNeeded())
         {
             e->Cancel = true;
             return;
@@ -4197,7 +4203,9 @@ namespace Sudoku_3_0
         }
     }
 
-    private: void saveGameDialog_FileOk(System::Object^ sender, System::ComponentModel::CancelEventArgs^ e)
+           // Serializes the current game state (any state is saveable) to the given file.
+           // Returns true on success, false on any failure — reporting is up to the caller.
+    private: bool saveGameToFile(System::String^ path)
     {
         array<unsigned char>^ values = gcnew array<unsigned char>(this->numberOfCells);
         array<unsigned char>^ states = gcnew array<unsigned char>(this->numberOfCells);
@@ -4241,7 +4249,7 @@ namespace Sudoku_3_0
         try
         {
             SaveGameStore::Save(
-                this->saveGameDialog->FileName,
+                path,
                 this->engine->sizeOfTheBlock(),
                 this->session->difficulty,
                 this->session->numberOfHints,
@@ -4256,8 +4264,17 @@ namespace Sudoku_3_0
                 values,
                 states,
                 this->session->pencilMarks);
+            return true;
         }
         catch (System::Exception^)
+        {
+            return false;
+        }
+    }
+
+    private: void saveGameDialog_FileOk(System::Object^ sender, System::ComponentModel::CancelEventArgs^ e)
+    {
+        if (!this->saveGameToFile(this->saveGameDialog->FileName))
         {
             this->showNotification(Strings::Get(StringId::NotifyFileSaveError, this->currentLanguage));
         }
@@ -4282,6 +4299,21 @@ namespace Sudoku_3_0
             return;
         }
 
+        try
+        {
+            this->applyLoadedGame(save);
+        }
+        catch (System::Exception^)
+        {
+            this->showNotification(Strings::Get(StringId::NotifyFileLoadError, this->currentLanguage));
+        }
+    }
+
+           // Applies a validated SavedGame to the session, board, and controls. Throws on any
+           // failure; callers decide whether that is reported (explicit Open) or silently
+           // recovered from (auto-save resume).
+    private: void applyLoadedGame(SavedGame^ save)
+    {
         // Apply session state
         this->clearBoard(false);
         this->engine->clear();
@@ -4299,78 +4331,120 @@ namespace Sudoku_3_0
             this->session->mode == GameMode::Game,
             this->session->mode == GameMode::Solver && !save->gameFinished);
 
+        // Restore the immutable puzzle snapshot if the save has one. A Solver session saved
+        // mid-entry has no solution yet, so the puzzle stays nullptr until the user solves it.
+        if (save->clues->Length > 0)
+        {
+            array<unsigned char>^ clues = gcnew array<unsigned char>(this->numberOfCells);
+            array<unsigned char>^ solution = gcnew array<unsigned char>(this->numberOfCells);
+            for (unsigned int i = 0; i < this->numberOfCells; ++i)
+            {
+                clues[i] = (unsigned char)(save->clues[i] - L'0');
+                solution[i] = (unsigned char)(save->solution[i] - L'0');
+            }
+            this->session->puzzle = gcnew Puzzle(clues, solution);
+        }
+        else
+        {
+            this->session->puzzle = nullptr;
+        }
+
         // Apply each cell
+        for (unsigned int index = 0; index < this->numberOfCells; ++index)
+        {
+            wchar_t v = save->value[index];
+            wchar_t s = save->state[index];
+
+            // Cell text
+            this->cells[index]->Text = (v == L'0') ? "" : v.ToString();
+
+            // Enabled state
+            this->cells[index]->Enabled = (s == L'1' || s == L'2');
+
+            // Fore color
+            if (s == L'3') this->cells[index]->ForeColor = correctColor;
+            else if (s == L'4') this->cells[index]->ForeColor = hintColor;
+            else if (s == L'5') this->cells[index]->ForeColor = giveUpColor;
+            else if (s == L'6') this->cells[index]->ForeColor = solveColor;
+
+            // Count filled cells
+            if (s != L'1')
+                ++this->session->numberOfFilledCells;
+        }
+
+        // Restore pencil marks
+        this->undoManager->clear();
+        if (save->pencilMarks != nullptr && save->pencilMarks->Length > 0)
+        {
+            array<System::String^>^ parts = save->pencilMarks->Split(' ');
+            for (unsigned int i = 0; i < this->numberOfCells && i < (unsigned int)parts->Length; ++i)
+            {
+                int mark = 0;
+                if (int::TryParse(parts[i], mark))
+                    this->session->pencilMarks[i] = mark;
+            }
+            for each (Button ^ cell in this->cells)
+                cell->Invalidate();
+        }
+
+        // Clipboard controls follow from the restored session state: a solved custom puzzle
+        // (puzzle snapshot present) offers Copy Solution, an in-progress one offers Paste.
+        this->updateClipboardControls();
+
+        // Restore the play time; it only keeps ticking while the game is still playable
+        this->gameTimer->restore(System::TimeSpan::FromSeconds((double)save->elapsedSeconds));
+        if (!save->gameFinished)
+            this->gameTimer->resume();
+
+        this->conflicts->highlightAll();
+    }
+
+           // Full path of the auto-save file, in the user's local (non-roaming) app data folder:
+           // machine-local app state the user does not manage by hand belongs there, not in
+           // Documents (user files) or next to the executable (write-protected).
+    private: System::String^ autoSavePath()
+    {
+        return System::IO::Path::Combine(
+            System::Environment::GetFolderPath(System::Environment::SpecialFolder::LocalApplicationData),
+            "Sudoku 3", "autosave.sdk3");
+    }
+
+           // Attempts to auto-save the current session on exit. Returns true on success;
+           // failures are silent — the caller falls back to the interactive save prompt.
+    private: bool tryAutoSave()
+    {
         try
         {
-            // Restore the immutable puzzle snapshot if the save has one. A Solver session saved
-            // mid-entry has no solution yet, so the puzzle stays nullptr until the user solves it.
-            if (save->clues->Length > 0)
-            {
-                array<unsigned char>^ clues = gcnew array<unsigned char>(this->numberOfCells);
-                array<unsigned char>^ solution = gcnew array<unsigned char>(this->numberOfCells);
-                for (unsigned int i = 0; i < this->numberOfCells; ++i)
-                {
-                    clues[i] = (unsigned char)(save->clues[i] - L'0');
-                    solution[i] = (unsigned char)(save->solution[i] - L'0');
-                }
-                this->session->puzzle = gcnew Puzzle(clues, solution);
-            }
-            else
-            {
-                this->session->puzzle = nullptr;
-            }
-
-            for (unsigned int index = 0; index < this->numberOfCells; ++index)
-            {
-                wchar_t v = save->value[index];
-                wchar_t s = save->state[index];
-
-                // Cell text
-                this->cells[index]->Text = (v == L'0') ? "" : v.ToString();
-
-                // Enabled state
-                this->cells[index]->Enabled = (s == L'1' || s == L'2');
-
-                // Fore color
-                if (s == L'3') this->cells[index]->ForeColor = correctColor;
-                else if (s == L'4') this->cells[index]->ForeColor = hintColor;
-                else if (s == L'5') this->cells[index]->ForeColor = giveUpColor;
-                else if (s == L'6') this->cells[index]->ForeColor = solveColor;
-
-                // Count filled cells
-                if (s != L'1')
-                    ++this->session->numberOfFilledCells;
-            }
-
-            // Restore pencil marks
-            this->undoManager->clear();
-            if (save->pencilMarks != nullptr && save->pencilMarks->Length > 0)
-            {
-                array<System::String^>^ parts = save->pencilMarks->Split(' ');
-                for (unsigned int i = 0; i < this->numberOfCells && i < (unsigned int)parts->Length; ++i)
-                {
-                    int mark = 0;
-                    if (int::TryParse(parts[i], mark))
-                        this->session->pencilMarks[i] = mark;
-                }
-                for each (Button ^ cell in this->cells)
-                    cell->Invalidate();
-            }
-
-            // Clipboard controls follow from the restored session state: a solved custom puzzle
-            // (puzzle snapshot present) offers Copy Solution, an in-progress one offers Paste.
-            this->updateClipboardControls();
-
-            // Restore the play time; it only keeps ticking while the game is still playable
-            this->gameTimer->restore(System::TimeSpan::FromSeconds((double)save->elapsedSeconds));
-            if (!save->gameFinished)
-                this->gameTimer->resume();
-
-            this->conflicts->highlightAll();
+            System::String^ path = this->autoSavePath();
+            System::IO::Directory::CreateDirectory(System::IO::Path::GetDirectoryName(path));
+            return this->saveGameToFile(path);
         }
         catch (System::Exception^)
         {
-            this->showNotification(Strings::Get(StringId::NotifyFileLoadError, this->currentLanguage));
+            return false;
+        }
+    }
+
+           // Attempts to resume the session auto-saved when the app last closed.
+           // Returns true on success. Failures are silent: no auto-save simply means starting
+           // fresh, and an unreadable one is deleted so it cannot fail again next launch.
+    private: bool tryResumeAutoSave()
+    {
+        System::String^ path = this->autoSavePath();
+        try
+        {
+            if (!System::IO::File::Exists(path))
+                return false;
+
+            SavedGame^ save = SaveGameStore::Load(path, this->numberOfCells);
+            this->applyLoadedGame(save);
+            return true;
+        }
+        catch (System::Exception^)
+        {
+            try { System::IO::File::Delete(path); }
+            catch (System::Exception^) { /* leave it; next launch will try again */ }
+            return false;
         }
     }
     };
