@@ -446,8 +446,8 @@ namespace Sudoku_3_0
                 }
             case StringId::DialogAboutText:
                 switch (lang) {
-                case Language::Ukrainian: return L"Судоку 3.0\n\nУсі права захищені";
-                default:                 return L"Sudoku 3.0\n\nAll rights reserved";
+                case Language::Ukrainian: return L"Судоку 3.0\n\n© 2013–2026 Фітель Данило\nУсі права захищені";
+                default:                 return L"Sudoku 3.0\n\n© 2013–2026 Danylo Fitel\nAll rights reserved";
                 }
             case StringId::DialogBuildLabel:
                 switch (lang) {
