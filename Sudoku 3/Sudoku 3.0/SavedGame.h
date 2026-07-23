@@ -32,6 +32,9 @@ public:
     // The game has been finished
     bool gameFinished;
 
+    // Total time spent on the puzzle, in whole seconds (cumulative across restarts)
+    unsigned int elapsedSeconds;
+
     // Values of all cells
     System::String^ value;
 

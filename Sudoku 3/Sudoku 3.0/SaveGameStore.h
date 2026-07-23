@@ -18,6 +18,7 @@ namespace Sudoku_3_0
     //   Sudoku3Save=<format version>
     //   sizeFactor, difficulty, numberOfHints, numberOfFixes, hasGivenUp,
     //   hasUsedFix, gameMode, gameFinished  (all integers; booleans as 0/1)
+    //   elapsedSeconds                       (total play time in whole seconds)
     //   clues, solution, value, state       (digit strings, one char per cell)
     //   pencilMarks                          (space-separated bitmasks, one per cell)
     // The order of lines is not significant; unknown keys are ignored.
@@ -45,6 +46,7 @@ namespace Sudoku_3_0
             bool hasUsedFix,
             GameMode mode,
             bool gameFinished,
+            unsigned int elapsedSeconds,
             array<unsigned char>^ clues,
             array<unsigned char>^ solution,
             array<unsigned char>^ values,
@@ -60,6 +62,7 @@ namespace Sudoku_3_0
             save->hasUsedFix = hasUsedFix;
             save->gameMode = static_cast<unsigned int>(mode);
             save->gameFinished = gameFinished;
+            save->elapsedSeconds = elapsedSeconds;
 
             // Encode clues and solution
             System::Text::StringBuilder^ cluesSb = gcnew System::Text::StringBuilder(clues->Length);
@@ -106,6 +109,7 @@ namespace Sudoku_3_0
                 writer->WriteLine("hasUsedFix=" + (save->hasUsedFix ? 1 : 0).ToString());
                 writer->WriteLine("gameMode=" + save->gameMode.ToString());
                 writer->WriteLine("gameFinished=" + (save->gameFinished ? 1 : 0).ToString());
+                writer->WriteLine("elapsedSeconds=" + save->elapsedSeconds.ToString());
                 writer->WriteLine("clues=" + save->clues);
                 writer->WriteLine("solution=" + save->solution);
                 writer->WriteLine("value=" + save->value);
@@ -162,6 +166,7 @@ namespace Sudoku_3_0
             save->hasUsedFix = RequireUInt(fields, "hasUsedFix") != 0;
             save->gameMode = RequireUInt(fields, "gameMode");
             save->gameFinished = RequireUInt(fields, "gameFinished") != 0;
+            save->elapsedSeconds = RequireUInt(fields, "elapsedSeconds");
             save->clues = RequireStr(fields, "clues");
             save->solution = RequireStr(fields, "solution");
             save->value = RequireStr(fields, "value");

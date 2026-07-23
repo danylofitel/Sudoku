@@ -116,6 +116,7 @@ namespace Sudoku_3_0
         WinWithAssists,
         WinAfterGiveUp,
         WinDifficulty,
+        WinTime,
         WinStreak,
         WinAssistHint,
         WinAssistHints,
@@ -603,6 +604,11 @@ namespace Sudoku_3_0
                 switch (lang) {
                 case Language::Ukrainian: return L"\n\nСкладність: ";
                 default:                 return L"\n\nDifficulty: ";
+                }
+            case StringId::WinTime:
+                switch (lang) {
+                case Language::Ukrainian: return L"\nЧас: ";
+                default:                 return L"\nTime: ";
                 }
             case StringId::WinStreak:
                 switch (lang) {

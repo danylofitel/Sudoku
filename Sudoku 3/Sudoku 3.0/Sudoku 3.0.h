@@ -6,6 +6,7 @@
 #include "ConflictDetector.h"
 #include "GameMode.h"
 #include "GameSession.h"
+#include "GameTimer.h"
 #include "Numbers.h"
 #include "PlayerStats.h"
 #include "SavedGame.h"
@@ -242,6 +243,9 @@ namespace Sudoku_3_0
 
            // Conflict detector
     private: ConflictDetector^ conflicts;
+
+           // Time spent on the current puzzle (an on-screen display can later poll Elapsed)
+    private: GameTimer^ gameTimer;
 
            // Active UI language
     private: Language currentLanguage;
@@ -2534,6 +2538,7 @@ namespace Sudoku_3_0
         this->playerStats = gcnew PlayerStats();
         this->undoManager = gcnew UndoManager(this->undoButton, this->undoToolStripMenuItem);
         this->conflicts = gcnew ConflictDetector(this->cells, this->sizeFactor);
+        this->gameTimer = gcnew GameTimer();
 
         // Restore the win streak earned in previous runs
         this->playerStats->winStreak = Settings::LoadWinStreak();
@@ -2893,6 +2898,7 @@ namespace Sudoku_3_0
         this->resetBoardToClues();
         this->conflicts->highlightAll();
         this->undoManager->clear();
+        this->gameTimer->restart();
         this->setGameControls(true, true, false);
         this->updateClipboardControls();
 
@@ -2941,6 +2947,9 @@ namespace Sudoku_3_0
         this->clearActiveModes();
         this->setGameControls(false, true, false);
         this->undoManager->clear();
+
+        // Freeze the play time before the win message reads it
+        this->gameTimer->stop();
 
         this->setWinStreak(this->session->hasGivenUp ? 0 : this->playerStats->winStreak + 1);
     }
@@ -2996,10 +3005,22 @@ namespace Sudoku_3_0
         }
 
         msg += Strings::Get(StringId::WinDifficulty, this->currentLanguage) + this->difficultyName(this->session->difficulty);
+        msg += Strings::Get(StringId::WinTime, this->currentLanguage) + this->formatElapsed(this->gameTimer->Elapsed);
         if (this->playerStats->winStreak > 1)
             msg += Strings::Get(StringId::WinStreak, this->currentLanguage) + this->playerStats->winStreak;
 
         return msg;
+    }
+
+           // Formats an elapsed play time as m:ss, or h:mm:ss once it reaches an hour
+    private: System::String^ formatElapsed(System::TimeSpan elapsed)
+    {
+        if (elapsed.TotalHours >= 1.0)
+        {
+            return System::String::Format("{0}:{1:00}:{2:00}",
+                (int)elapsed.TotalHours, elapsed.Minutes, elapsed.Seconds);
+        }
+        return System::String::Format("{0}:{1:00}", elapsed.Minutes, elapsed.Seconds);
     }
 
            // Checks if the board is fully and correctly filled; triggers win flow if so.
@@ -3493,6 +3514,9 @@ namespace Sudoku_3_0
         this->clearActiveModes();
 
         this->undoManager->clear();
+        // Timing is cumulative across restarts of the same puzzle; this also resumes
+        // the timer when restarting after a win or a give-up froze it
+        this->gameTimer->resume();
         this->session->numberOfFilledCells = 0;
 
         // Restore the board to its initial clue state using the puzzle snapshot.
@@ -3625,6 +3649,7 @@ namespace Sudoku_3_0
 
         this->setGameControls(false, true, false);
         this->undoManager->clear();
+        this->gameTimer->stop();
         this->conflicts->highlightAll();
     }
 
@@ -3709,6 +3734,7 @@ namespace Sudoku_3_0
         this->engine->clear();
         this->clearBoard(true);
         this->undoManager->clear();
+        this->gameTimer->restart();
         this->session->puzzle = nullptr;  // no valid puzzle until Solve succeeds
 
         for (int i = 0; i < (int)(this->numberOfCells); ++i)
@@ -3764,6 +3790,7 @@ namespace Sudoku_3_0
         this->session->mode = GameMode::Solver;
         this->session->puzzle = nullptr;  // no valid puzzle until Solve succeeds
         this->undoManager->clear();
+        this->gameTimer->restart();
         this->setGameControls(false, false, true);
         this->updateClipboardControls();
     }
@@ -3810,6 +3837,7 @@ namespace Sudoku_3_0
             // The puzzle now has a solution, so the clipboard offers Copy Solution instead of Paste.
             this->updateClipboardControls();
             this->undoManager->clear();
+            this->gameTimer->stop();
         }
         else if (engine->currentState() == SudokuGameEngine::SudokuEngineState::HasMultipleSolutions)
         {
@@ -3832,10 +3860,12 @@ namespace Sudoku_3_0
         this->closeHelperForms();
     }
 
-           // Shows the save dialog with a fresh date-based file name suggestion
+           // Shows the save dialog with a fresh date-and-time-based file name suggestion.
+           // Local time on purpose (file names should match the user's clock), and with '-'
+           // in the time part since ':' is not allowed in Windows file names.
     private: void showSaveGameDialog()
     {
-        this->saveGameDialog->FileName = "Sudoku " + System::DateTime::Now.ToString("yyyy-MM-dd");
+        this->saveGameDialog->FileName = "Sudoku " + System::DateTime::Now.ToString("yyyy-MM-dd HH-mm");
         this->saveGameDialog->ShowDialog();
     }
 
@@ -4220,6 +4250,7 @@ namespace Sudoku_3_0
                 this->session->hasUsedFix,
                 this->session->mode,
                 gameFinished,
+                (unsigned int)this->gameTimer->Elapsed.TotalSeconds,
                 clues,
                 solution,
                 values,
@@ -4329,6 +4360,11 @@ namespace Sudoku_3_0
             // Clipboard controls follow from the restored session state: a solved custom puzzle
             // (puzzle snapshot present) offers Copy Solution, an in-progress one offers Paste.
             this->updateClipboardControls();
+
+            // Restore the play time; it only keeps ticking while the game is still playable
+            this->gameTimer->restore(System::TimeSpan::FromSeconds((double)save->elapsedSeconds));
+            if (!save->gameFinished)
+                this->gameTimer->resume();
 
             this->conflicts->highlightAll();
         }
