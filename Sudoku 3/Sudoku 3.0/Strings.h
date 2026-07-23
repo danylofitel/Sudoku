@@ -128,6 +128,22 @@ namespace Sudoku_3_0
         MenuCopyPuzzle,
         MenuCopySolution,
         NotifyInvalidPuzzleString,
+
+        // ---- Feature descriptions ----
+        // One "Name - what it does" line per action; used as button tooltips and
+        // composed into DialogFeaturesText so the two can never drift apart.
+        FeatureNewGame,
+        FeatureRestart,
+        FeaturePencil,
+        FeatureHint,
+        FeatureFix,
+        FeatureGiveUp,
+        FeatureUndo,
+        FeatureEnterPuzzle,
+        FeatureSolve,
+        FeatureCopyPuzzle,
+        FeaturePastePuzzle,
+        FeatureCopySolution,
     };
 
     ref class Strings abstract sealed
@@ -455,34 +471,19 @@ namespace Sudoku_3_0
                         L"A sudoku puzzle has only one solution.";
                 }
             case StringId::DialogFeaturesText:
-                switch (lang) {
-                case Language::Ukrainian:
-                    return L"Нова гра — розпочати нову гру\n"
-                        L"Спочатку — перезапустити поточну гру\n"
-                        L"Олівець — увімкнути або вимкнути режим олівця для позначок\n"
-                        L"Підказка — увімкнути або вимкнути режим підказок для відкриття прихованих клітинок\n"
-                        L"Виправити — видалити всі неправильні здогади\n"
-                        L"Здатися — показати розв'язок поточної задачі\n"
-                        L"Відмінити — скасувати останній хід або групу ходів\n"
-                        L"Ввести задачу — ввести власну задачу судоку\n"
-                        L"Розв'язати задачу — розв'язати власну задачу судоку\n"
-                        L"Скопіювати задачу — скопіювати поточну задачу в буфер обміну\n"
-                        L"Вставити задачу — завантажити задачу з буфера обміну\n"
-                        L"Скопіювати розв'язок — скопіювати розв'язок власної задачі в буфер обміну";
-                default:
-                    return L"New Game - start a new game\n"
-                        L"Restart - restart the current game\n"
-                        L"Pencil - toggle pencil mode to add or remove pencil marks\n"
-                        L"Hint - toggle hint mode to reveal hidden cells\n"
-                        L"Fix - remove all incorrect guesses\n"
-                        L"Give Up - show the solution to the current puzzle\n"
-                        L"Undo - undo the last move or batch of moves\n"
-                        L"Enter Puzzle - enter a custom sudoku puzzle\n"
-                        L"Solve Puzzle - solve a custom sudoku puzzle\n"
-                        L"Copy Puzzle - copy the current puzzle to the clipboard\n"
-                        L"Paste Puzzle - load a puzzle from the clipboard\n"
-                        L"Copy Solution - copy the solution of a solved custom puzzle to the clipboard";
-                }
+                // Composed from the per-action Feature* strings (also used as button tooltips)
+                return Get(StringId::FeatureNewGame, lang) + L"\n"
+                    + Get(StringId::FeatureRestart, lang) + L"\n"
+                    + Get(StringId::FeaturePencil, lang) + L"\n"
+                    + Get(StringId::FeatureHint, lang) + L"\n"
+                    + Get(StringId::FeatureFix, lang) + L"\n"
+                    + Get(StringId::FeatureGiveUp, lang) + L"\n"
+                    + Get(StringId::FeatureUndo, lang) + L"\n"
+                    + Get(StringId::FeatureEnterPuzzle, lang) + L"\n"
+                    + Get(StringId::FeatureSolve, lang) + L"\n"
+                    + Get(StringId::FeatureCopyPuzzle, lang) + L"\n"
+                    + Get(StringId::FeaturePastePuzzle, lang) + L"\n"
+                    + Get(StringId::FeatureCopySolution, lang);
             case StringId::DialogHintsAndTipsText:
                 switch (lang) {
                 case Language::Ukrainian:
@@ -658,6 +659,68 @@ namespace Sudoku_3_0
                 switch (lang) {
                 case Language::Ukrainian: return L"Неправильний рядок! Потрібно 81 цифру (1-9 або 0/крапка для порожніх).";
                 default:                 return L"Invalid puzzle string! Expected 81 digits (1-9 or 0/dot for empty cells).";
+                }
+
+                // ---- Feature descriptions (Features dialog lines & button tooltips) ----
+            case StringId::FeatureNewGame:
+                switch (lang) {
+                case Language::Ukrainian: return L"Нова гра — розпочати нову гру";
+                default:                 return L"New Game - start a new game";
+                }
+            case StringId::FeatureRestart:
+                switch (lang) {
+                case Language::Ukrainian: return L"Спочатку — перезапустити поточну гру";
+                default:                 return L"Restart - restart the current game";
+                }
+            case StringId::FeaturePencil:
+                switch (lang) {
+                case Language::Ukrainian: return L"Олівець — увімкнути або вимкнути режим олівця для позначок";
+                default:                 return L"Pencil - toggle pencil mode to add or remove pencil marks";
+                }
+            case StringId::FeatureHint:
+                switch (lang) {
+                case Language::Ukrainian: return L"Підказка — увімкнути або вимкнути режим підказок для відкриття прихованих клітинок";
+                default:                 return L"Hint - toggle hint mode to reveal hidden cells";
+                }
+            case StringId::FeatureFix:
+                switch (lang) {
+                case Language::Ukrainian: return L"Виправити — видалити всі неправильні здогади";
+                default:                 return L"Fix - remove all incorrect guesses";
+                }
+            case StringId::FeatureGiveUp:
+                switch (lang) {
+                case Language::Ukrainian: return L"Здатися — показати розв'язок поточної задачі";
+                default:                 return L"Give Up - show the solution to the current puzzle";
+                }
+            case StringId::FeatureUndo:
+                switch (lang) {
+                case Language::Ukrainian: return L"Відмінити — скасувати останній хід або групу ходів";
+                default:                 return L"Undo - undo the last move or batch of moves";
+                }
+            case StringId::FeatureEnterPuzzle:
+                switch (lang) {
+                case Language::Ukrainian: return L"Ввести задачу — ввести власну задачу судоку";
+                default:                 return L"Enter Puzzle - enter a custom sudoku puzzle";
+                }
+            case StringId::FeatureSolve:
+                switch (lang) {
+                case Language::Ukrainian: return L"Розв'язати задачу — розв'язати власну задачу судоку";
+                default:                 return L"Solve Puzzle - solve a custom sudoku puzzle";
+                }
+            case StringId::FeatureCopyPuzzle:
+                switch (lang) {
+                case Language::Ukrainian: return L"Скопіювати задачу — скопіювати поточну задачу в буфер обміну";
+                default:                 return L"Copy Puzzle - copy the current puzzle to the clipboard";
+                }
+            case StringId::FeaturePastePuzzle:
+                switch (lang) {
+                case Language::Ukrainian: return L"Вставити задачу — завантажити задачу з буфера обміну";
+                default:                 return L"Paste Puzzle - load a puzzle from the clipboard";
+                }
+            case StringId::FeatureCopySolution:
+                switch (lang) {
+                case Language::Ukrainian: return L"Скопіювати розв'язок — скопіювати розв'язок власної задачі в буфер обміну";
+                default:                 return L"Copy Solution - copy the solution of a solved custom puzzle to the clipboard";
                 }
 
             default:

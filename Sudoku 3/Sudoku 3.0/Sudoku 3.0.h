@@ -49,6 +49,11 @@ namespace Sudoku_3_0
             pencilFont = nullptr;
             delete pencilFormat;
             pencilFormat = nullptr;
+
+            // ToolTip is a Component we create ourselves (not in the designer's container),
+            // so nothing else disposes it.
+            delete buttonToolTips;
+            buttonToolTips = nullptr;
         }
 
         !SudokuForm()
@@ -253,6 +258,10 @@ namespace Sudoku_3_0
     private: System::Drawing::Font^ pencilFont;
     private: float pencilFontSize;
     private: System::Drawing::StringFormat^ pencilFormat;
+
+           // Hover tooltips for the side-panel buttons, showing the full localized action name
+           // and description (also useful where a translated caption is wider than its button)
+    private: System::Windows::Forms::ToolTip^ buttonToolTips;
 
 #pragma region Windows Form Designer generated code
 
@@ -2531,6 +2540,13 @@ namespace Sudoku_3_0
         this->selectedDifficulty = this->session->difficulty;
         this->difficultyComboBox->SelectedIndex = this->selectedDifficulty;
 
+        // Initialize button tooltips (texts are assigned by setLanguage below).
+        // Longer auto-pop delay: the descriptions are full sentences.
+        this->buttonToolTips = gcnew System::Windows::Forms::ToolTip();
+        this->buttonToolTips->AutoPopDelay = 10000;
+        this->buttonToolTips->InitialDelay = 500;
+        this->buttonToolTips->ReshowDelay = 100;
+
         // Restore the language the user last chose; falls back to English on first run.
         // persist = false: this value came straight from the registry, no need to write it back.
         this->setLanguage(LanguagePreference::Load(), false);
@@ -2601,6 +2617,10 @@ namespace Sudoku_3_0
         this->undoToolStripMenuItem->Text = Strings::Get(StringId::MenuUndo, lang);
         this->customPuzzleToolStripMenuItem->Text = Strings::Get(StringId::MenuEnterPuzzle, lang);
         this->solveToolStripMenuItem->Text = Strings::Get(StringId::MenuSolve, lang);
+
+        // Button tooltips (the clipboard button's tooltip is state-dependent and is
+        // set by updateClipboardControls below)
+        this->updateButtonTooltips();
         this->updateClipboardControls();
 
         // Menu: Options
@@ -3580,6 +3600,22 @@ namespace Sudoku_3_0
         this->conflicts->highlightAll();
     }
 
+           // Assigns localized hover tooltips (full action name + description, the same
+           // Feature* strings the Features dialog is composed of) to the side-panel buttons.
+           // The clipboard button is state-dependent and handled in updateClipboardControls().
+    private: void updateButtonTooltips()
+    {
+        this->buttonToolTips->SetToolTip(this->newGameButton, Strings::Get(StringId::FeatureNewGame, this->currentLanguage));
+        this->buttonToolTips->SetToolTip(this->restartButton, Strings::Get(StringId::FeatureRestart, this->currentLanguage));
+        this->buttonToolTips->SetToolTip(this->pencilButton, Strings::Get(StringId::FeaturePencil, this->currentLanguage));
+        this->buttonToolTips->SetToolTip(this->hintButton, Strings::Get(StringId::FeatureHint, this->currentLanguage));
+        this->buttonToolTips->SetToolTip(this->fixButton, Strings::Get(StringId::FeatureFix, this->currentLanguage));
+        this->buttonToolTips->SetToolTip(this->giveUpButton, Strings::Get(StringId::FeatureGiveUp, this->currentLanguage));
+        this->buttonToolTips->SetToolTip(this->undoButton, Strings::Get(StringId::FeatureUndo, this->currentLanguage));
+        this->buttonToolTips->SetToolTip(this->customPuzzleButton, Strings::Get(StringId::FeatureEnterPuzzle, this->currentLanguage));
+        this->buttonToolTips->SetToolTip(this->solveButton, Strings::Get(StringId::FeatureSolve, this->currentLanguage));
+    }
+
            // Single source of truth for the clipboard button and its three menu items. Exactly one
            // clipboard action is available at a time, driven purely by session state, so it stays
            // correct no matter how we reached the state (new game, solve, paste, or file load):
@@ -3606,6 +3642,13 @@ namespace Sudoku_3_0
             : StringId::ButtonPastePuzzle;
         this->clipboardButton->Text = Strings::Get(buttonLabel, this->currentLanguage);
         this->clipboardButton->Enabled = true;
+
+        // Tooltip follows the active action; also shows the full caption when the
+        // localized text is too wide to fit on the button
+        StringId buttonTooltip = inGame ? StringId::FeatureCopyPuzzle
+            : solverSolved ? StringId::FeatureCopySolution
+            : StringId::FeaturePastePuzzle;
+        this->buttonToolTips->SetToolTip(this->clipboardButton, Strings::Get(buttonTooltip, this->currentLanguage));
     }
 
     private: void copyPuzzleToClipboard()
