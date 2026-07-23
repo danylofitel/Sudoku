@@ -465,9 +465,10 @@ namespace Sudoku_3_0
                         L"Здатися — показати розв'язок поточної задачі\n"
                         L"Відмінити — скасувати останній хід або групу ходів\n"
                         L"Ввести задачу — ввести власну задачу судоку\n"
+                        L"Розв'язати задачу — розв'язати власну задачу судоку\n"
                         L"Скопіювати задачу — скопіювати поточну задачу в буфер обміну\n"
                         L"Вставити задачу — завантажити задачу з буфера обміну\n"
-                        L"Розв'язати задачу — розв'язати власну задачу судоку";
+                        L"Скопіювати розв'язок — скопіювати розв'язок власної задачі в буфер обміну";
                 default:
                     return L"New Game - start a new game\n"
                         L"Restart - restart the current game\n"
@@ -477,9 +478,10 @@ namespace Sudoku_3_0
                         L"Give Up - show the solution to the current puzzle\n"
                         L"Undo - undo the last move or batch of moves\n"
                         L"Enter Puzzle - enter a custom sudoku puzzle\n"
+                        L"Solve Puzzle - solve a custom sudoku puzzle\n"
                         L"Copy Puzzle - copy the current puzzle to the clipboard\n"
                         L"Paste Puzzle - load a puzzle from the clipboard\n"
-                        L"Solve Puzzle - solve a custom sudoku puzzle";
+                        L"Copy Solution - copy the solution of a solved custom puzzle to the clipboard";
                 }
             case StringId::DialogHintsAndTipsText:
                 switch (lang) {
