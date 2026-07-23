@@ -1,4 +1,4 @@
-// Danylo Fitel 2013
+// Danylo Fitel 2026
 
 #ifndef _SUDOKU_ENGINE_H_
 #define _SUDOKU_ENGINE_H_

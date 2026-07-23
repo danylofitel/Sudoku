@@ -1,4 +1,4 @@
-// Danylo Fitel 2013
+// Danylo Fitel 2026
 
 #pragma once
 
@@ -9,8 +9,10 @@ namespace Sudoku_3_0
     ref class PlayerStats
     {
     public:
-        // Number of consecutive wins without giving up.
-        // Incremented on each clean win; reset to zero when the user gives up.
+        // Number of consecutive completed games in which the user never gave up.
+        // Incremented on every win, including wins that used hints or fixes;
+        // reset to zero the moment the user gives up (seeing the solution breaks
+        // the streak, and completing that same puzzle afterwards does not count).
         unsigned int winStreak;
 
         PlayerStats()

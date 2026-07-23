@@ -1,4 +1,4 @@
-﻿// Danylo Fitel 2013
+﻿// Danylo Fitel 2026
 // All translatable UI strings centralized in one place.
 // To add a new language: add a value to Language, then add a column to every Get() call below.
 // To add a new string: add a value to StringId, then add cases in the Get() function.
@@ -102,6 +102,10 @@ namespace Sudoku_3_0
         NotifyFileSaveError,
         NotifyFileLoadError,
         NotifyUnsupportedVersion,
+        NotifyUnexpectedError,
+
+        // ---- File dialogs ----
+        FileDialogFilter,
 
         // ---- Numbers form ----
         ButtonClear,
@@ -441,8 +445,8 @@ namespace Sudoku_3_0
                 }
             case StringId::DialogGiveUpPrompt:
                 switch (lang) {
-                case Language::Ukrainian: return L"Ви впевнені, що хочете здатися?\nЦе позбавить вас можливості чистої перемоги в цій задачі.";
-                default:                 return L"Are you sure you want to give up?\nThis will disqualify you from a clean win on this puzzle.";
+                case Language::Ukrainian: return L"Ви впевнені, що хочете здатися?\nЦе позбавить вас можливості чистої перемоги в цій задачі та обнулить вашу серію перемог.";
+                default:                 return L"Are you sure you want to give up?\nThis will disqualify you from a clean win on this puzzle and reset your win streak.";
                 }
             case StringId::DialogAboutText:
                 switch (lang) {
@@ -553,6 +557,18 @@ namespace Sudoku_3_0
                 switch (lang) {
                 case Language::Ukrainian: return L"Це збереження створено новішою версією Судоку і не може бути відкрите. Версія збереження: ";
                 default:                 return L"This save was created by a newer version of Sudoku and cannot be opened. Save version: ";
+                }
+            case StringId::NotifyUnexpectedError:
+                switch (lang) {
+                case Language::Ukrainian: return L"Сталася неочікувана помилка, і застосунок буде закрито.\n\n";
+                default:                 return L"An unexpected error occurred and the application must close.\n\n";
+                }
+
+                // ---- File dialogs ----
+            case StringId::FileDialogFilter:
+                switch (lang) {
+                case Language::Ukrainian: return L"Збереження судоку (*.sdk3)|*.sdk3|Усі файли (*.*)|*.*";
+                default:                 return L"Sudoku save (*.sdk3)|*.sdk3|All files (*.*)|*.*";
                 }
 
                 // ---- Numbers form ----

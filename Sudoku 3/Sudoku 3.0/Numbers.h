@@ -1,4 +1,4 @@
-﻿// Danylo Fitel 2013
+﻿// Danylo Fitel 2026
 
 #pragma once
 

@@ -79,7 +79,7 @@
     <ClInclude Include="WindowDragger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LanguagePreference.h">
+    <ClInclude Include="Settings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

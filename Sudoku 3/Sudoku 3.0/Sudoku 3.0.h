@@ -1,16 +1,16 @@
-﻿// Danylo Fitel 2013
+﻿// Danylo Fitel 2026
 
 #pragma once
 
 #include "ClipboardPuzzleFormatter.h"
 #include "ConflictDetector.h"
-#include "LanguagePreference.h"
 #include "GameMode.h"
 #include "GameSession.h"
 #include "Numbers.h"
 #include "PlayerStats.h"
 #include "SavedGame.h"
 #include "SaveGameStore.h"
+#include "Settings.h"
 #include "Strings.h"
 #include "SudokuEngine.h"
 #include "UndoManager.h"
@@ -1996,12 +1996,11 @@ namespace Sudoku_3_0
                // saveGameDialog
                // 
                this->saveGameDialog->DefaultExt = L"sdk3";
-               this->saveGameDialog->Title = L"Current game";
                this->saveGameDialog->FileOk += gcnew System::ComponentModel::CancelEventHandler(this, &SudokuForm::saveGameDialog_FileOk);
                // 
                // openGameDialog
                // 
-               this->openGameDialog->FileName = L"openFileDialog";
+               this->openGameDialog->DefaultExt = L"sdk3";
                this->openGameDialog->FileOk += gcnew System::ComponentModel::CancelEventHandler(this, &SudokuForm::openGameDialog_FileOk);
                // 
                // menuStrip
@@ -2536,9 +2535,33 @@ namespace Sudoku_3_0
         this->undoManager = gcnew UndoManager(this->undoButton, this->undoToolStripMenuItem);
         this->conflicts = gcnew ConflictDetector(this->cells, this->sizeFactor);
 
-        // Set default difficulty
-        this->selectedDifficulty = this->session->difficulty;
+        // Restore the win streak earned in previous runs
+        this->playerStats->winStreak = Settings::LoadWinStreak();
+
+        // Restore the preferred difficulty. selectedDifficulty is set BEFORE the combo box
+        // index so that difficultyComboBox_SelectedIndexChanged sees an unchanged value and
+        // does not write it straight back to the registry.
+        this->selectedDifficulty = Settings::LoadDifficulty();
         this->difficultyComboBox->SelectedIndex = this->selectedDifficulty;
+        this->updateDifficultyMenuChecks();
+
+        // Restore the last window position if one was stored and it is still (at least
+        // partially) on a visible screen; otherwise keep the default placement.
+        int storedLeft = 0;
+        int storedTop = 0;
+        if (Settings::TryLoadWindowPosition(storedLeft, storedTop))
+        {
+            System::Drawing::Rectangle bounds(storedLeft, storedTop, this->Width, this->Height);
+            for each (Screen ^ screen in Screen::AllScreens)
+            {
+                if (screen->WorkingArea.IntersectsWith(bounds))
+                {
+                    this->StartPosition = FormStartPosition::Manual;
+                    this->Location = System::Drawing::Point(storedLeft, storedTop);
+                    break;
+                }
+            }
+        }
 
         // Initialize button tooltips (texts are assigned by setLanguage below).
         // Longer auto-pop delay: the descriptions are full sentences.
@@ -2549,7 +2572,7 @@ namespace Sudoku_3_0
 
         // Restore the language the user last chose; falls back to English on first run.
         // persist = false: this value came straight from the registry, no need to write it back.
-        this->setLanguage(LanguagePreference::Load(), false);
+        this->setLanguage(Settings::LoadLanguage(), false);
 
         // Wire Paint, MouseEnter, MouseLeave, and MouseClick events for each cell
         for each (System::Windows::Forms::Button ^ cell in this->cells)
@@ -2560,8 +2583,8 @@ namespace Sudoku_3_0
             cell->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &SudokuForm::cell_MouseClick);
         }
 
-        // Start a new game
-        this->newGame(SudokuGameEngine::DifficultyLevel::Medium);
+        // Start a new game at the restored preferred difficulty
+        this->newGame(this->difficultyLevelFromIndex(this->selectedDifficulty));
     }
 
            // Apply the given language to all UI controls and update the language menu checkmarks.
@@ -2571,7 +2594,7 @@ namespace Sudoku_3_0
     {
         this->currentLanguage = lang;
         if (persist)
-            LanguagePreference::Save(lang);
+            Settings::SaveLanguage(lang);
 
         // Window title
         this->Text = Strings::Get(StringId::WindowTitle, lang);
@@ -2646,6 +2669,12 @@ namespace Sudoku_3_0
         // Language menu checkmarks
         this->englishToolStripMenuItem->Checked = (lang == Language::English);
         this->ukrainianToolStripMenuItem->Checked = (lang == Language::Ukrainian);
+
+        // File dialogs
+        this->saveGameDialog->Title = Strings::Get(StringId::DialogTitleSave, lang);
+        this->saveGameDialog->Filter = Strings::Get(StringId::FileDialogFilter, lang);
+        this->openGameDialog->Title = Strings::Get(StringId::MenuOpen, lang);
+        this->openGameDialog->Filter = Strings::Get(StringId::FileDialogFilter, lang);
 
         // Numbers form
         this->numbersForm->setLanguage(lang);
@@ -2913,10 +2942,16 @@ namespace Sudoku_3_0
         this->setGameControls(false, true, false);
         this->undoManager->clear();
 
-        if (!this->session->hasGivenUp)
-            ++this->playerStats->winStreak;
-        else
-            this->playerStats->winStreak = 0;
+        this->setWinStreak(this->session->hasGivenUp ? 0 : this->playerStats->winStreak + 1);
+    }
+
+           // Updates the win streak and persists it, writing to the registry only when
+           // the value actually changes (e.g. a give-up when the streak is already 0 is a no-op).
+    private: void setWinStreak(unsigned int value)
+    {
+        if (this->playerStats->winStreak == value) return;
+        this->playerStats->winStreak = value;
+        Settings::SaveWinStreak(value);
     }
 
            // Builds the localized, pluralized list of assists used this game (hints, fixes).
@@ -3402,7 +3437,7 @@ namespace Sudoku_3_0
 
         if (result == System::Windows::Forms::DialogResult::Yes)
         {
-            this->saveGameDialog->ShowDialog();
+            this->showSaveGameDialog();
         }
         else if (result == System::Windows::Forms::DialogResult::Cancel)
         {
@@ -3418,34 +3453,27 @@ namespace Sudoku_3_0
         this->numbersForm->Visible = false;
     }
 
-           // Enable hint mode (deactivates pencil mode so both cannot be active simultaneously)
+           // Maps a 0-based difficulty index (combo box / settings) to the engine's enum
+    private: SudokuGameEngine::DifficultyLevel difficultyLevelFromIndex(unsigned int index)
+    {
+        switch (index)
+        {
+        case 0:  return SudokuGameEngine::DifficultyLevel::VeryEasy;
+        case 1:  return SudokuGameEngine::DifficultyLevel::Easy;
+        case 2:  return SudokuGameEngine::DifficultyLevel::Medium;
+        case 3:  return SudokuGameEngine::DifficultyLevel::Hard;
+        case 4:  return SudokuGameEngine::DifficultyLevel::VeryHard;
+        default: return SudokuGameEngine::DifficultyLevel::Medium;
+        }
+    }
+
     private: void newGameButton_Click(System::Object^ sender, System::EventArgs^ e)
     {
         if (!this->promptSaveIfNeeded()) return;
         this->closeHelperForms();
         this->clearActiveModes();
 
-        SudokuGameEngine::DifficultyLevel difficulty(SudokuGameEngine::DifficultyLevel::Medium);
-        switch (this->difficultyComboBox->SelectedIndex)
-        {
-        case 0:
-            difficulty = SudokuGameEngine::DifficultyLevel::VeryEasy;
-            break;
-        case 1:
-            difficulty = SudokuGameEngine::DifficultyLevel::Easy;
-            break;
-        case 2:
-            difficulty = SudokuGameEngine::DifficultyLevel::Medium;
-            break;
-        case 3:
-            difficulty = SudokuGameEngine::DifficultyLevel::Hard;
-            break;
-        case 4:
-            difficulty = SudokuGameEngine::DifficultyLevel::VeryHard;
-            break;
-        }
-
-        this->newGame(difficulty);
+        this->newGame(this->difficultyLevelFromIndex(this->selectedDifficulty));
     }
 
     private: void restartButton_Click(System::Object^ sender, System::EventArgs^ e)
@@ -3576,7 +3604,7 @@ namespace Sudoku_3_0
         this->clearActiveModes();
 
         this->session->hasGivenUp = true;
-        this->playerStats->winStreak = 0;
+        this->setWinStreak(0);
 
         for (unsigned int index = 0; index < this->numberOfCells; ++index)
         {
@@ -3804,11 +3832,18 @@ namespace Sudoku_3_0
         this->closeHelperForms();
     }
 
+           // Shows the save dialog with a fresh date-based file name suggestion
+    private: void showSaveGameDialog()
+    {
+        this->saveGameDialog->FileName = "Sudoku " + System::DateTime::Now.ToString("yyyy-MM-dd");
+        this->saveGameDialog->ShowDialog();
+    }
+
     private: void saveToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
         // A session is always saveable: a game, a solved custom puzzle, or a custom puzzle
         // still being entered (which is recoverable from its cell values alone).
-        this->saveGameDialog->ShowDialog();
+        this->showSaveGameDialog();
     }
 
     private: void openToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
@@ -3983,10 +4018,34 @@ namespace Sudoku_3_0
         this->closeHelperForms();
     }
 
+           // Single choke point for difficulty changes: the menu items, startup restore, and
+           // save-file loads all set the combo index, which funnels through here.
     private: void difficultyComboBox_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e)
     {
-        if (this->difficultyComboBox->SelectedIndex >= 0)
-            this->selectedDifficulty = this->difficultyComboBox->SelectedIndex;
+        // Index is -1 transiently while setLanguage rebuilds the combo items
+        if (this->difficultyComboBox->SelectedIndex < 0) return;
+
+        unsigned int newDifficulty = (unsigned int)this->difficultyComboBox->SelectedIndex;
+
+        // Persist only on an actual change, so re-selections (startup restore, language
+        // switch re-populating the combo) do not cause redundant registry writes
+        if (newDifficulty != this->selectedDifficulty)
+        {
+            this->selectedDifficulty = newDifficulty;
+            Settings::SaveDifficulty(newDifficulty);
+        }
+
+        this->updateDifficultyMenuChecks();
+    }
+
+           // Reflects the selected difficulty in the Options menu, like the language checkmarks
+    private: void updateDifficultyMenuChecks()
+    {
+        this->veryEasyToolStripMenuItem->Checked = (this->selectedDifficulty == 0);
+        this->easyToolStripMenuItem->Checked = (this->selectedDifficulty == 1);
+        this->mediumToolStripMenuItem->Checked = (this->selectedDifficulty == 2);
+        this->hardToolStripMenuItem->Checked = (this->selectedDifficulty == 3);
+        this->veryHardToolStripMenuItem->Checked = (this->selectedDifficulty == 4);
     }
 
     private: void buttonMinimize_Click(System::Object^ sender, System::EventArgs^ e)
@@ -3998,10 +4057,27 @@ namespace Sudoku_3_0
 
     private: void buttonClose_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        if (!this->promptSaveIfNeeded()) return;
+        // The save prompt and shutdown work live in OnFormClosing, so every close
+        // path (this button, menu Exit, Alt+F4, taskbar close, OS shutdown) is covered.
+        this->Close();
+    }
+
+           // Single choke point for closing the application, no matter how it was initiated.
+    protected: virtual void OnFormClosing(System::Windows::Forms::FormClosingEventArgs^ e) override
+    {
+        if (!this->promptSaveIfNeeded())
+        {
+            e->Cancel = true;
+            return;
+        }
+
         this->closeHelperForms();
 
-        this->Close();
+        // Remember where the window was, but never a minimized position (-32000, -32000)
+        if (this->WindowState == FormWindowState::Normal)
+            Settings::SaveWindowPosition(this->Left, this->Top);
+
+        Form::OnFormClosing(e);
     }
 
     private: void SudokuForm_MouseDown(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)

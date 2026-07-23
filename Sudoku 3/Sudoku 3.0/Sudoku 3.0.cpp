@@ -1,4 +1,4 @@
-// Danylo Fitel 2013
+// Danylo Fitel 2026
 
 #include "stdafx.h"
 #include "Sudoku 3.0.h"
@@ -12,7 +12,25 @@ int main(array<System::String^>^ args)
     Application::EnableVisualStyles();
     Application::SetCompatibleTextRenderingDefault(false);
 
-    // Create the main window and run it
-    Application::Run(gcnew SudokuForm());
+    // Route UI-thread exceptions to the catch below instead of the default
+    // ThreadException dialog, so any crash shows one friendly localized message.
+    Application::SetUnhandledExceptionMode(UnhandledExceptionMode::ThrowException);
+
+    try
+    {
+        // Create the main window and run it
+        Application::Run(gcnew SudokuForm());
+    }
+    catch (System::Exception^ ex)
+    {
+        Language lang = Settings::LoadLanguage();
+        MessageBox::Show(
+            Strings::Get(StringId::NotifyUnexpectedError, lang) + ex->Message,
+            Strings::Get(StringId::WindowTitle, lang),
+            MessageBoxButtons::OK,
+            MessageBoxIcon::Error);
+        return 1;
+    }
+
     return 0;
 }

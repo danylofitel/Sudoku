@@ -1,4 +1,4 @@
-// Danylo Fitel 2013
+// Danylo Fitel 2026
 
 #include "stdafx.h"
 #include "BuildInfo.h" // generated at build time; defines SUDOKU_BUILD_STAMP and SUDOKU_FILE_VERSION
