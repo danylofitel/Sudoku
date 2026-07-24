@@ -4,6 +4,7 @@
 
 #include "GameMode.h"
 #include "Puzzle.h"
+#include "Board.h"
 
 namespace Sudoku_3_0
 {
@@ -22,8 +23,9 @@ namespace Sudoku_3_0
         // Difficulty index of current puzzle: 0=VeryEasy, 1=Easy, 2=Medium, 3=Hard, 4=VeryHard
         unsigned int difficulty;
 
-        // Number of cells that currently have a value
-        unsigned int numberOfFilledCells;
+        // The authoritative board model: per-cell value, kind (provenance), and pencil marks.
+        // It also tracks the filled-cell count (board->FilledCount).
+        Board^ board;
 
         // Number of times the puzzle has been restarted so far
         unsigned int numberOfRestarts;
@@ -38,9 +40,6 @@ namespace Sudoku_3_0
         // least once; can exceed 1 since Restart re-enables Give Up without clearing this)
         unsigned int numberOfGiveUps;
 
-        // Pencil mark bitmask per cell
-        array<int>^ pencilMarks;
-
         // Whether pencil mode is active
         bool pencilMode;
 
@@ -54,29 +53,36 @@ namespace Sudoku_3_0
         // immediately starts a real game, so the initial difficulty is only transient.
         GameSession(unsigned int numberOfCells)
         {
-            this->resetForNewGame(2, numberOfCells);
+            this->board = gcnew Board(numberOfCells);
+            this->difficulty = 2;
+            this->reset(GameMode::Game);
         }
 
-        // Resets all per-game fields for a new standard game.
-        void startNewGame(unsigned int difficultyIndex, unsigned int numberOfCells)
+        // Resets all per-puzzle state for a new standard game at the given difficulty.
+        void startNewGame(unsigned int difficultyIndex)
         {
-            this->resetForNewGame(difficultyIndex, numberOfCells);
+            this->difficulty = difficultyIndex;
+            this->reset(GameMode::Game);
+        }
+
+        // Resets all per-puzzle state for entering a new custom puzzle (Solver mode).
+        void startCustomPuzzle()
+        {
+            this->reset(GameMode::Solver);
         }
 
     private:
-        // Resets every per-puzzle field to its initial state, including switching to Game mode.
-        // Solver mode is entered separately by the form when the user enters a custom puzzle.
-        void resetForNewGame(unsigned int difficultyIndex, unsigned int numberOfCells)
+        // Resets every per-puzzle field (board, counters, active modes) to its initial state
+        // for the given mode. Difficulty is set by the caller, since it is a game-only concept.
+        void reset(GameMode mode)
         {
-            this->mode = GameMode::Game;
+            this->mode = mode;
             this->puzzle = nullptr;
-            this->difficulty = difficultyIndex;
-            this->numberOfFilledCells = 0;
+            this->board->clearToEmpty();
             this->numberOfRestarts = 0;
             this->numberOfHints = 0;
             this->numberOfFixes = 0;
             this->numberOfGiveUps = 0;
-            this->pencilMarks = gcnew array<int>(numberOfCells);
             this->pencilMode = false;
             this->hintMode = false;
             this->hoveredCellIndex = -1;

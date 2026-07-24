@@ -2805,58 +2805,63 @@ namespace Sudoku_3_0
         return this->cells[this->boardSize * row + column];
     }
 
-           // Clear the board
-    private: void clearBoard(const bool enableCells)
+           // Maps a cell's kind to the text color used to render it.
+    private: System::Drawing::Color colorForKind(CellKind kind)
     {
-        this->session->numberOfFilledCells = 0;
-
-        unsigned int index = 0;
-        for (unsigned char i = 0; i < boardSize; ++i)
+        switch (kind)
         {
-            for (unsigned char j = 0; j < boardSize; ++j)
-            {
-                System::Windows::Forms::Button^ cell = this->cells[index];
-                cell->Text = String::Empty;
-                cell->ForeColor = defaultColor;
-                cell->BackColor = defaultBackColor;
-                cell->Enabled = enableCells;
-                this->session->pencilMarks[index] = 0;
-                // Force a repaint: clearing pencilMarks alone won't trigger one if no visible
-                // control property actually changed, leaving stale marks painted by cell_Paint.
-                cell->Invalidate();
-                ++index;
-            }
+        case CellKind::Correct: return correctColor;
+        case CellKind::Hint:    return hintColor;
+        case CellKind::GivenUp: return giveUpColor;
+        case CellKind::Solved:  return solveColor;
+        default:                return defaultColor; // Clue, UserEmpty, UserFilled
         }
+    }
+
+           // Projects one board cell onto its button (text, color, enabled) without touching the
+           // conflict background. Callers pair this with a ConflictDetector highlight pass.
+    private: void projectCell(unsigned int index)
+    {
+        Board^ board = this->session->board;
+        System::Windows::Forms::Button^ cell = this->cells[index];
+
+        unsigned char value = board->valueAt(index);
+        cell->Text = value == 0 ? String::Empty : ((int)value).ToString();
+        cell->ForeColor = this->colorForKind(board->kindAt(index));
+        cell->Enabled = board->isEditable(index);
+    }
+
+           // Renders a single cell after a change: projects it, then re-evaluates conflict
+           // highlighting for it and its peers (which also repaints their pencil marks).
+    private: void renderCell(unsigned int index)
+    {
+        this->projectCell(index);
+        this->conflicts->highlightWithPeers(index);
+    }
+
+           // Re-projects the entire board, then evaluates conflict highlighting once over all cells.
+    private: void renderAll()
+    {
+        for (unsigned int i = 0; i < this->numberOfCells; ++i)
+            this->projectCell(i);
+        this->conflicts->highlightAll();
+    }
+
+           // Clears the board model to empty editable cells and re-renders.
+    private: void clearBoard()
+    {
+        this->session->board->clearToEmpty();
+        this->renderAll();
     }
 
            // Resets the board to its initial clue state from session->puzzle.
     private: void resetBoardToClues()
     {
-        this->session->numberOfFilledCells = 0;
-
-        for (unsigned int index = 0; index < this->numberOfCells; ++index)
-        {
-            System::Windows::Forms::Button^ cell = this->cells[index];
-            unsigned char clue = this->session->puzzle->clues[index];
-            bool isClue = clue != 0;
-
-            if (isClue)
-            {
-                cell->Text = ((int)clue).ToString();
-                ++this->session->numberOfFilledCells;
-            }
-            else
-            {
-                cell->Text = String::Empty;
-                cell->Invalidate(); // clear any stale pencil marks painted by cell_Paint
-            }
-
-            cell->ForeColor = defaultColor;
-            cell->Enabled = !isClue;
-        }
+        this->session->board->resetToClues(this->session->puzzle->clues);
+        this->renderAll();
     }
 
-           // Fill the engine with values entered by user
+           // Fill the engine with the values currently on the board.
     private: void fillEngine()
     {
         unsigned int index = 0;
@@ -2864,14 +2869,15 @@ namespace Sudoku_3_0
         {
             for (unsigned char j = 0; j < boardSize; ++j)
             {
-                if (cells[index]->Text->Length == 0)
+                unsigned char value = this->session->board->valueAt(index);
+                if (value == 0)
                 {
                     this->engine->setFilled(i, j, false);
                 }
                 else
                 {
                     this->engine->setFilled(i, j, true);
-                    this->engine->setCellValue(i, j, int::Parse(this->cells[index]->Text));
+                    this->engine->setCellValue(i, j, value);
                 }
 
                 ++index;
@@ -2906,12 +2912,11 @@ namespace Sudoku_3_0
         case SudokuGameEngine::DifficultyLevel::Hard:     difficultyIndex = 3; break;
         case SudokuGameEngine::DifficultyLevel::VeryHard: difficultyIndex = 4; break;
         }
-        this->session->startNewGame(difficultyIndex, this->numberOfCells);
+        this->session->startNewGame(difficultyIndex);
         this->session->puzzle = gcnew Puzzle(clues, solution);
 
-        // Prepare the board
+        // Prepare the board (resetBoardToClues re-renders and highlights conflicts)
         this->resetBoardToClues();
-        this->conflicts->highlightAll();
         this->undoManager->clear();
         this->gameTimer->restart();
         this->setGameControls(true, true, false);
@@ -2928,18 +2933,15 @@ namespace Sudoku_3_0
         }
     }
 
-           // Check if the solution is correct
+           // Check if the solution is correct: every editable (user) cell must hold its solution value.
     private: const bool checkSolution()
     {
         for (unsigned int index = 0; index < this->numberOfCells; ++index)
         {
-            System::Windows::Forms::Button^ cell = this->cells[index];
-            if (cell->Enabled)
+            if (this->session->board->isEditable(index) &&
+                this->session->board->valueAt(index) != this->session->puzzle->solution[index])
             {
-                if (!cell->Text->Equals(((int)this->session->puzzle->solution[index]).ToString()))
-                {
-                    return false;
-                }
+                return false;
             }
         }
         return true;
@@ -2952,12 +2954,10 @@ namespace Sudoku_3_0
     {
         for (unsigned int i = 0; i < this->numberOfCells; ++i)
         {
-            if (this->cells[i]->Enabled)
-            {
-                this->cells[i]->Enabled = false;
-                this->cells[i]->ForeColor = correctColor;
-            }
+            if (this->session->board->isEditable(i))
+                this->session->board->lockAsCorrect(i);
         }
+        this->renderAll();
 
         this->clearActiveModes();
         this->setGameControls(false, true, false);
@@ -3045,11 +3045,18 @@ namespace Sudoku_3_0
     {
         if (this->session->mode != GameMode::Game) return;
 
-        if (this->session->numberOfFilledCells == this->numberOfCells && this->checkSolution())
+        if (this->session->board->FilledCount == this->numberOfCells && this->checkSolution())
         {
             this->applyWin();
             this->showNotification(this->buildWinMessage());
         }
+    }
+
+           // The board value at a cell as display text ("" if empty). Used to record undo state.
+    private: System::String^ valueText(unsigned int index)
+    {
+        unsigned char value = this->session->board->valueAt(index);
+        return value == 0 ? String::Empty : ((int)value).ToString();
     }
 
            // Handles a click on any of the 81 cell buttons. Every cell is wired to this one
@@ -3070,23 +3077,13 @@ namespace Sudoku_3_0
         if (this->session->pencilMode && currentButton->Enabled && !this->session->hintMode)
             return;
 
-        // If this is a hint option, show the cell value
+        // If this is a hint option, reveal the cell's solution value
         if (this->session->hintMode)
         {
-            // Push undo entry before applying hint
-            this->undoManager->push(index, currentButton->Text, this->session->pencilMarks[index]);
-
-            if (currentButton->Text->Length == 0)
-            {
-                ++(this->session->numberOfFilledCells);
-            }
-
-            currentButton->Text = ((int)this->session->puzzle->solution[index]).ToString();
-            currentButton->BackColor = defaultBackColor;
-            currentButton->Enabled = false;
-            currentButton->ForeColor = hintColor;
+            this->undoManager->push(index, this->valueText(index), this->session->board->pencilMarksAt(index));
+            this->session->board->reveal(index, this->session->puzzle->solution[index], CellKind::Hint);
             ++(this->session->numberOfHints);
-            this->conflicts->highlightWithPeers(index);
+            this->renderCell(index);
 
             this->checkGameState();
         }
@@ -3124,16 +3121,17 @@ namespace Sudoku_3_0
         const unsigned int choice)
     {
         this->closeHelperForms();
-        System::Windows::Forms::Button^ cell = this->cells[cellNumber - 1];
+        unsigned int index = cellNumber - 1;
+        Board^ board = this->session->board;
 
-        // Pencil mode: toggle mark bit only, never touch the cell value
-        if (this->session->pencilMode && cell->Enabled)
+        // Pencil mode: toggle a mark bit only, never touch the cell value
+        if (this->session->pencilMode && board->isEditable(index))
         {
             if (choice >= 1 && choice <= 9)
             {
-                this->undoManager->push(cellNumber - 1, cell->Text, this->session->pencilMarks[cellNumber - 1]);
-                this->session->pencilMarks[cellNumber - 1] ^= (1 << (int)choice);
-                cell->Invalidate();
+                this->undoManager->push(index, this->valueText(index), board->pencilMarksAt(index));
+                board->togglePencilMark(index, (int)choice);
+                this->renderCell(index);
             }
             return;
         }
@@ -3141,75 +3139,26 @@ namespace Sudoku_3_0
         if (changed)
         {
             // No-op: clearing an already-empty cell
-            if (cell->Text->Length == 0 && choice == 0)
-            {
+            if (board->isEmpty(index) && choice == 0)
                 return;
-            }
 
-            if (cell->Text->Length == 0)
-            {
-                if (choice != 0)
-                {
-                    this->undoManager->push(cellNumber - 1, cell->Text, this->session->pencilMarks[cellNumber - 1]);
-                    this->session->pencilMarks[cellNumber - 1] = 0;
-                    cell->Text = choice.ToString();
-                    ++(this->session->numberOfFilledCells);
-                    cell->Invalidate();
-                    this->conflicts->highlight(cellNumber - 1);
-                    this->conflicts->highlightWithPeers(cellNumber - 1);
-                }
-            }
-            else
-            {
-                if (choice == 0)
-                {
-                    this->undoManager->push(cellNumber - 1, cell->Text, this->session->pencilMarks[cellNumber - 1]);
-                    cell->Text = String::Empty;
-                    --(this->session->numberOfFilledCells);
-                    cell->BackColor = defaultBackColor;
-                    cell->Invalidate();
-                    this->conflicts->highlightWithPeers(cellNumber - 1);
-                }
-                else
-                {
-                    this->undoManager->push(cellNumber - 1, cell->Text, this->session->pencilMarks[cellNumber - 1]);
-                    this->session->pencilMarks[cellNumber - 1] = 0;
-                    cell->Text = choice.ToString();
-                    cell->Invalidate();
-                    this->conflicts->highlight(cellNumber - 1);
-                    this->conflicts->highlightWithPeers(cellNumber - 1);
-                }
-            }
-
+            this->undoManager->push(index, this->valueText(index), board->pencilMarksAt(index));
+            board->setUserValue(index, (unsigned char)choice);
+            this->renderCell(index);
             this->checkGameState();
         }
         else
         {
-            this->conflicts->highlight(cellNumber - 1);
+            this->conflicts->highlight(index);
         }
     }
 
     private: void restoreCell(unsigned int index, System::String^ previousText, int previousMarks)
     {
-        System::Windows::Forms::Button^ cell = this->cells[index];
-
-        if (cell->Text->Length > 0 && previousText->Length == 0)
-        {
-            --(this->session->numberOfFilledCells);
-        }
-        else if (cell->Text->Length == 0 && previousText->Length > 0)
-        {
-            ++(this->session->numberOfFilledCells);
-        }
-
-        cell->Text = previousText;
-        cell->Enabled = true;
-        this->session->pencilMarks[index] = previousMarks;
-        cell->ForeColor = defaultColor;
-        cell->BackColor = defaultBackColor;
-        cell->Invalidate();
-        this->conflicts->highlight(index);
-        this->conflicts->highlightWithPeers(index);
+        // Undo always restores an editable user cell (value + pencil marks); Board derives the kind.
+        unsigned char value = previousText->Length == 0 ? (unsigned char)0 : (unsigned char)int::Parse(previousText);
+        this->session->board->restoreUserCell(index, value, previousMarks);
+        this->renderCell(index);
     }
 
     private: void performUndo()
@@ -3280,7 +3229,8 @@ namespace Sudoku_3_0
         if (!this->cellIndex->TryGetValue(cell, idx) || cell->Text->Length > 0) return;
 
         bool isHovered = this->session->pencilMode && cell->Enabled && idx == this->session->hoveredCellIndex;
-        if (this->session->pencilMarks[idx] == 0 && !isHovered) return;
+        int pencilMarks = this->session->board->pencilMarksAt(idx);
+        if (pencilMarks == 0 && !isHovered) return;
 
         System::Drawing::Graphics^ g = e->Graphics;
         float w = (float)cell->ClientSize.Width;
@@ -3311,7 +3261,7 @@ namespace Sudoku_3_0
 
         for (int d = 1; d <= 9; ++d)
         {
-            bool isMarked = (this->session->pencilMarks[idx] & (1 << d)) != 0;
+            bool isMarked = (pencilMarks & (1 << d)) != 0;
             bool isConflict = (blockedBits & (1 << d)) != 0;
 
             System::Drawing::Brush^ brush;
@@ -3456,9 +3406,9 @@ namespace Sudoku_3_0
         int digit = row3 * 3 + col3 + 1;
         if (digit < 1 || digit > 9) return;
 
-        this->undoManager->push(idx, cell->Text, this->session->pencilMarks[idx]);
-        this->session->pencilMarks[idx] ^= (1 << digit);
-        cell->Invalidate();
+        this->undoManager->push(idx, this->valueText(idx), this->session->board->pencilMarksAt(idx));
+        this->session->board->togglePencilMark(idx, digit);
+        this->renderCell(idx);
     }
 
            // Offer to save the current session before it is discarded.
@@ -3533,37 +3483,13 @@ namespace Sudoku_3_0
         // Timing is cumulative across restarts of the same puzzle; this also resumes
         // the timer when restarting after a win or a give-up froze it
         this->gameTimer->resume();
-        this->session->numberOfFilledCells = 0;
 
-        // Restore the board to its initial clue state using the puzzle snapshot.
-        for (unsigned int index = 0; index < this->numberOfCells; ++index)
-        {
-            Button^ cell = this->cells[index];
-            bool isClue = this->session->puzzle->clues[index] != 0;
-            if (isClue)
-            {
-                // Clue cell: keep text, restore clean appearance
-                ++this->session->numberOfFilledCells;
-                cell->BackColor = defaultBackColor;
-                cell->ForeColor = defaultColor;
-                cell->Enabled = false;
-            }
-            else
-            {
-                // User cell: clear everything
-                cell->Text = System::String::Empty;
-                cell->ForeColor = defaultColor;
-                cell->BackColor = defaultBackColor;
-                cell->Enabled = true;
-                this->session->pencilMarks[index] = 0;
-                cell->Invalidate();
-            }
-        }
+        // Restore the board to its initial clue state (re-renders and re-highlights).
+        this->resetBoardToClues();
 
         this->setGameControls(true, true, false);
         // numberOfGiveUps is intentionally NOT reset: once the user has seen the solution,
         // no re-prompt is needed and a win after restart still counts as a post-give-up win.
-        this->conflicts->highlightAll();
     }
 
     private: void hintButton_Click(System::Object^ sender, System::EventArgs^ e)
@@ -3593,13 +3519,14 @@ namespace Sudoku_3_0
 
         ++this->session->numberOfFixes;
 
+        Board^ board = this->session->board;
         bool anyFixed = false;
 
         for (unsigned int index = 0; index < this->numberOfCells; ++index)
         {
-            if (this->cells[index]->Enabled &&
-                !this->cells[index]->Text->Equals(String::Empty) &&
-                !this->cells[index]->Text->Equals(((int)this->session->puzzle->solution[index]).ToString()))
+            // A user-filled cell whose value contradicts the solution
+            if (board->isEditable(index) && board->valueAt(index) != 0 &&
+                board->valueAt(index) != this->session->puzzle->solution[index])
             {
                 if (!anyFixed)
                 {
@@ -3607,11 +3534,9 @@ namespace Sudoku_3_0
                     anyFixed = true;
                 }
 
-                this->undoManager->push(index, this->cells[index]->Text, this->session->pencilMarks[index]);
-
-                this->cells[index]->Text = "";
-                this->cells[index]->BackColor = defaultBackColor;
-                --(this->session->numberOfFilledCells);
+                this->undoManager->push(index, this->valueText(index), board->pencilMarksAt(index));
+                board->setUserValue(index, 0);
+                this->renderCell(index);
             }
         }
 
@@ -3619,8 +3544,6 @@ namespace Sudoku_3_0
         {
             this->undoManager->endBatch();
         }
-
-        this->conflicts->highlightAll();
     }
 
     private: void giveUpButton_Click(System::Object^ sender, System::EventArgs^ e)
@@ -3646,27 +3569,17 @@ namespace Sudoku_3_0
         ++this->session->numberOfGiveUps;
         this->setWinStreak(0);
 
+        // Reveal the solution in every editable cell.
         for (unsigned int index = 0; index < this->numberOfCells; ++index)
         {
-            System::Windows::Forms::Button^ cell = this->cells[index];
-            if (cell->Enabled)
-            {
-                if (cell->Text->Length == 0)
-                {
-                    ++this->session->numberOfFilledCells;
-                }
-
-                cell->Text = ((int)this->session->puzzle->solution[index]).ToString();
-                cell->BackColor = defaultBackColor;
-                cell->ForeColor = giveUpColor;
-                cell->Enabled = false;
-            }
+            if (this->session->board->isEditable(index))
+                this->session->board->reveal(index, this->session->puzzle->solution[index], CellKind::GivenUp);
         }
+        this->renderAll();
 
         this->setGameControls(false, true, false);
         this->undoManager->clear();
         this->gameTimer->stop();
-        this->conflicts->highlightAll();
     }
 
            // Assigns localized hover tooltips (full action name + description, the same
@@ -3748,22 +3661,18 @@ namespace Sudoku_3_0
         }
 
         this->engine->clear();
-        this->clearBoard(true);
+        this->session->board->clearToEmpty();
         this->undoManager->clear();
         this->gameTimer->restart();
         this->session->puzzle = nullptr;  // no valid puzzle until Solve succeeds
 
-        for (int i = 0; i < (int)(this->numberOfCells); ++i)
+        for (unsigned int i = 0; i < this->numberOfCells; ++i)
         {
             if (digits[i] >= 1 && digits[i] <= 9)
-            {
-                this->cells[i]->Text = digits[i].ToString();
-                this->cells[i]->ForeColor = defaultColor;
-                ++this->session->numberOfFilledCells;
-            }
+                this->session->board->setUserValue(i, digits[i]);
         }
 
-        this->conflicts->highlightAll();
+        this->renderAll();
     }
 
     private: void clipboardButton_Click(System::Object^ sender, System::EventArgs^ e)
@@ -3801,10 +3710,10 @@ namespace Sudoku_3_0
         this->clearActiveModes();
 
         this->engine->clear();
-        this->clearBoard(true);
+        // Resets the board, counters, and mode to Solver (puzzle stays nullptr until Solve).
+        this->session->startCustomPuzzle();
+        this->renderAll();
 
-        this->session->mode = GameMode::Solver;
-        this->session->puzzle = nullptr;  // no valid puzzle until Solve succeeds
         this->undoManager->clear();
         this->gameTimer->restart();
         this->setGameControls(false, false, true);
@@ -3829,24 +3738,20 @@ namespace Sudoku_3_0
                 solution[idx] = (unsigned char)this->engine->getCellValue(
                     (unsigned char)(idx / this->boardSize),
                     (unsigned char)(idx % this->boardSize));
-                // A cell that already had text before solve was triggered is a clue
-                clues[idx] = (this->cells[idx]->Text->Length > 0)
-                    ? solution[idx] : (unsigned char)0;
+                // A cell that already had a value before Solve was pressed is a clue
+                clues[idx] = this->session->board->valueAt(idx) != 0 ? solution[idx] : (unsigned char)0;
             }
             this->session->puzzle = gcnew Puzzle(clues, solution);
 
+            // Lock the pre-filled cells as clues; fill the rest from the solution.
             for (unsigned int index = 0; index < this->numberOfCells; ++index)
             {
-                System::Windows::Forms::Button^ cell = this->cells[index];
-                if (cell->Text->Length == 0)
-                {
-                    ++this->session->numberOfFilledCells;
-                    cell->Text = ((int)solution[index]).ToString();
-                    cell->ForeColor = solveColor;
-                }
-
-                cell->Enabled = false;
+                if (this->session->board->valueAt(index) == 0)
+                    this->session->board->reveal(index, solution[index], CellKind::Solved);
+                else
+                    this->session->board->setClue(index, solution[index]);
             }
+            this->renderAll();
 
             this->solveButton->Enabled = false;
             this->solveToolStripMenuItem->Enabled = false;
@@ -4219,35 +4124,6 @@ namespace Sudoku_3_0
            // Returns true on success, false on any failure — reporting is up to the caller.
     private: bool saveGameToFile(System::String^ path)
     {
-        array<unsigned char>^ values = gcnew array<unsigned char>(this->numberOfCells);
-        array<unsigned char>^ states = gcnew array<unsigned char>(this->numberOfCells);
-
-        for (unsigned int i = 0; i < this->numberOfCells; ++i)
-        {
-            // Value: digit 1-9, or 0 for empty
-            values[i] = this->cells[i]->Text->Length > 0
-                ? (unsigned char)int::Parse(this->cells[i]->Text)
-                : (unsigned char)0;
-
-            // State: 0=engine clue, 1=empty, 2=user-filled, 3=correct, 4=hint, 5=give-up, 6=solver
-            if (!this->cells[i]->Enabled && this->cells[i]->ForeColor == defaultColor)
-                states[i] = 0;
-            else if (this->cells[i]->Enabled && this->cells[i]->Text->Length == 0)
-                states[i] = 1;
-            else if (this->cells[i]->Enabled)
-                states[i] = 2;
-            else if (this->cells[i]->ForeColor == correctColor)
-                states[i] = 3;
-            else if (this->cells[i]->ForeColor == hintColor)
-                states[i] = 4;
-            else if (this->cells[i]->ForeColor == giveUpColor)
-                states[i] = 5;
-            else if (this->cells[i]->ForeColor == solveColor)
-                states[i] = 6;
-            else
-                states[i] = 0;
-        }
-
         SavedGame^ game = gcnew SavedGame();
         game->difficulty = this->session->difficulty;
         game->numberOfRestarts = this->session->numberOfRestarts;
@@ -4257,9 +4133,11 @@ namespace Sudoku_3_0
         game->mode = this->session->mode;
         game->gameFinished = this->isGameFinished();
         game->elapsedSeconds = (unsigned int)this->gameTimer->Elapsed.TotalSeconds;
-        game->values = values;
-        game->states = states;
-        game->pencilMarks = this->session->pencilMarks;
+
+        // The board model serializes directly (value + kind-as-state-code + pencil marks).
+        game->values = this->session->board->copyValues();
+        game->states = this->session->board->copyStates();
+        game->pencilMarks = this->session->board->copyPencilMarks();
 
         // The puzzle snapshot may not exist yet (a custom puzzle still being entered in Solver
         // mode). In that case we persist empty clues/solution; the board is fully recoverable
@@ -4331,13 +4209,13 @@ namespace Sudoku_3_0
            // recovered from (auto-save resume).
     private: void applyLoadedGame(SavedGame^ save)
     {
-        // Apply session state
-        this->clearBoard(false);
         this->engine->clear();
         this->clearActiveModes();
+        this->undoManager->clear();
+
+        // Session metadata
         this->session->difficulty = save->difficulty;
         this->difficultyComboBox->SelectedIndex = save->difficulty;
-        this->session->numberOfFilledCells = 0;
         this->session->numberOfRestarts = save->numberOfRestarts;
         this->session->numberOfHints = save->numberOfHints;
         this->session->numberOfFixes = save->numberOfFixes;
@@ -4355,34 +4233,9 @@ namespace Sudoku_3_0
             ? gcnew Puzzle(save->clues, save->solution)
             : nullptr;
 
-        // Apply each cell
-        for (unsigned int index = 0; index < this->numberOfCells; ++index)
-        {
-            unsigned char v = save->values[index];
-            unsigned char s = save->states[index];
-
-            // Cell text
-            this->cells[index]->Text = (v == 0) ? "" : ((int)v).ToString();
-
-            // Enabled state
-            this->cells[index]->Enabled = (s == 1 || s == 2);
-
-            // Fore color
-            if (s == 3) this->cells[index]->ForeColor = correctColor;
-            else if (s == 4) this->cells[index]->ForeColor = hintColor;
-            else if (s == 5) this->cells[index]->ForeColor = giveUpColor;
-            else if (s == 6) this->cells[index]->ForeColor = solveColor;
-
-            // Count filled cells
-            if (s != 1)
-                ++this->session->numberOfFilledCells;
-        }
-
-        // Restore pencil marks (SaveGameStore already produced a full-length array)
-        this->undoManager->clear();
-        this->session->pencilMarks = save->pencilMarks;
-        for each (Button ^ cell in this->cells)
-            cell->Invalidate();
+        // Rebuild the board model from the saved arrays, then render it.
+        this->session->board->restoreFrom(save->values, save->states, save->pencilMarks);
+        this->renderAll();
 
         // Clipboard controls follow from the restored session state: a solved custom puzzle
         // (puzzle snapshot present) offers Copy Solution, an in-progress one offers Paste.
@@ -4392,8 +4245,6 @@ namespace Sudoku_3_0
         this->gameTimer->restore(System::TimeSpan::FromSeconds((double)save->elapsedSeconds));
         if (!save->gameFinished)
             this->gameTimer->resume();
-
-        this->conflicts->highlightAll();
     }
 
            // Full path of the auto-save file, in the user's local (non-roaming) app data folder:
