@@ -2966,7 +2966,7 @@ namespace Sudoku_3_0
         // Freeze the play time before the win message reads it
         this->gameTimer->stop();
 
-        this->setWinStreak(this->session->hasGivenUp ? 0 : this->playerStats->winStreak + 1);
+        this->setWinStreak(this->session->numberOfGiveUps > 0 ? 0 : this->playerStats->winStreak + 1);
     }
 
            // Updates the win streak and persists it, writing to the registry only when
@@ -2997,7 +2997,7 @@ namespace Sudoku_3_0
         System::String^ usingWord = Strings::Get(StringId::WinAssistUsing, this->currentLanguage);
         System::String^ andWord = Strings::Get(StringId::WinAssistAnd, this->currentLanguage);
 
-        bool clean = !this->session->hasGivenUp
+        bool clean = this->session->numberOfGiveUps == 0
             && this->session->numberOfHints == 0
             && this->session->numberOfFixes == 0;
 
@@ -3005,7 +3005,7 @@ namespace Sudoku_3_0
         {
             msg += Strings::Get(StringId::WinClean, this->currentLanguage);
         }
-        else if (!this->session->hasGivenUp)
+        else if (this->session->numberOfGiveUps == 0)
         {
             msg += Strings::Get(StringId::WinWithAssists, this->currentLanguage);
             msg += usingWord + System::String::Join(andWord, this->buildAssistList()) + "!";
@@ -3560,7 +3560,7 @@ namespace Sudoku_3_0
         }
 
         this->setGameControls(true, true, false);
-        // hasGivenUp is intentionally NOT reset: once the user has seen the solution,
+        // numberOfGiveUps is intentionally NOT reset: once the user has seen the solution,
         // no re-prompt is needed and a win after restart still counts as a post-give-up win.
         this->conflicts->highlightAll();
     }
@@ -3575,7 +3575,8 @@ namespace Sudoku_3_0
     {
         this->closeHelperForms();
 
-        if (!this->session->hasUsedFix)
+        // Confirm only the first time Fix is used on this puzzle
+        if (this->session->numberOfFixes == 0)
         {
             System::Windows::Forms::DialogResult confirm = MessageBox::Show(
                 Strings::Get(StringId::DialogFixPrompt, this->currentLanguage),
@@ -3587,8 +3588,6 @@ namespace Sudoku_3_0
             {
                 return;
             }
-
-            this->session->hasUsedFix = true;
         }
 
         ++this->session->numberOfFixes;
@@ -3625,7 +3624,8 @@ namespace Sudoku_3_0
 
     private: void giveUpButton_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        if (!this->session->hasGivenUp)
+        // Confirm only the first time the user gives up on this puzzle
+        if (this->session->numberOfGiveUps == 0)
         {
             System::Windows::Forms::DialogResult confirm = MessageBox::Show(
                 Strings::Get(StringId::DialogGiveUpPrompt, this->currentLanguage),
@@ -3642,7 +3642,7 @@ namespace Sudoku_3_0
         this->closeHelperForms();
         this->clearActiveModes();
 
-        this->session->hasGivenUp = true;
+        ++this->session->numberOfGiveUps;
         this->setWinStreak(0);
 
         for (unsigned int index = 0; index < this->numberOfCells; ++index)
@@ -4264,8 +4264,7 @@ namespace Sudoku_3_0
                 this->session->difficulty,
                 this->session->numberOfHints,
                 this->session->numberOfFixes,
-                this->session->hasGivenUp,
-                this->session->hasUsedFix,
+                this->session->numberOfGiveUps,
                 this->session->mode,
                 gameFinished,
                 (unsigned int)this->gameTimer->Elapsed.TotalSeconds,
@@ -4342,8 +4341,7 @@ namespace Sudoku_3_0
         this->session->numberOfFilledCells = 0;
         this->session->numberOfHints = save->numberOfHints;
         this->session->numberOfFixes = save->numberOfFixes;
-        this->session->hasGivenUp = save->hasGivenUp;
-        this->session->hasUsedFix = save->hasUsedFix;
+        this->session->numberOfGiveUps = save->numberOfGiveUps;
         this->session->mode = static_cast<GameMode>(save->gameMode);
         this->setGameControls(
             this->session->mode == GameMode::Game && !save->gameFinished,

@@ -16,8 +16,8 @@ namespace Sudoku_3_0
     //
     // File format (UTF-8 text, one "key=value" per line):
     //   Sudoku3Save=<format version>
-    //   difficulty, numberOfHints, numberOfFixes, hasGivenUp,
-    //   hasUsedFix, gameMode, gameFinished  (all integers; booleans as 0/1)
+    //   difficulty, numberOfHints, numberOfFixes, numberOfGiveUps,
+    //   gameMode, gameFinished               (all integers; booleans as 0/1)
     //   elapsedSeconds                       (total play time in whole seconds)
     //   clues, solution, value, state       (digit strings, one char per cell)
     //   pencilMarks                          (space-separated bitmasks, one per cell)
@@ -41,8 +41,7 @@ namespace Sudoku_3_0
             unsigned int difficulty,
             unsigned int numberOfHints,
             unsigned int numberOfFixes,
-            bool hasGivenUp,
-            bool hasUsedFix,
+            unsigned int numberOfGiveUps,
             GameMode mode,
             bool gameFinished,
             unsigned int elapsedSeconds,
@@ -56,8 +55,7 @@ namespace Sudoku_3_0
             save->difficulty = difficulty;
             save->numberOfHints = numberOfHints;
             save->numberOfFixes = numberOfFixes;
-            save->hasGivenUp = hasGivenUp;
-            save->hasUsedFix = hasUsedFix;
+            save->numberOfGiveUps = numberOfGiveUps;
             save->gameMode = static_cast<unsigned int>(mode);
             save->gameFinished = gameFinished;
             save->elapsedSeconds = elapsedSeconds;
@@ -102,8 +100,7 @@ namespace Sudoku_3_0
                 writer->WriteLine("difficulty=" + save->difficulty.ToString());
                 writer->WriteLine("numberOfHints=" + save->numberOfHints.ToString());
                 writer->WriteLine("numberOfFixes=" + save->numberOfFixes.ToString());
-                writer->WriteLine("hasGivenUp=" + (save->hasGivenUp ? 1 : 0).ToString());
-                writer->WriteLine("hasUsedFix=" + (save->hasUsedFix ? 1 : 0).ToString());
+                writer->WriteLine("numberOfGiveUps=" + save->numberOfGiveUps.ToString());
                 writer->WriteLine("gameMode=" + save->gameMode.ToString());
                 writer->WriteLine("gameFinished=" + (save->gameFinished ? 1 : 0).ToString());
                 writer->WriteLine("elapsedSeconds=" + save->elapsedSeconds.ToString());
@@ -158,8 +155,7 @@ namespace Sudoku_3_0
             save->difficulty = RequireUInt(fields, "difficulty");
             save->numberOfHints = RequireUInt(fields, "numberOfHints");
             save->numberOfFixes = RequireUInt(fields, "numberOfFixes");
-            save->hasGivenUp = RequireUInt(fields, "hasGivenUp") != 0;
-            save->hasUsedFix = RequireUInt(fields, "hasUsedFix") != 0;
+            save->numberOfGiveUps = RequireUInt(fields, "numberOfGiveUps");
             save->gameMode = RequireUInt(fields, "gameMode");
             save->gameFinished = RequireUInt(fields, "gameFinished") != 0;
             save->elapsedSeconds = RequireUInt(fields, "elapsedSeconds");

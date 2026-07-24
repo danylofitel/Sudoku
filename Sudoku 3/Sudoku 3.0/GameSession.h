@@ -28,14 +28,12 @@ namespace Sudoku_3_0
         // Number of hints used so far
         unsigned int numberOfHints;
 
-        // Number of times Fix was used so far
+        // Number of times Fix was used so far (> 0 means Fix has been used at least once)
         unsigned int numberOfFixes;
 
-        // Whether the user has given up at least once on this puzzle
-        bool hasGivenUp;
-
-        // Whether the user has used Fix at least once on this puzzle
-        bool hasUsedFix;
+        // Number of times the user gave up on this puzzle (> 0 means they have given up at
+        // least once; can exceed 1 since Restart re-enables Give Up without clearing this)
+        unsigned int numberOfGiveUps;
 
         // Pencil mark bitmask per cell
         array<int>^ pencilMarks;
@@ -73,8 +71,7 @@ namespace Sudoku_3_0
             this->numberOfFilledCells = 0;
             this->numberOfHints = 0;
             this->numberOfFixes = 0;
-            this->hasGivenUp = false;
-            this->hasUsedFix = false;
+            this->numberOfGiveUps = 0;
             this->pencilMarks = gcnew array<int>(numberOfCells);
             this->pencilMode = false;
             this->hintMode = false;

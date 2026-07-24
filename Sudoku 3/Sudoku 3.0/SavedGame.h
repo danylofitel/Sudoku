@@ -17,11 +17,8 @@ public:
     // Number of times Fix was used (cumulative across restarts)
     unsigned int numberOfFixes;
 
-    // Whether the user has given up at least once on this puzzle
-    bool hasGivenUp;
-
-    // Whether the user has used Fix at least once on this puzzle
-    bool hasUsedFix;
+    // Number of times the user gave up on this puzzle (cumulative across restarts)
+    unsigned int numberOfGiveUps;
 
     // State of the game: 1 - game, 2 - solver
     unsigned int gameMode;
