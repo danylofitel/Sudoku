@@ -32,7 +32,7 @@ namespace Sudoku_3_0
     public:
         // startupFilePath: a .sdk3 file to open on launch (e.g. passed by the shell when a save
         // is double-clicked), or nullptr to resume the auto-save / start a new game.
-        SudokuForm(System::String^ startupFilePath) : sizeFactor(3), boardSize(sizeFactor* sizeFactor), numberOfCells(boardSize* boardSize)
+        SudokuForm(System::String^ startupFilePath)
         {
             this->startupFilePath = startupFilePath;
             InitializeComponent();
@@ -75,10 +75,11 @@ namespace Sudoku_3_0
     private: static const System::Drawing::Color defaultBackColor = SystemColors::Menu;
     private: static const System::Drawing::Color activeButtonColor = Color::Orange;
 
-           // Size of the board
-    private: const unsigned int sizeFactor;
-    private: const unsigned int boardSize;
-    private: const unsigned int numberOfCells;
+           // Size of the board: a classic 9x9 grid of 3x3 blocks. These are fixed compile-time
+           // constants (the engine and layout are built for this size).
+    private: static const unsigned int sizeFactor = 3;
+    private: static const unsigned int boardSize = sizeFactor * sizeFactor;   // 9
+    private: static const unsigned int numberOfCells = boardSize * boardSize; // 81
 
            // Sudoku engine
     private: SudokuGameEngine::SudokuEngine<>* engine;
@@ -4260,7 +4261,6 @@ namespace Sudoku_3_0
         {
             SaveGameStore::Save(
                 path,
-                this->engine->sizeOfTheBlock(),
                 this->session->difficulty,
                 this->session->numberOfHints,
                 this->session->numberOfFixes,

@@ -8,9 +8,6 @@ using namespace System;
 public ref class SavedGame
 {
 public:
-    // Size of a single block
-    unsigned int sizeFactor;
-
     // Game difficulty level
     unsigned int difficulty;
 

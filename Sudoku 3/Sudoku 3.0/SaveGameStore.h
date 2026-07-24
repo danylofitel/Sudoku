@@ -16,7 +16,7 @@ namespace Sudoku_3_0
     //
     // File format (UTF-8 text, one "key=value" per line):
     //   Sudoku3Save=<format version>
-    //   sizeFactor, difficulty, numberOfHints, numberOfFixes, hasGivenUp,
+    //   difficulty, numberOfHints, numberOfFixes, hasGivenUp,
     //   hasUsedFix, gameMode, gameFinished  (all integers; booleans as 0/1)
     //   elapsedSeconds                       (total play time in whole seconds)
     //   clues, solution, value, state       (digit strings, one char per cell)
@@ -38,7 +38,6 @@ namespace Sudoku_3_0
         // pencilMarks:  bitmask per cell (bits 1-9), space-separated
         static void Save(
             System::String^ filePath,
-            unsigned int sizeFactor,
             unsigned int difficulty,
             unsigned int numberOfHints,
             unsigned int numberOfFixes,
@@ -54,7 +53,6 @@ namespace Sudoku_3_0
             array<int>^ pencilMarks)
         {
             SavedGame^ save = gcnew SavedGame();
-            save->sizeFactor = sizeFactor;
             save->difficulty = difficulty;
             save->numberOfHints = numberOfHints;
             save->numberOfFixes = numberOfFixes;
@@ -101,7 +99,6 @@ namespace Sudoku_3_0
             {
                 writer = gcnew StreamWriter(filePath, false, gcnew System::Text::UTF8Encoding(false));
                 writer->WriteLine("Sudoku3Save=" + FormatVersion.ToString());
-                writer->WriteLine("sizeFactor=" + save->sizeFactor.ToString());
                 writer->WriteLine("difficulty=" + save->difficulty.ToString());
                 writer->WriteLine("numberOfHints=" + save->numberOfHints.ToString());
                 writer->WriteLine("numberOfFixes=" + save->numberOfFixes.ToString());
@@ -158,7 +155,6 @@ namespace Sudoku_3_0
                 throw gcnew UnsupportedSaveVersionException(fileVersion, FormatVersion);
 
             SavedGame^ save = gcnew SavedGame();
-            save->sizeFactor = RequireUInt(fields, "sizeFactor");
             save->difficulty = RequireUInt(fields, "difficulty");
             save->numberOfHints = RequireUInt(fields, "numberOfHints");
             save->numberOfFixes = RequireUInt(fields, "numberOfFixes");
@@ -175,9 +171,6 @@ namespace Sudoku_3_0
                 ? fields["pencilMarks"] : gcnew System::String(L"");
 
             // Structural validation
-            if (save->sizeFactor != 3)
-                throw gcnew System::Exception("Invalid sizeFactor value " + save->sizeFactor.ToString());
-
             if ((unsigned int)save->value->Length != expectedNumberOfCells)
                 throw gcnew System::Exception("Invalid number of cell values " + save->value->Length.ToString());
 
