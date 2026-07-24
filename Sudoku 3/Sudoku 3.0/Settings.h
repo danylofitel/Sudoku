@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "Strings.h"
+#include "Language.h"
 
 namespace Sudoku_3_0
 {

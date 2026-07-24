@@ -5,14 +5,10 @@
 
 #pragma once
 
+#include "Language.h"
+
 namespace Sudoku_3_0
 {
-    enum class Language : unsigned int
-    {
-        English = 0,
-        Ukrainian = 1,
-    };
-
     enum class StringId : unsigned int
     {
         // ---- Window title ----

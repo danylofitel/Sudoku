@@ -11,104 +11,41 @@ using namespace System::Collections::Generic;
 
 namespace Sudoku_3_0
 {
-    // Handles reading and writing SavedGame objects to/from disk.
-    // Contains no UI logic — callers are responsible for applying loaded state.
+    // Reads and writes SavedGame objects to/from disk. This class owns the entire on-disk
+    // representation: callers work only with typed SavedGame data and never see the wire format.
     //
     // File format (UTF-8 text, one "key=value" per line):
     //   Sudoku3Save=<format version>
     //   difficulty, numberOfHints, numberOfFixes, numberOfGiveUps,
     //   gameMode, gameFinished               (all integers; booleans as 0/1)
     //   elapsedSeconds                       (total play time in whole seconds)
-    //   clues, solution, value, state       (digit strings, one char per cell)
+    //   clues, solution, value, state        (digit strings, one char per cell)
     //   pencilMarks                          (space-separated bitmasks, one per cell)
     // The order of lines is not significant; unknown keys are ignored.
     ref class SaveGameStore abstract sealed
     {
     public:
-        // Builds a SavedGame from the current board state and writes it to the given file path.
-        // Throws on I/O error.
-        //
-        // clues:        cell clue values 1-9 (0 = user-fillable cell)
-        // solution:     full solution values 1-9 for every cell
-        // values:       cell values 0-9, one per cell (0 = empty)
-        // states:       cell state codes, one per cell:
-        //                 0 = engine clue (immutable), 1 = empty user cell,
-        //                 2 = user-filled, 3 = confirmed correct, 4 = hint,
-        //                 5 = given-up reveal, 6 = solver-filled
-        // pencilMarks:  bitmask per cell (bits 1-9), space-separated
-        static void Save(
-            System::String^ filePath,
-            unsigned int difficulty,
-            unsigned int numberOfHints,
-            unsigned int numberOfFixes,
-            unsigned int numberOfGiveUps,
-            GameMode mode,
-            bool gameFinished,
-            unsigned int elapsedSeconds,
-            array<unsigned char>^ clues,
-            array<unsigned char>^ solution,
-            array<unsigned char>^ values,
-            array<unsigned char>^ states,
-            array<int>^ pencilMarks)
+        // Writes a SavedGame to the given file path. Throws on I/O error.
+        static void Save(System::String^ filePath, SavedGame^ game)
         {
-            SavedGame^ save = gcnew SavedGame();
-            save->difficulty = difficulty;
-            save->numberOfHints = numberOfHints;
-            save->numberOfFixes = numberOfFixes;
-            save->numberOfGiveUps = numberOfGiveUps;
-            save->gameMode = static_cast<unsigned int>(mode);
-            save->gameFinished = gameFinished;
-            save->elapsedSeconds = elapsedSeconds;
-
-            // Encode clues and solution
-            System::Text::StringBuilder^ cluesSb = gcnew System::Text::StringBuilder(clues->Length);
-            System::Text::StringBuilder^ solutionSb = gcnew System::Text::StringBuilder(solution->Length);
-            for (int i = 0; i < clues->Length; ++i)
-            {
-                cluesSb->Append((wchar_t)(L'0' + clues[i]));
-                solutionSb->Append((wchar_t)(L'0' + solution[i]));
-            }
-            save->clues = cluesSb->ToString();
-            save->solution = solutionSb->ToString();
-
-            // Encode values and states as compact strings
-            System::Text::StringBuilder^ valueSb = gcnew System::Text::StringBuilder(values->Length);
-            System::Text::StringBuilder^ stateSb = gcnew System::Text::StringBuilder(states->Length);
-            for (int i = 0; i < values->Length; ++i)
-            {
-                valueSb->Append((wchar_t)(L'0' + values[i]));
-                stateSb->Append((wchar_t)(L'0' + states[i]));
-            }
-            save->value = valueSb->ToString();
-            save->state = stateSb->ToString();
-
-            // Encode pencil marks as space-separated integers
-            System::Text::StringBuilder^ markSb = gcnew System::Text::StringBuilder();
-            for (int i = 0; i < pencilMarks->Length; ++i)
-            {
-                if (i > 0) markSb->Append(L' ');
-                markSb->Append(pencilMarks[i]);
-            }
-            save->pencilMarks = markSb->ToString();
-
             // Write as UTF-8 text (no BOM), one key=value per line.
             StreamWriter^ writer = nullptr;
             try
             {
                 writer = gcnew StreamWriter(filePath, false, gcnew System::Text::UTF8Encoding(false));
                 writer->WriteLine("Sudoku3Save=" + FormatVersion.ToString());
-                writer->WriteLine("difficulty=" + save->difficulty.ToString());
-                writer->WriteLine("numberOfHints=" + save->numberOfHints.ToString());
-                writer->WriteLine("numberOfFixes=" + save->numberOfFixes.ToString());
-                writer->WriteLine("numberOfGiveUps=" + save->numberOfGiveUps.ToString());
-                writer->WriteLine("gameMode=" + save->gameMode.ToString());
-                writer->WriteLine("gameFinished=" + (save->gameFinished ? 1 : 0).ToString());
-                writer->WriteLine("elapsedSeconds=" + save->elapsedSeconds.ToString());
-                writer->WriteLine("clues=" + save->clues);
-                writer->WriteLine("solution=" + save->solution);
-                writer->WriteLine("value=" + save->value);
-                writer->WriteLine("state=" + save->state);
-                writer->WriteLine("pencilMarks=" + save->pencilMarks);
+                writer->WriteLine("difficulty=" + game->difficulty.ToString());
+                writer->WriteLine("numberOfHints=" + game->numberOfHints.ToString());
+                writer->WriteLine("numberOfFixes=" + game->numberOfFixes.ToString());
+                writer->WriteLine("numberOfGiveUps=" + game->numberOfGiveUps.ToString());
+                writer->WriteLine("gameMode=" + (static_cast<unsigned int>(game->mode)).ToString());
+                writer->WriteLine("gameFinished=" + (game->gameFinished ? 1 : 0).ToString());
+                writer->WriteLine("elapsedSeconds=" + game->elapsedSeconds.ToString());
+                writer->WriteLine("clues=" + EncodeDigits(game->clues));
+                writer->WriteLine("solution=" + EncodeDigits(game->solution));
+                writer->WriteLine("value=" + EncodeDigits(game->values));
+                writer->WriteLine("state=" + EncodeDigits(game->states));
+                writer->WriteLine("pencilMarks=" + EncodePencilMarks(game->pencilMarks));
             }
             finally
             {
@@ -116,8 +53,9 @@ namespace Sudoku_3_0
             }
         }
 
-        // Reads and validates a SavedGame from the given file path.
-        // Throws a System::Exception on any validation or I/O failure.
+        // Reads and validates a save file, returning a typed SavedGame.
+        // Throws UnsupportedSaveVersionException for a newer format, or System::Exception on
+        // any other I/O or validation failure.
         static SavedGame^ Load(System::String^ filePath, unsigned int expectedNumberOfCells)
         {
             Dictionary<System::String^, System::String^>^ fields =
@@ -151,100 +89,135 @@ namespace Sudoku_3_0
             if (fileVersion > FormatVersion)
                 throw gcnew UnsupportedSaveVersionException(fileVersion, FormatVersion);
 
-            SavedGame^ save = gcnew SavedGame();
-            save->difficulty = RequireUInt(fields, "difficulty");
-            save->numberOfHints = RequireUInt(fields, "numberOfHints");
-            save->numberOfFixes = RequireUInt(fields, "numberOfFixes");
-            save->numberOfGiveUps = RequireUInt(fields, "numberOfGiveUps");
-            save->gameMode = RequireUInt(fields, "gameMode");
-            save->gameFinished = RequireUInt(fields, "gameFinished") != 0;
-            save->elapsedSeconds = RequireUInt(fields, "elapsedSeconds");
-            save->clues = RequireStr(fields, "clues");
-            save->solution = RequireStr(fields, "solution");
-            save->value = RequireStr(fields, "value");
-            save->state = RequireStr(fields, "state");
-            save->pencilMarks = fields->ContainsKey("pencilMarks")
-                ? fields["pencilMarks"] : gcnew System::String(L"");
+            SavedGame^ game = gcnew SavedGame();
+            game->difficulty = RequireUInt(fields, "difficulty");
+            game->numberOfHints = RequireUInt(fields, "numberOfHints");
+            game->numberOfFixes = RequireUInt(fields, "numberOfFixes");
+            game->numberOfGiveUps = RequireUInt(fields, "numberOfGiveUps");
+            game->gameFinished = RequireUInt(fields, "gameFinished") != 0;
+            game->elapsedSeconds = RequireUInt(fields, "elapsedSeconds");
 
-            // Structural validation
-            if ((unsigned int)save->value->Length != expectedNumberOfCells)
-                throw gcnew System::Exception("Invalid number of cell values " + save->value->Length.ToString());
-
-            if (save->state->Length != save->value->Length)
-                throw gcnew System::Exception("Invalid number of cell states " + save->state->Length.ToString());
-
-            unsigned int gameMode = save->gameMode;
+            unsigned int gameMode = RequireUInt(fields, "gameMode");
             if (gameMode != static_cast<unsigned int>(GameMode::Game) &&
                 gameMode != static_cast<unsigned int>(GameMode::Solver))
             {
                 throw gcnew System::Exception("Invalid gameMode value " + gameMode.ToString());
             }
+            game->mode = static_cast<GameMode>(gameMode);
+
+            // Board state is always present and full-length.
+            game->values = DecodeDigits(RequireStr(fields, "value"), expectedNumberOfCells, L'0', L'9', "value");
+            game->states = DecodeDigits(RequireStr(fields, "state"), expectedNumberOfCells, L'0', L'6', "state");
 
             // The puzzle snapshot (clues + solution) is optional: a Solver session that has not
             // been solved yet has no known solution, so both fields are empty. When present, both
             // must be full-length and consistent. Game mode always requires a solution.
-            bool hasPuzzle = save->clues->Length > 0 || save->solution->Length > 0;
+            System::String^ cluesStr = RequireStr(fields, "clues");
+            System::String^ solutionStr = RequireStr(fields, "solution");
+            bool hasPuzzle = cluesStr->Length > 0 || solutionStr->Length > 0;
 
-            if (gameMode == static_cast<unsigned int>(GameMode::Game) && !hasPuzzle)
+            if (game->mode == GameMode::Game && !hasPuzzle)
                 throw gcnew System::Exception("A saved game must contain a puzzle solution.");
 
             if (hasPuzzle)
             {
-                if ((unsigned int)save->clues->Length != expectedNumberOfCells)
-                    throw gcnew System::Exception("Invalid clues field length");
-
-                if ((unsigned int)save->solution->Length != expectedNumberOfCells)
-                    throw gcnew System::Exception("Invalid solution field length");
-
-                // Validate clues and solution
-                for (int i = 0; i < save->clues->Length; ++i)
-                {
-                    wchar_t c = save->clues[i];
-                    wchar_t s = save->solution[i];
-                    if (c < L'0' || c > L'9')
-                        throw gcnew System::Exception("Invalid clue value " + c.ToString() + " at index " + i.ToString());
-                    if (s < L'1' || s > L'9')
-                        throw gcnew System::Exception("Invalid solution value " + s.ToString() + " at index " + i.ToString());
-                    if (c != L'0' && c != s)
+                game->clues = DecodeDigits(cluesStr, expectedNumberOfCells, L'0', L'9', "clue");
+                game->solution = DecodeDigits(solutionStr, expectedNumberOfCells, L'1', L'9', "solution");
+                for (unsigned int i = 0; i < expectedNumberOfCells; ++i)
+                    if (game->clues[i] != 0 && game->clues[i] != game->solution[i])
                         throw gcnew System::Exception("Clue/solution mismatch at index " + i.ToString());
-                }
+            }
+            else
+            {
+                game->clues = gcnew array<unsigned char>(0);
+                game->solution = gcnew array<unsigned char>(0);
             }
 
-            // Per-cell validation
-            for (int i = 0; i < save->value->Length; ++i)
+            // Per-cell cross-field validation
+            for (unsigned int i = 0; i < expectedNumberOfCells; ++i)
             {
-                wchar_t v = save->value[i];
-                wchar_t s = save->state[i];
+                unsigned char v = game->values[i];
+                unsigned char s = game->states[i];
 
-                if (v < L'0' || v > L'9')
-                    throw gcnew System::Exception("Invalid cell value " + v.ToString() + " at index " + i.ToString());
-
-                if (s < L'0' || s > L'6')
-                    throw gcnew System::Exception("Invalid cell state " + s.ToString() + " at index " + i.ToString());
-
-                // state '1' means empty cell, so value must be '0' and vice versa
-                if ((v == L'0') != (s == L'1'))
+                // state 1 means an empty cell, so value must be 0 and vice versa
+                if ((v == 0) != (s == 1))
                     throw gcnew System::Exception("Mismatched cell value and state at index " + i.ToString());
 
-                // Validate state is legal for the saved game mode
-                if (gameMode == static_cast<unsigned int>(GameMode::Game))
-                {
-                    if (s == L'6')
-                        throw gcnew System::Exception("Invalid state 6 in game mode at index " + i.ToString());
-                }
-                else // Solver
-                {
-                    if (s == L'3' || s == L'4' || s == L'5')
-                        throw gcnew System::Exception("Invalid state " + s.ToString() + " in solver mode at index " + i.ToString());
-                }
+                if (game->mode == GameMode::Game && s == 6)
+                    throw gcnew System::Exception("Invalid state 6 in game mode at index " + i.ToString());
+                if (game->mode == GameMode::Solver && (s == 3 || s == 4 || s == 5))
+                    throw gcnew System::Exception("Invalid state " + s.ToString() + " in solver mode at index " + i.ToString());
             }
 
-            return save;
+            game->pencilMarks = DecodePencilMarks(
+                fields->ContainsKey("pencilMarks") ? fields["pencilMarks"] : gcnew System::String(L""),
+                expectedNumberOfCells);
+
+            return game;
         }
 
     private:
         // Bumped whenever the on-disk format changes in a breaking way.
         static const unsigned int FormatVersion = 1;
+
+        // Encodes a 0-9 digit array as a string of ASCII digits.
+        static System::String^ EncodeDigits(array<unsigned char>^ digits)
+        {
+            System::Text::StringBuilder^ sb = gcnew System::Text::StringBuilder(digits->Length);
+            for (int i = 0; i < digits->Length; ++i)
+                sb->Append((wchar_t)(L'0' + digits[i]));
+            return sb->ToString();
+        }
+
+        // Decodes a string of ASCII digits into a byte array, validating both its length and
+        // that every character lies within [minDigit, maxDigit].
+        static array<unsigned char>^ DecodeDigits(
+            System::String^ text, unsigned int expectedLength,
+            wchar_t minDigit, wchar_t maxDigit, System::String^ fieldName)
+        {
+            if ((unsigned int)text->Length != expectedLength)
+                throw gcnew System::Exception("Invalid length for field '" + fieldName + "'");
+
+            array<unsigned char>^ result = gcnew array<unsigned char>(text->Length);
+            for (int i = 0; i < text->Length; ++i)
+            {
+                wchar_t c = text[i];
+                if (c < minDigit || c > maxDigit)
+                    throw gcnew System::Exception("Invalid " + fieldName + " value '" + c.ToString() + "' at index " + i.ToString());
+                result[i] = (unsigned char)(c - L'0');
+            }
+            return result;
+        }
+
+        // Encodes pencil-mark bitmasks as space-separated integers.
+        static System::String^ EncodePencilMarks(array<int>^ marks)
+        {
+            System::Text::StringBuilder^ sb = gcnew System::Text::StringBuilder();
+            for (int i = 0; i < marks->Length; ++i)
+            {
+                if (i > 0) sb->Append(L' ');
+                sb->Append(marks[i]);
+            }
+            return sb->ToString();
+        }
+
+        // Decodes space-separated pencil-mark bitmasks into an array of the expected length.
+        // Lenient: missing or unparsable entries default to 0 (no marks).
+        static array<int>^ DecodePencilMarks(System::String^ text, unsigned int expectedLength)
+        {
+            array<int>^ marks = gcnew array<int>(expectedLength);
+            if (text != nullptr && text->Length > 0)
+            {
+                array<System::String^>^ parts = text->Split(' ');
+                for (unsigned int i = 0; i < expectedLength && i < (unsigned int)parts->Length; ++i)
+                {
+                    int m = 0;
+                    if (System::Int32::TryParse(parts[i], m))
+                        marks[i] = m;
+                }
+            }
+            return marks;
+        }
 
         static unsigned int RequireUInt(Dictionary<System::String^, System::String^>^ fields, System::String^ key)
         {

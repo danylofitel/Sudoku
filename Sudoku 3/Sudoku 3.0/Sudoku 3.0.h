@@ -4247,32 +4247,29 @@ namespace Sudoku_3_0
                 states[i] = 0;
         }
 
-        bool gameFinished = this->isGameFinished();
+        SavedGame^ game = gcnew SavedGame();
+        game->difficulty = this->session->difficulty;
+        game->numberOfHints = this->session->numberOfHints;
+        game->numberOfFixes = this->session->numberOfFixes;
+        game->numberOfGiveUps = this->session->numberOfGiveUps;
+        game->mode = this->session->mode;
+        game->gameFinished = this->isGameFinished();
+        game->elapsedSeconds = (unsigned int)this->gameTimer->Elapsed.TotalSeconds;
+        game->values = values;
+        game->states = states;
+        game->pencilMarks = this->session->pencilMarks;
 
         // The puzzle snapshot may not exist yet (a custom puzzle still being entered in Solver
         // mode). In that case we persist empty clues/solution; the board is fully recoverable
         // from the per-cell values and states alone.
-        array<unsigned char>^ clues = this->session->puzzle != nullptr
+        game->clues = this->session->puzzle != nullptr
             ? this->session->puzzle->clues : gcnew array<unsigned char>(0);
-        array<unsigned char>^ solution = this->session->puzzle != nullptr
+        game->solution = this->session->puzzle != nullptr
             ? this->session->puzzle->solution : gcnew array<unsigned char>(0);
 
         try
         {
-            SaveGameStore::Save(
-                path,
-                this->session->difficulty,
-                this->session->numberOfHints,
-                this->session->numberOfFixes,
-                this->session->numberOfGiveUps,
-                this->session->mode,
-                gameFinished,
-                (unsigned int)this->gameTimer->Elapsed.TotalSeconds,
-                clues,
-                solution,
-                values,
-                states,
-                this->session->pencilMarks);
+            SaveGameStore::Save(path, game);
             return true;
         }
         catch (System::Exception^)
@@ -4342,7 +4339,7 @@ namespace Sudoku_3_0
         this->session->numberOfHints = save->numberOfHints;
         this->session->numberOfFixes = save->numberOfFixes;
         this->session->numberOfGiveUps = save->numberOfGiveUps;
-        this->session->mode = static_cast<GameMode>(save->gameMode);
+        this->session->mode = save->mode;
         this->setGameControls(
             this->session->mode == GameMode::Game && !save->gameFinished,
             this->session->mode == GameMode::Game,
@@ -4350,59 +4347,39 @@ namespace Sudoku_3_0
 
         // Restore the immutable puzzle snapshot if the save has one. A Solver session saved
         // mid-entry has no solution yet, so the puzzle stays nullptr until the user solves it.
-        if (save->clues->Length > 0)
-        {
-            array<unsigned char>^ clues = gcnew array<unsigned char>(this->numberOfCells);
-            array<unsigned char>^ solution = gcnew array<unsigned char>(this->numberOfCells);
-            for (unsigned int i = 0; i < this->numberOfCells; ++i)
-            {
-                clues[i] = (unsigned char)(save->clues[i] - L'0');
-                solution[i] = (unsigned char)(save->solution[i] - L'0');
-            }
-            this->session->puzzle = gcnew Puzzle(clues, solution);
-        }
-        else
-        {
-            this->session->puzzle = nullptr;
-        }
+        // (Puzzle defensively copies the arrays, so passing the save's arrays directly is safe.)
+        this->session->puzzle = save->clues->Length > 0
+            ? gcnew Puzzle(save->clues, save->solution)
+            : nullptr;
 
         // Apply each cell
         for (unsigned int index = 0; index < this->numberOfCells; ++index)
         {
-            wchar_t v = save->value[index];
-            wchar_t s = save->state[index];
+            unsigned char v = save->values[index];
+            unsigned char s = save->states[index];
 
             // Cell text
-            this->cells[index]->Text = (v == L'0') ? "" : v.ToString();
+            this->cells[index]->Text = (v == 0) ? "" : ((int)v).ToString();
 
             // Enabled state
-            this->cells[index]->Enabled = (s == L'1' || s == L'2');
+            this->cells[index]->Enabled = (s == 1 || s == 2);
 
             // Fore color
-            if (s == L'3') this->cells[index]->ForeColor = correctColor;
-            else if (s == L'4') this->cells[index]->ForeColor = hintColor;
-            else if (s == L'5') this->cells[index]->ForeColor = giveUpColor;
-            else if (s == L'6') this->cells[index]->ForeColor = solveColor;
+            if (s == 3) this->cells[index]->ForeColor = correctColor;
+            else if (s == 4) this->cells[index]->ForeColor = hintColor;
+            else if (s == 5) this->cells[index]->ForeColor = giveUpColor;
+            else if (s == 6) this->cells[index]->ForeColor = solveColor;
 
             // Count filled cells
-            if (s != L'1')
+            if (s != 1)
                 ++this->session->numberOfFilledCells;
         }
 
-        // Restore pencil marks
+        // Restore pencil marks (SaveGameStore already produced a full-length array)
         this->undoManager->clear();
-        if (save->pencilMarks != nullptr && save->pencilMarks->Length > 0)
-        {
-            array<System::String^>^ parts = save->pencilMarks->Split(' ');
-            for (unsigned int i = 0; i < this->numberOfCells && i < (unsigned int)parts->Length; ++i)
-            {
-                int mark = 0;
-                if (int::TryParse(parts[i], mark))
-                    this->session->pencilMarks[i] = mark;
-            }
-            for each (Button ^ cell in this->cells)
-                cell->Invalidate();
-        }
+        this->session->pencilMarks = save->pencilMarks;
+        for each (Button ^ cell in this->cells)
+            cell->Invalidate();
 
         // Clipboard controls follow from the restored session state: a solved custom puzzle
         // (puzzle snapshot present) offers Copy Solution, an in-progress one offers Paste.

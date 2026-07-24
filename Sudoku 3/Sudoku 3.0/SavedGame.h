@@ -2,47 +2,48 @@
 
 #pragma once
 
-using namespace System;
+#include "GameMode.h"
 
-[Serializable]
-public ref class SavedGame
+namespace Sudoku_3_0
 {
-public:
-    // Game difficulty level
-    unsigned int difficulty;
+    // Plain in-memory data carrier for a saved game, exchanged between SudokuForm and
+    // SaveGameStore. It holds typed domain data only; SaveGameStore owns all on-disk
+    // (text) encoding and decoding, so no wire format leaks into callers.
+    ref class SavedGame
+    {
+    public:
+        // Difficulty index: 0=VeryEasy .. 4=VeryHard
+        unsigned int difficulty;
 
-    // Number of used hints (cumulative across restarts)
-    unsigned int numberOfHints;
+        // Assist counters, cumulative across restarts of the same puzzle
+        unsigned int numberOfHints;
+        unsigned int numberOfFixes;
+        unsigned int numberOfGiveUps;
 
-    // Number of times Fix was used (cumulative across restarts)
-    unsigned int numberOfFixes;
+        // Game vs Solver session
+        GameMode mode;
 
-    // Number of times the user gave up on this puzzle (cumulative across restarts)
-    unsigned int numberOfGiveUps;
+        // Whether the puzzle is finished (won, given up, or solved)
+        bool gameFinished;
 
-    // State of the game: 1 - game, 2 - solver
-    unsigned int gameMode;
+        // Total play time in whole seconds
+        unsigned int elapsedSeconds;
 
-    // The game has been finished
-    bool gameFinished;
+        // Immutable puzzle snapshot, each of length numberOfCells:
+        //   clues[i]    : 0 = hidden cell, 1-9 = engine clue
+        //   solution[i] : 1-9 = correct value
+        // Both are empty (length 0) for a custom puzzle entered in Solver mode that has
+        // not been solved yet.
+        array<unsigned char>^ clues;
+        array<unsigned char>^ solution;
 
-    // Total time spent on the puzzle, in whole seconds (cumulative across restarts)
-    unsigned int elapsedSeconds;
-
-    // Values of all cells
-    System::String^ value;
-
-    // State of all cells: 0 - filled by the engine, 1 - empty, 2 - filled by user,
-    // 3 - filled by user and confirmed, 4 - hint, 5 - filled when the user gave up,
-    // 6 - filled by the solver
-    System::String^ state;
-
-    // Pencil mark bitmasks for all cells, space-separated (may be null for old saves)
-    System::String^ pencilMarks;
-
-    // Original puzzle clues: digit 1-9, or '0' for empty (user-fillable cells)
-    System::String^ clues;
-
-    // Full solution: digit 1-9 for every cell
-    System::String^ solution;
-};
+        // Per-cell board state, each of length numberOfCells:
+        //   values[i]      : 0 = empty, 1-9 = filled
+        //   states[i]      : 0 = engine clue, 1 = empty, 2 = user-filled, 3 = confirmed correct,
+        //                    4 = hint, 5 = given-up reveal, 6 = solver-filled
+        //   pencilMarks[i] : bitmask of pencilled digits (bits 1-9)
+        array<unsigned char>^ values;
+        array<unsigned char>^ states;
+        array<int>^ pencilMarks;
+    };
+}
