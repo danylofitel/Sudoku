@@ -16,10 +16,15 @@ int main(array<System::String^>^ args)
     // ThreadException dialog, so any crash shows one friendly localized message.
     Application::SetUnhandledExceptionMode(UnhandledExceptionMode::ThrowException);
 
+    // First command-line argument, if any, is a save file to open on launch (e.g. from a
+    // .sdk3 file association). Note: .NET args do NOT include the executable path, so args[0]
+    // is the first real argument.
+    System::String^ startupFile = (args != nullptr && args->Length > 0) ? args[0] : nullptr;
+
     try
     {
         // Create the main window and run it
-        Application::Run(gcnew SudokuForm());
+        Application::Run(gcnew SudokuForm(startupFile));
     }
     catch (System::Exception^ ex)
     {

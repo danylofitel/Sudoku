@@ -30,8 +30,11 @@ namespace Sudoku_3_0
     public ref class SudokuForm : public System::Windows::Forms::Form
     {
     public:
-        SudokuForm(void) : sizeFactor(3), boardSize(sizeFactor* sizeFactor), numberOfCells(boardSize* boardSize)
+        // startupFilePath: a .sdk3 file to open on launch (e.g. passed by the shell when a save
+        // is double-clicked), or nullptr to resume the auto-save / start a new game.
+        SudokuForm(System::String^ startupFilePath) : sizeFactor(3), boardSize(sizeFactor* sizeFactor), numberOfCells(boardSize* boardSize)
         {
+            this->startupFilePath = startupFilePath;
             InitializeComponent();
             this->initialize();
         }
@@ -256,6 +259,9 @@ namespace Sudoku_3_0
 
            // Window dragging
     private: WindowDragger^ dragger;
+
+           // .sdk3 file to open at launch (from the command line / shell), or nullptr
+    private: System::String^ startupFilePath;
 
            // Cached resources for painting pencil marks. The font is rebuilt only when the
            // cell size (and hence the derived point size) changes; the format is created once.
@@ -2588,12 +2594,16 @@ namespace Sudoku_3_0
             cell->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &SudokuForm::cell_MouseClick);
         }
 
-        // Resume the session auto-saved when the app last closed, or start a new game
-        // at the restored preferred difficulty
-        if (!this->tryResumeAutoSave())
-        {
+        // Startup priority:
+        //   1. a .sdk3 file passed on the command line / by the shell (open it, report errors)
+        //   2. otherwise resume the session auto-saved when the app last closed
+        //   3. otherwise start a new game at the restored preferred difficulty
+        bool started = false;
+        if (this->startupFilePath != nullptr && this->startupFilePath->Length > 0)
+            started = this->loadGameFromFile(this->startupFilePath);
+
+        if (!started && !this->tryResumeAutoSave())
             this->newGame(this->difficultyLevelFromIndex(this->selectedDifficulty));
-        }
     }
 
            // Apply the given language to all UI controls and update the language menu checkmarks.
@@ -4280,33 +4290,42 @@ namespace Sudoku_3_0
         }
     }
 
-    private: void openGameDialog_FileOk(System::Object^ sender, System::ComponentModel::CancelEventArgs^ e)
+           // Loads and applies a save file the user explicitly asked for (Open dialog or a
+           // command-line / shell file argument), reporting any failure. Returns true on success.
+    private: bool loadGameFromFile(System::String^ path)
     {
         SavedGame^ save = nullptr;
         try
         {
-            save = SaveGameStore::Load(this->openGameDialog->FileName, this->numberOfCells);
+            save = SaveGameStore::Load(path, this->numberOfCells);
         }
         catch (UnsupportedSaveVersionException^ ex)
         {
             this->showNotification(
                 Strings::Get(StringId::NotifyUnsupportedVersion, this->currentLanguage) + ex->FileVersion);
-            return;
+            return false;
         }
         catch (System::Exception^)
         {
             this->showNotification(Strings::Get(StringId::NotifyFileLoadError, this->currentLanguage));
-            return;
+            return false;
         }
 
         try
         {
             this->applyLoadedGame(save);
+            return true;
         }
         catch (System::Exception^)
         {
             this->showNotification(Strings::Get(StringId::NotifyFileLoadError, this->currentLanguage));
+            return false;
         }
+    }
+
+    private: void openGameDialog_FileOk(System::Object^ sender, System::ComponentModel::CancelEventArgs^ e)
+    {
+        this->loadGameFromFile(this->openGameDialog->FileName);
     }
 
            // Applies a validated SavedGame to the session, board, and controls. Throws on any
