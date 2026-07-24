@@ -3528,6 +3528,7 @@ namespace Sudoku_3_0
         this->closeHelperForms();
         this->clearActiveModes();
 
+        ++this->session->numberOfRestarts;
         this->undoManager->clear();
         // Timing is cumulative across restarts of the same puzzle; this also resumes
         // the timer when restarting after a win or a give-up froze it
@@ -4249,6 +4250,7 @@ namespace Sudoku_3_0
 
         SavedGame^ game = gcnew SavedGame();
         game->difficulty = this->session->difficulty;
+        game->numberOfRestarts = this->session->numberOfRestarts;
         game->numberOfHints = this->session->numberOfHints;
         game->numberOfFixes = this->session->numberOfFixes;
         game->numberOfGiveUps = this->session->numberOfGiveUps;
@@ -4336,6 +4338,7 @@ namespace Sudoku_3_0
         this->session->difficulty = save->difficulty;
         this->difficultyComboBox->SelectedIndex = save->difficulty;
         this->session->numberOfFilledCells = 0;
+        this->session->numberOfRestarts = save->numberOfRestarts;
         this->session->numberOfHints = save->numberOfHints;
         this->session->numberOfFixes = save->numberOfFixes;
         this->session->numberOfGiveUps = save->numberOfGiveUps;

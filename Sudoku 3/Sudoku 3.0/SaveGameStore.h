@@ -16,7 +16,7 @@ namespace Sudoku_3_0
     //
     // File format (UTF-8 text, one "key=value" per line):
     //   Sudoku3Save=<format version>
-    //   difficulty, numberOfHints, numberOfFixes, numberOfGiveUps,
+    //   difficulty, numberOfRestarts, numberOfHints, numberOfFixes, numberOfGiveUps,
     //   gameMode, gameFinished               (all integers; booleans as 0/1)
     //   elapsedSeconds                       (total play time in whole seconds)
     //   clues, solution, value, state        (digit strings, one char per cell)
@@ -35,6 +35,7 @@ namespace Sudoku_3_0
                 writer = gcnew StreamWriter(filePath, false, gcnew System::Text::UTF8Encoding(false));
                 writer->WriteLine("Sudoku3Save=" + FormatVersion.ToString());
                 writer->WriteLine("difficulty=" + game->difficulty.ToString());
+                writer->WriteLine("numberOfRestarts=" + game->numberOfRestarts.ToString());
                 writer->WriteLine("numberOfHints=" + game->numberOfHints.ToString());
                 writer->WriteLine("numberOfFixes=" + game->numberOfFixes.ToString());
                 writer->WriteLine("numberOfGiveUps=" + game->numberOfGiveUps.ToString());
@@ -91,6 +92,7 @@ namespace Sudoku_3_0
 
             SavedGame^ game = gcnew SavedGame();
             game->difficulty = RequireUInt(fields, "difficulty");
+            game->numberOfRestarts = RequireUInt(fields, "numberOfRestarts");
             game->numberOfHints = RequireUInt(fields, "numberOfHints");
             game->numberOfFixes = RequireUInt(fields, "numberOfFixes");
             game->numberOfGiveUps = RequireUInt(fields, "numberOfGiveUps");

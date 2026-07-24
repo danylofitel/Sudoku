@@ -25,6 +25,9 @@ namespace Sudoku_3_0
         // Number of cells that currently have a value
         unsigned int numberOfFilledCells;
 
+        // Number of times the puzzle has been restarted so far
+        unsigned int numberOfRestarts;
+
         // Number of hints used so far
         unsigned int numberOfHints;
 
@@ -69,6 +72,7 @@ namespace Sudoku_3_0
             this->puzzle = nullptr;
             this->difficulty = difficultyIndex;
             this->numberOfFilledCells = 0;
+            this->numberOfRestarts = 0;
             this->numberOfHints = 0;
             this->numberOfFixes = 0;
             this->numberOfGiveUps = 0;

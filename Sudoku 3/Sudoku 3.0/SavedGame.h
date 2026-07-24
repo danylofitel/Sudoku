@@ -15,7 +15,8 @@ namespace Sudoku_3_0
         // Difficulty index: 0=VeryEasy .. 4=VeryHard
         unsigned int difficulty;
 
-        // Assist counters, cumulative across restarts of the same puzzle
+        // Counters, cumulative across restarts of the same puzzle
+        unsigned int numberOfRestarts;
         unsigned int numberOfHints;
         unsigned int numberOfFixes;
         unsigned int numberOfGiveUps;
