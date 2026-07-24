@@ -74,6 +74,10 @@ namespace Sudoku_3_0
     private: static const System::Drawing::Color solveColor = Color::DarkCyan;
     private: static const System::Drawing::Color defaultBackColor = SystemColors::Menu;
     private: static const System::Drawing::Color activeButtonColor = Color::Orange;
+           // Conflict-highlight backgrounds: bright red on an editable cell, softer coral on a
+           // locked one (a clue/hint/reveal cannot be changed, so its conflict is only informative)
+    private: static const System::Drawing::Color conflictBackColor = Color::Red;
+    private: static const System::Drawing::Color conflictBackColorImmutable = Color::LightCoral;
 
            // Size of the board: a classic 9x9 grid of 3x3 blocks. These are fixed compile-time
            // constants (the engine and layout are built for this size).
@@ -2543,8 +2547,9 @@ namespace Sudoku_3_0
         // Initialize the form
         this->session = gcnew GameSession(this->numberOfCells);
         this->playerStats = gcnew PlayerStats();
-        this->undoManager = gcnew UndoManager(this->undoButton, this->undoToolStripMenuItem);
-        this->conflicts = gcnew ConflictDetector(this->cells, this->sizeFactor);
+        this->undoManager = gcnew UndoManager(gcnew System::Action(this, &SudokuForm::syncUndoControls));
+        this->syncUndoControls(); // initial state, now that undoManager is assigned
+        this->conflicts = gcnew ConflictDetector(this->session->board, this->sizeFactor);
         this->gameTimer = gcnew GameTimer();
 
         // Restore the win streak earned in previous runs
@@ -2818,8 +2823,8 @@ namespace Sudoku_3_0
         }
     }
 
-           // Projects one board cell onto its button (text, color, enabled) without touching the
-           // conflict background. Callers pair this with a ConflictDetector highlight pass.
+           // Projects one board cell fully onto its button: text, fore color, enabled state, and
+           // conflict background. Invalidates so cell_Paint repaints any pencil marks.
     private: void projectCell(unsigned int index)
     {
         Board^ board = this->session->board;
@@ -2829,22 +2834,27 @@ namespace Sudoku_3_0
         cell->Text = value == 0 ? String::Empty : ((int)value).ToString();
         cell->ForeColor = this->colorForKind(board->kindAt(index));
         cell->Enabled = board->isEditable(index);
+        cell->BackColor = this->conflicts->hasConflict(index)
+            ? (board->isEditable(index) ? conflictBackColor : conflictBackColorImmutable)
+            : defaultBackColor;
+        cell->Invalidate();
     }
 
-           // Renders a single cell after a change: projects it, then re-evaluates conflict
-           // highlighting for it and its peers (which also repaints their pencil marks).
+           // Renders a single cell after a change, plus its peers (whose conflict state may have
+           // changed as a result). Conflict detection reads the board model, so partial-render
+           // ordering is never an issue.
     private: void renderCell(unsigned int index)
     {
         this->projectCell(index);
-        this->conflicts->highlightWithPeers(index);
+        for each (unsigned int peer in this->conflicts->peersOf(index))
+            this->projectCell(peer);
     }
 
-           // Re-projects the entire board, then evaluates conflict highlighting once over all cells.
+           // Re-projects the entire board.
     private: void renderAll()
     {
         for (unsigned int i = 0; i < this->numberOfCells; ++i)
             this->projectCell(i);
-        this->conflicts->highlightAll();
     }
 
            // Clears the board model to empty editable cells and re-renders.
@@ -3052,13 +3062,6 @@ namespace Sudoku_3_0
         }
     }
 
-           // The board value at a cell as display text ("" if empty). Used to record undo state.
-    private: System::String^ valueText(unsigned int index)
-    {
-        unsigned char value = this->session->board->valueAt(index);
-        return value == 0 ? String::Empty : ((int)value).ToString();
-    }
-
            // Handles a click on any of the 81 cell buttons. Every cell is wired to this one
            // handler in initialize(); the clicked cell is identified from the sender.
     private: void cell_Click(System::Object^ sender, System::EventArgs^ e)
@@ -3080,7 +3083,7 @@ namespace Sudoku_3_0
         // If this is a hint option, reveal the cell's solution value
         if (this->session->hintMode)
         {
-            this->undoManager->push(index, this->valueText(index), this->session->board->pencilMarksAt(index));
+            this->undoManager->push(index, this->session->board->valueAt(index), this->session->board->pencilMarksAt(index));
             this->session->board->reveal(index, this->session->puzzle->solution[index], CellKind::Hint);
             ++(this->session->numberOfHints);
             this->renderCell(index);
@@ -3129,7 +3132,7 @@ namespace Sudoku_3_0
         {
             if (choice >= 1 && choice <= 9)
             {
-                this->undoManager->push(index, this->valueText(index), board->pencilMarksAt(index));
+                this->undoManager->push(index, this->session->board->valueAt(index), board->pencilMarksAt(index));
                 board->togglePencilMark(index, (int)choice);
                 this->renderCell(index);
             }
@@ -3142,23 +3145,30 @@ namespace Sudoku_3_0
             if (board->isEmpty(index) && choice == 0)
                 return;
 
-            this->undoManager->push(index, this->valueText(index), board->pencilMarksAt(index));
+            this->undoManager->push(index, this->session->board->valueAt(index), board->pencilMarksAt(index));
             board->setUserValue(index, (unsigned char)choice);
             this->renderCell(index);
             this->checkGameState();
         }
         else
         {
-            this->conflicts->highlight(index);
+            this->renderCell(index);
         }
     }
 
-    private: void restoreCell(unsigned int index, System::String^ previousText, int previousMarks)
+    private: void restoreCell(unsigned int index, unsigned char previousValue, int previousMarks)
     {
         // Undo always restores an editable user cell (value + pencil marks); Board derives the kind.
-        unsigned char value = previousText->Length == 0 ? (unsigned char)0 : (unsigned char)int::Parse(previousText);
-        this->session->board->restoreUserCell(index, value, previousMarks);
+        this->session->board->restoreUserCell(index, previousValue, previousMarks);
         this->renderCell(index);
+    }
+
+           // Keeps the Undo button and menu item in sync with the undo stack. Wired as the
+           // UndoManager's change callback, so it fires on every push/batch/pop/clear.
+    private: void syncUndoControls()
+    {
+        this->undoButton->Enabled = this->undoManager->canUndo;
+        this->undoToolStripMenuItem->Enabled = this->undoManager->canUndo;
     }
 
     private: void performUndo()
@@ -3169,7 +3179,7 @@ namespace Sudoku_3_0
         System::Windows::Forms::Button^ lastCell = nullptr;
         for each (auto entry in entries)
         {
-            this->restoreCell(entry->cellIndex, entry->previousText, entry->previousPencilMarks);
+            this->restoreCell(entry->cellIndex, entry->previousValue, entry->previousPencilMarks);
             lastCell = this->cells[entry->cellIndex];
         }
         if (lastCell != nullptr)
@@ -3406,7 +3416,7 @@ namespace Sudoku_3_0
         int digit = row3 * 3 + col3 + 1;
         if (digit < 1 || digit > 9) return;
 
-        this->undoManager->push(idx, this->valueText(idx), this->session->board->pencilMarksAt(idx));
+        this->undoManager->push(idx, this->session->board->valueAt(idx), this->session->board->pencilMarksAt(idx));
         this->session->board->togglePencilMark(idx, digit);
         this->renderCell(idx);
     }
@@ -3534,7 +3544,7 @@ namespace Sudoku_3_0
                     anyFixed = true;
                 }
 
-                this->undoManager->push(index, this->valueText(index), board->pencilMarksAt(index));
+                this->undoManager->push(index, this->session->board->valueAt(index), board->pencilMarksAt(index));
                 board->setUserValue(index, 0);
                 this->renderCell(index);
             }

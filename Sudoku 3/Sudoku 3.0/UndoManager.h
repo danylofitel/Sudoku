@@ -5,9 +5,9 @@
 
 namespace Sudoku_3_0
 {
-    // Manages the undo stack and keeps the undo button and menu item in sync.
-    // Every push, beginBatch/endBatch, and clear automatically reflects in the UI controls,
-    // so call sites never need to touch Enabled directly.
+    // Manages the undo stack. It has no UI dependency: it raises a caller-supplied callback
+    // whenever the stack changes (push, batch, pop, clear), and the caller (the form) uses
+    // canUndo to sync its Undo button and menu item.
     ref class UndoManager
     {
     public:
@@ -16,25 +16,24 @@ namespace Sudoku_3_0
         {
         public:
             unsigned int cellIndex;
-            System::String^ previousText;
+            unsigned char previousValue;   // 0 = empty, 1-9
             int previousPencilMarks;
 
-            Entry(unsigned int cellIndex, System::String^ previousText, int previousPencilMarks)
+            Entry(unsigned int cellIndex, unsigned char previousValue, int previousPencilMarks)
             {
                 this->cellIndex = cellIndex;
-                this->previousText = previousText;
+                this->previousValue = previousValue;
                 this->previousPencilMarks = previousPencilMarks;
             }
         };
 
-        UndoManager(
-            System::Windows::Forms::Button^ button,
-            System::Windows::Forms::ToolStripMenuItem^ menuItem)
+        // onChanged is invoked after every *change* to the stack (may be nullptr). It is not
+        // fired from the constructor: the initial (empty) state is not a change, and firing it
+        // here would call back before the caller has finished wiring itself up.
+        UndoManager(System::Action^ onChanged)
         {
             this->stack = gcnew System::Collections::Generic::Stack<Entry^>();
-            this->button = button;
-            this->menuItem = menuItem;
-            this->syncControls();
+            this->onChanged = onChanged;
         }
 
         // True if there is at least one operation available to undo.
@@ -43,25 +42,25 @@ namespace Sudoku_3_0
             bool get() { return this->stack->Count > 0; }
         }
 
-        // Records a single-cell change and enables the undo controls.
-        void push(unsigned int cellIndex, System::String^ previousText, int previousPencilMarks)
+        // Records a single-cell change.
+        void push(unsigned int cellIndex, unsigned char previousValue, int previousPencilMarks)
         {
-            this->stack->Push(gcnew Entry(cellIndex, previousText, previousPencilMarks));
-            this->syncControls();
+            this->stack->Push(gcnew Entry(cellIndex, previousValue, previousPencilMarks));
+            this->notifyChanged();
         }
 
         // Opens a batch operation by pushing the bottom sentinel.
         // Must be followed by one or more push() calls and then endBatch().
         void beginBatch()
         {
-            this->stack->Push(gcnew Entry(Sentinel, System::String::Empty, 0));
+            this->stack->Push(gcnew Entry(Sentinel, 0, 0));
         }
 
-        // Closes a batch operation by pushing the top sentinel and enabling the undo controls.
+        // Closes a batch operation by pushing the top sentinel.
         void endBatch()
         {
-            this->stack->Push(gcnew Entry(Sentinel, System::String::Empty, 0));
-            this->syncControls();
+            this->stack->Push(gcnew Entry(Sentinel, 0, 0));
+            this->notifyChanged();
         }
 
         // Pops one logical operation (single entry or full batch).
@@ -89,15 +88,15 @@ namespace Sudoku_3_0
                 result->Add(top);
             }
 
-            this->syncControls();
+            this->notifyChanged();
             return result;
         }
 
-        // Discards all undo history and disables the undo controls.
+        // Discards all undo history.
         void clear()
         {
             this->stack->Clear();
-            this->syncControls();
+            this->notifyChanged();
         }
 
     private:
@@ -105,14 +104,11 @@ namespace Sudoku_3_0
         static const unsigned int Sentinel = UINT_MAX;
 
         System::Collections::Generic::Stack<Entry^>^ stack;
-        System::Windows::Forms::Button^ button;
-        System::Windows::Forms::ToolStripMenuItem^ menuItem;
+        System::Action^ onChanged;
 
-        void syncControls()
+        void notifyChanged()
         {
-            bool hasEntries = this->stack->Count > 0;
-            this->button->Enabled = hasEntries;
-            this->menuItem->Enabled = hasEntries;
+            if (this->onChanged != nullptr) this->onChanged();
         }
     };
 }
