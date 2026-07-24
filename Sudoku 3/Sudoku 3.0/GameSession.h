@@ -40,15 +40,6 @@ namespace Sudoku_3_0
         // least once; can exceed 1 since Restart re-enables Give Up without clearing this)
         unsigned int numberOfGiveUps;
 
-        // Whether pencil mode is active
-        bool pencilMode;
-
-        // Whether hint mode is active (next cell click reveals the solution value)
-        bool hintMode;
-
-        // Index of the cell currently under the mouse (-1 if none); used for pencil ghost-mark rendering
-        int hoveredCellIndex;
-
         // One-time initialization with a default difficulty. The caller (SudokuForm)
         // immediately starts a real game, so the initial difficulty is only transient.
         GameSession(unsigned int numberOfCells)
@@ -72,8 +63,8 @@ namespace Sudoku_3_0
         }
 
     private:
-        // Resets every per-puzzle field (board, counters, active modes) to its initial state
-        // for the given mode. Difficulty is set by the caller, since it is a game-only concept.
+        // Resets every per-puzzle field (board and counters) to its initial state for the given
+        // mode. Difficulty is set by the caller, since it is a game-only concept.
         void reset(GameMode mode)
         {
             this->mode = mode;
@@ -83,9 +74,6 @@ namespace Sudoku_3_0
             this->numberOfHints = 0;
             this->numberOfFixes = 0;
             this->numberOfGiveUps = 0;
-            this->pencilMode = false;
-            this->hintMode = false;
-            this->hoveredCellIndex = -1;
         }
     };
 }

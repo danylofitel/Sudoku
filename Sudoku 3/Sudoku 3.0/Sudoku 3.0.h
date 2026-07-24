@@ -255,6 +255,12 @@ namespace Sudoku_3_0
            // Time spent on the current puzzle (an on-screen display can later poll Elapsed)
     private: GameTimer^ gameTimer;
 
+           // Board interaction state (view state, never persisted): whether the next cell action
+           // pencils a mark or reveals a hint, and which cell the mouse is currently over.
+    private: bool pencilMode;
+    private: bool hintMode;
+    private: int hoveredCellIndex;
+
            // Active UI language
     private: Language currentLanguage;
 
@@ -2552,6 +2558,9 @@ namespace Sudoku_3_0
         this->conflicts = gcnew ConflictDetector(this->session->board, this->sizeFactor);
         this->gameTimer = gcnew GameTimer();
 
+        // No cell is hovered until the mouse enters one (MouseEnter/Leave keep this current).
+        this->hoveredCellIndex = -1;
+
         // Restore the win streak earned in previous runs
         this->playerStats->winStreak = Settings::LoadWinStreak();
 
@@ -3077,11 +3086,11 @@ namespace Sudoku_3_0
         // In pencil mode, mouse clicks are handled by cell_MouseClick (zone hit-test);
         // a plain button Click in pencil mode means the user clicked outside a digit zone
         // or used keyboard — keyboard path goes through choiceMade directly, so just return.
-        if (this->session->pencilMode && currentButton->Enabled && !this->session->hintMode)
+        if (this->pencilMode && currentButton->Enabled && !this->hintMode)
             return;
 
         // If this is a hint option, reveal the cell's solution value
-        if (this->session->hintMode)
+        if (this->hintMode)
         {
             this->undoManager->push(index, this->session->board->valueAt(index), this->session->board->pencilMarksAt(index));
             this->session->board->reveal(index, this->session->puzzle->solution[index], CellKind::Hint);
@@ -3109,7 +3118,7 @@ namespace Sudoku_3_0
             // Show the number choice form
             this->numbersForm->Left = left;
             this->numbersForm->Top = top;
-            this->numbersForm->setPencilMode(this->session->pencilMode && currentButton->Enabled);
+            this->numbersForm->setPencilMode(this->pencilMode && currentButton->Enabled);
             // The numbers form uses 1-based cell numbers and echoes it back via choiceMade.
             this->numbersForm->setCellNumber(index + 1);
             this->numbersForm->Visible = true;
@@ -3128,7 +3137,7 @@ namespace Sudoku_3_0
         Board^ board = this->session->board;
 
         // Pencil mode: toggle a mark bit only, never touch the cell value
-        if (this->session->pencilMode && board->isEditable(index))
+        if (this->pencilMode && board->isEditable(index))
         {
             if (choice >= 1 && choice <= 9)
             {
@@ -3201,21 +3210,21 @@ namespace Sudoku_3_0
     private: void pencilToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
         if (!this->pencilToolStripMenuItem->Enabled) return;
-        this->setPencilMode(!this->session->pencilMode);
+        this->setPencilMode(!this->pencilMode);
     }
 
     private: void setPencilMode(bool active)
     {
-        if (active) { this->session->hintMode = false; this->hintButton->ForeColor = defaultColor; }
-        this->session->pencilMode = active;
+        if (active) { this->hintMode = false; this->hintButton->ForeColor = defaultColor; }
+        this->pencilMode = active;
         this->pencilButton->ForeColor = active ? activeButtonColor : defaultColor;
     }
 
            // Set hint mode; deactivates pencil mode so both cannot be active simultaneously
     private: void setHintMode(bool active)
     {
-        if (active) { this->session->pencilMode = false; this->pencilButton->ForeColor = defaultColor; }
-        this->session->hintMode = active;
+        if (active) { this->pencilMode = false; this->pencilButton->ForeColor = defaultColor; }
+        this->hintMode = active;
         this->hintButton->ForeColor = active ? activeButtonColor : defaultColor;
     }
 
@@ -3228,7 +3237,7 @@ namespace Sudoku_3_0
 
     private: void pencilButton_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        this->setPencilMode(!this->session->pencilMode);
+        this->setPencilMode(!this->pencilMode);
     }
 
            // Paints pencil marks
@@ -3238,7 +3247,7 @@ namespace Sudoku_3_0
         int idx;
         if (!this->cellIndex->TryGetValue(cell, idx) || cell->Text->Length > 0) return;
 
-        bool isHovered = this->session->pencilMode && cell->Enabled && idx == this->session->hoveredCellIndex;
+        bool isHovered = this->pencilMode && cell->Enabled && idx == this->hoveredCellIndex;
         int pencilMarks = this->session->board->pencilMarksAt(idx);
         if (pencilMarks == 0 && !isHovered) return;
 
@@ -3344,7 +3353,7 @@ namespace Sudoku_3_0
             e->Handled = true;
             break;
         case Keys::Delete:
-            if (!this->session->hintMode)
+            if (!this->hintMode)
             {
                 Button^ btn = safe_cast<Button^>(sender);
                 bool changed = btn->Text->Length != 0;
@@ -3355,7 +3364,7 @@ namespace Sudoku_3_0
         case Keys::P:
             if (e->Control && this->pencilButton->Enabled)
             {
-                this->setPencilMode(!this->session->pencilMode);
+                this->setPencilMode(!this->pencilMode);
                 e->Handled = true;
                 e->SuppressKeyPress = true;
             }
@@ -3377,8 +3386,8 @@ namespace Sudoku_3_0
     {
         int idx;
         if (!this->cellIndex->TryGetValue(safe_cast<Button^>(sender), idx)) return;
-        this->session->hoveredCellIndex = idx;
-        if (this->session->pencilMode && this->cells[idx]->Enabled && this->cells[idx]->Text->Length == 0)
+        this->hoveredCellIndex = idx;
+        if (this->pencilMode && this->cells[idx]->Enabled && this->cells[idx]->Text->Length == 0)
             this->cells[idx]->Invalidate();
     }
 
@@ -3386,16 +3395,16 @@ namespace Sudoku_3_0
     {
         int idx;
         if (!this->cellIndex->TryGetValue(safe_cast<Button^>(sender), idx)) return;
-        if (this->session->hoveredCellIndex == idx)
-            this->session->hoveredCellIndex = -1;
-        if (this->session->pencilMode && this->cells[idx]->Enabled && this->cells[idx]->Text->Length == 0)
+        if (this->hoveredCellIndex == idx)
+            this->hoveredCellIndex = -1;
+        if (this->pencilMode && this->cells[idx]->Enabled && this->cells[idx]->Text->Length == 0)
             this->cells[idx]->Invalidate();
     }
 
            // Pencil-mode mouse click: hit-test which digit zone was clicked and toggle that mark
     private: void cell_MouseClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
     {
-        if (!this->session->pencilMode || this->session->hintMode) return;
+        if (!this->pencilMode || this->hintMode) return;
 
         Button^ cell = safe_cast<Button^>(sender);
         int idx;
@@ -3505,7 +3514,7 @@ namespace Sudoku_3_0
     private: void hintButton_Click(System::Object^ sender, System::EventArgs^ e)
     {
         this->closeHelperForms();
-        this->setHintMode(!this->session->hintMode);
+        this->setHintMode(!this->hintMode);
     }
 
     private: void fixButton_Click(System::Object^ sender, System::EventArgs^ e)
@@ -4092,7 +4101,7 @@ namespace Sudoku_3_0
 
     private: void buttonKeyPress(System::Object^ sender, System::Windows::Forms::KeyPressEventArgs^ e)
     {
-        if (!this->session->hintMode)
+        if (!this->hintMode)
         {
             unsigned int choice = 0;
             if (e->KeyChar >= '1' && e->KeyChar <= '9')
