@@ -49,6 +49,12 @@
     <ClInclude Include="Strings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Board.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CellKind.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="ClipboardPuzzleFormatter.h">
       <Filter>Header Files</Filter>
     </ClInclude>

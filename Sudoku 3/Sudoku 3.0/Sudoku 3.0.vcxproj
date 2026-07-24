@@ -104,6 +104,8 @@
     <ClCompile Include="Sudoku 3.0.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Board.h" />
+    <ClInclude Include="CellKind.h" />
     <ClInclude Include="ClipboardPuzzleFormatter.h" />
     <ClInclude Include="ConflictDetector.h" />
     <ClInclude Include="GameMode.h" />
