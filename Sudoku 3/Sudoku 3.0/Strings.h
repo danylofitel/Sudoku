@@ -107,19 +107,18 @@ namespace Sudoku_3_0
         ButtonClear,
         ButtonCancel,
 
-        // ---- Win messages ----
-        WinClean,
-        WinWithAssists,
-        WinAfterGiveUp,
-        WinDifficulty,
-        WinTime,
-        WinStreak,
-        WinAssistHint,
-        WinAssistHints,
-        WinAssistFix,
-        WinAssistFixes,
-        WinAssistUsing,
-        WinAssistAnd,
+        // ---- End-of-game message ----
+        EndWin,          // headline: won with assists
+        EndWinClean,     // headline: won with no hints/fixes/give-ups
+        EndGiveUp,       // headline: gave up
+        StatDifficulty,
+        StatClues,       // parenthetical clue count appended to the difficulty line ("{0}" = count)
+        StatTime,
+        StatRestarts,
+        StatHints,
+        StatFixes,
+        StatGiveUps,
+        StatWinStreak,
 
         // ---- Clipboard puzzle ----
         ButtonPastePuzzle,
@@ -580,66 +579,61 @@ namespace Sudoku_3_0
                 default:                 return L"Cancel";
                 }
 
-                // ---- Win messages ----
-            case StringId::WinClean:
+                // ---- End-of-game message ----
+            case StringId::EndWin:
                 switch (lang) {
-                case Language::Ukrainian: return L"Вітаємо! Ви виграли без підказок і виправлень!";
-                default:                 return L"Congratulations! You won without any hints or fixes!";
+                case Language::Ukrainian: return L"Вітаємо! Задачу розв'язано!";
+                default:                 return L"Congratulations! You solved the puzzle!";
                 }
-            case StringId::WinWithAssists:
+            case StringId::EndWinClean:
                 switch (lang) {
-                case Language::Ukrainian: return L"Ви завершили гру";
-                default:                 return L"You beat the game";
+                case Language::Ukrainian: return L"Вітаємо! Бездоганна перемога!";
+                default:                 return L"Congratulations! A flawless win!";
                 }
-            case StringId::WinAfterGiveUp:
+            case StringId::EndGiveUp:
                 switch (lang) {
-                case Language::Ukrainian: return L"Ви завершили задачу після того, як здалися";
-                default:                 return L"You completed the puzzle after giving up";
+                case Language::Ukrainian: return L"Ви здалися. Ось розв'язок.";
+                default:                 return L"You gave up. Here is the solution.";
                 }
-            case StringId::WinDifficulty:
+            case StringId::StatDifficulty:
                 switch (lang) {
-                case Language::Ukrainian: return L"\n\nСкладність: ";
-                default:                 return L"\n\nDifficulty: ";
+                case Language::Ukrainian: return L"Складність: ";
+                default:                 return L"Difficulty: ";
                 }
-            case StringId::WinTime:
+            case StringId::StatClues:
                 switch (lang) {
-                case Language::Ukrainian: return L"\nЧас: ";
-                default:                 return L"\nTime: ";
+                case Language::Ukrainian: return L"({0} підказок)";
+                default:                 return L"({0} clues)";
                 }
-            case StringId::WinStreak:
+            case StringId::StatTime:
                 switch (lang) {
-                case Language::Ukrainian: return L"\nСерія перемог: ";
-                default:                 return L"\nWin streak: ";
+                case Language::Ukrainian: return L"Витрачено часу: ";
+                default:                 return L"Time taken: ";
                 }
-            case StringId::WinAssistHint:
+            case StringId::StatRestarts:
                 switch (lang) {
-                case Language::Ukrainian: return L"1 підказку";
-                default:                 return L"1 hint";
+                case Language::Ukrainian: return L"Перезапусків: ";
+                default:                 return L"Restarts: ";
                 }
-            case StringId::WinAssistHints:
+            case StringId::StatHints:
                 switch (lang) {
-                case Language::Ukrainian: return L"підказки(-ок)";
-                default:                 return L"hints";
+                case Language::Ukrainian: return L"Підказок: ";
+                default:                 return L"Hints: ";
                 }
-            case StringId::WinAssistFix:
+            case StringId::StatFixes:
                 switch (lang) {
-                case Language::Ukrainian: return L"1 виправлення";
-                default:                 return L"1 fix";
+                case Language::Ukrainian: return L"Виправлень: ";
+                default:                 return L"Fixes: ";
                 }
-            case StringId::WinAssistFixes:
+            case StringId::StatGiveUps:
                 switch (lang) {
-                case Language::Ukrainian: return L"виправлень(-ня)";
-                default:                 return L"fixes";
+                case Language::Ukrainian: return L"Капітуляцій: ";
+                default:                 return L"Give-ups: ";
                 }
-            case StringId::WinAssistUsing:
+            case StringId::StatWinStreak:
                 switch (lang) {
-                case Language::Ukrainian: return L" використавши ";
-                default:                 return L" using ";
-                }
-            case StringId::WinAssistAnd:
-                switch (lang) {
-                case Language::Ukrainian: return L" та ";
-                default:                 return L" and ";
+                case Language::Ukrainian: return L"Серія перемог: ";
+                default:                 return L"Win streak: ";
                 }
 
                 // ---- Clipboard puzzle ----

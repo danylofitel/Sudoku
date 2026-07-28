@@ -2997,51 +2997,48 @@ namespace Sudoku_3_0
         Settings::SaveWinStreak(value);
     }
 
-           // Builds the localized, pluralized list of assists used this game (hints, fixes).
-           // Returns an empty list if the game was completed without any assists.
-    private: System::Collections::Generic::List<System::String^>^ buildAssistList()
+           // Number of engine-provided clues in the current puzzle (the finer-grained difficulty
+           // measure). 0 if there is no puzzle snapshot yet.
+    private: int clueCount()
     {
-        System::Collections::Generic::List<System::String^>^ assists = gcnew System::Collections::Generic::List<System::String^>();
-        if (this->session->numberOfHints == 1)      assists->Add(Strings::Get(StringId::WinAssistHint, this->currentLanguage));
-        else if (this->session->numberOfHints > 1)  assists->Add(this->session->numberOfHints + " " + Strings::Get(StringId::WinAssistHints, this->currentLanguage));
-        if (this->session->numberOfFixes == 1)      assists->Add(Strings::Get(StringId::WinAssistFix, this->currentLanguage));
-        else if (this->session->numberOfFixes > 1)  assists->Add(this->session->numberOfFixes + " " + Strings::Get(StringId::WinAssistFixes, this->currentLanguage));
-        return assists;
+        int count = 0;
+        if (this->session->puzzle != nullptr)
+        {
+            for each (unsigned char clue in this->session->puzzle->clues)
+                if (clue != 0) ++count;
+        }
+        return count;
     }
 
-           // Builds the victory notification message from current session statistics.
-    private: System::String^ buildWinMessage()
+           // Builds the end-of-game message: a headline line, then each per-puzzle statistic on
+           // its own line. Shown both on a win and after a give-up.
+    private: System::String^ buildEndMessage(bool won)
     {
-        System::String^ msg = "";
-        System::String^ usingWord = Strings::Get(StringId::WinAssistUsing, this->currentLanguage);
-        System::String^ andWord = Strings::Get(StringId::WinAssistAnd, this->currentLanguage);
-
-        bool clean = this->session->numberOfGiveUps == 0
-            && this->session->numberOfHints == 0
-            && this->session->numberOfFixes == 0;
-
-        if (clean)
+        System::String^ headline;
+        if (won)
         {
-            msg += Strings::Get(StringId::WinClean, this->currentLanguage);
-        }
-        else if (this->session->numberOfGiveUps == 0)
-        {
-            msg += Strings::Get(StringId::WinWithAssists, this->currentLanguage);
-            msg += usingWord + System::String::Join(andWord, this->buildAssistList()) + "!";
+            bool clean = this->session->numberOfGiveUps == 0
+                && this->session->numberOfHints == 0
+                && this->session->numberOfFixes == 0;
+            headline = Strings::Get(clean ? StringId::EndWinClean : StringId::EndWin, this->currentLanguage);
         }
         else
         {
-            msg += Strings::Get(StringId::WinAfterGiveUp, this->currentLanguage);
-            System::Collections::Generic::List<System::String^>^ assists = this->buildAssistList();
-            if (assists->Count > 0)
-                msg += "," + usingWord + System::String::Join(andWord, assists);
-            msg += ".";
+            headline = Strings::Get(StringId::EndGiveUp, this->currentLanguage);
         }
 
-        msg += Strings::Get(StringId::WinDifficulty, this->currentLanguage) + this->difficultyName(this->session->difficulty);
-        msg += Strings::Get(StringId::WinTime, this->currentLanguage) + this->formatElapsed(this->gameTimer->Elapsed);
-        if (this->playerStats->winStreak > 1)
-            msg += Strings::Get(StringId::WinStreak, this->currentLanguage) + this->playerStats->winStreak;
+        System::String^ msg = headline + "\n\n";
+        msg += Strings::Get(StringId::StatDifficulty, this->currentLanguage) + this->difficultyName(this->session->difficulty)
+            + " " + System::String::Format(Strings::Get(StringId::StatClues, this->currentLanguage), this->clueCount()) + "\n";
+        msg += Strings::Get(StringId::StatTime, this->currentLanguage) + this->formatElapsed(this->gameTimer->Elapsed) + "\n";
+        msg += Strings::Get(StringId::StatRestarts, this->currentLanguage) + this->session->numberOfRestarts + "\n";
+        msg += Strings::Get(StringId::StatHints, this->currentLanguage) + this->session->numberOfHints + "\n";
+        msg += Strings::Get(StringId::StatFixes, this->currentLanguage) + this->session->numberOfFixes + "\n";
+        msg += Strings::Get(StringId::StatGiveUps, this->currentLanguage) + this->session->numberOfGiveUps;
+
+        // Win streak is a cross-game stat; show it only on a win, and only once it is a streak.
+        if (won && this->playerStats->winStreak > 1)
+            msg += "\n" + Strings::Get(StringId::StatWinStreak, this->currentLanguage) + this->playerStats->winStreak;
 
         return msg;
     }
@@ -3067,7 +3064,7 @@ namespace Sudoku_3_0
         if (this->session->board->FilledCount == this->numberOfCells && this->checkSolution())
         {
             this->applyWin();
-            this->showNotification(this->buildWinMessage());
+            this->showNotification(this->buildEndMessage(true));
         }
     }
 
@@ -3599,6 +3596,8 @@ namespace Sudoku_3_0
         this->setGameControls(false, true, false);
         this->undoManager->clear();
         this->gameTimer->stop();
+
+        this->showNotification(this->buildEndMessage(false));
     }
 
            // Assigns localized hover tooltips (full action name + description, the same
@@ -4025,6 +4024,21 @@ namespace Sudoku_3_0
         this->WindowState = FormWindowState::Minimized;
     }
 
+           // Pause the play timer while minimized and resume when restored, so time away from the
+           // board is not counted. Only resumes if the game is still in progress (a finished game's
+           // timer is already stopped and must stay so).
+    protected: virtual void OnResize(System::EventArgs^ e) override
+    {
+        Form::OnResize(e);
+
+        if (this->gameTimer == nullptr) return; // may fire during construction
+
+        if (this->WindowState == FormWindowState::Minimized)
+            this->gameTimer->stop();
+        else if (this->WindowState == FormWindowState::Normal && !this->isGameFinished())
+            this->gameTimer->resume();
+    }
+
     private: void buttonClose_Click(System::Object^ sender, System::EventArgs^ e)
     {
         // The save prompt and shutdown work live in OnFormClosing, so every close
@@ -4101,42 +4115,25 @@ namespace Sudoku_3_0
 
     private: void buttonKeyPress(System::Object^ sender, System::Windows::Forms::KeyPressEventArgs^ e)
     {
-        if (!this->hintMode)
-        {
-            unsigned int choice = 0;
-            if (e->KeyChar >= '1' && e->KeyChar <= '9')
-            {
-                choice = e->KeyChar - '0';
-            }
-            else if (e->KeyChar == '\b' || e->KeyChar == '0')
-            {
-                choice = 0;
-            }
-            else if (e->KeyChar == 'p' || e->KeyChar == 'P')
-            {
-                // Ctrl+P is handled in buttonKeyDown; ignore bare P here
-                return;
-            }
-            else
-            {
-                return;
-            }
+        if (this->hintMode) return;
 
-            int buttonIndex = this->cellIndex[((Button^)sender)] + 1;
+        unsigned int choice = 0;
+        if (e->KeyChar >= '1' && e->KeyChar <= '9')
+            choice = e->KeyChar - '0';
+        else if (e->KeyChar == '\b' || e->KeyChar == '0')
+            choice = 0;
+        else
+            return; // includes bare 'p'/'P' (Ctrl+P is handled in buttonKeyDown) and other keys
 
-            bool changed = false;
-            if (((Button^)sender)->Text->Length == 0 && choice != 0 ||
-                ((Button^)sender)->Text->Length != 0 && choice == 0)
-            {
-                changed = true;
-            }
-            else if (choice != 0 && !((Button^)sender)->Text->Equals(choice.ToString()))
-            {
-                changed = true;
-            }
+        int index;
+        if (!this->cellIndex->TryGetValue(safe_cast<Button^>(sender), index)) return;
 
-            this->choiceMade(buttonIndex, changed, choice);
-        }
+        // A change is any empty<->filled transition, or replacing a filled cell with a different digit
+        unsigned char current = this->session->board->valueAt(index);
+        bool changed = ((current == 0) != (choice == 0))
+            || (choice != 0 && current != (unsigned char)choice);
+
+        this->choiceMade(index + 1, changed, choice);
     }
 
            // Serializes the current game state (any state is saveable) to the given file.
