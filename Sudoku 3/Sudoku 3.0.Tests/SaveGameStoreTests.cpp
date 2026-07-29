@@ -77,6 +77,78 @@ namespace Sudoku_3_0_Tests
             return g;
         }
 
+        // A finished Game-mode save whose cells exercise every game state code: 0 (clue),
+        // 2 (user-filled), 3 (correct), 4 (hint), 5 (give-up). Fully solved, so no empties.
+        static SavedGame^ MakeFinishedGameSave()
+        {
+            SavedGame^ g = gcnew SavedGame();
+            g->difficulty = 4;
+            g->numberOfRestarts = 0;
+            g->numberOfHints = 3;
+            g->numberOfFixes = 1;
+            g->numberOfGiveUps = 1;
+            g->mode = GameMode::Game;
+            g->gameFinished = true;
+            g->elapsedSeconds = 600;
+            g->clues = gcnew array<unsigned char>(Cells);
+            g->solution = gcnew array<unsigned char>(Cells);
+            g->values = gcnew array<unsigned char>(Cells);
+            g->states = gcnew array<unsigned char>(Cells);
+            g->pencilMarks = gcnew array<int>(Cells);
+
+            for (int i = 0; i < Cells; ++i)
+            {
+                unsigned char sol = (unsigned char)(1 + (i % 9));
+                g->solution[i] = sol;
+                g->values[i] = sol; // fully solved: every cell filled
+                unsigned char state;
+                switch (i % 5)
+                {
+                case 0:  state = 0; break; // clue
+                case 1:  state = 2; break; // user-filled
+                case 2:  state = 3; break; // correct
+                case 3:  state = 4; break; // hint
+                default: state = 5; break; // give-up
+                }
+                g->states[i] = state;
+                g->clues[i] = (state == 0) ? sol : (unsigned char)0;
+                g->pencilMarks[i] = 0;
+            }
+            return g;
+        }
+
+        // A solved Solver-mode save: pre-filled cells are clues (state 0), the rest were filled
+        // by the solver (state 6). Has a full puzzle snapshot.
+        static SavedGame^ MakeSolvedSolverSave()
+        {
+            SavedGame^ g = gcnew SavedGame();
+            g->difficulty = 2;
+            g->numberOfRestarts = 0;
+            g->numberOfHints = 0;
+            g->numberOfFixes = 0;
+            g->numberOfGiveUps = 0;
+            g->mode = GameMode::Solver;
+            g->gameFinished = true;
+            g->elapsedSeconds = 30;
+            g->clues = gcnew array<unsigned char>(Cells);
+            g->solution = gcnew array<unsigned char>(Cells);
+            g->values = gcnew array<unsigned char>(Cells);
+            g->states = gcnew array<unsigned char>(Cells);
+            g->pencilMarks = gcnew array<int>(Cells);
+
+            for (int i = 0; i < Cells; ++i)
+            {
+                unsigned char sol = (unsigned char)(1 + (i % 9));
+                g->solution[i] = sol;
+                g->values[i] = sol;
+                bool prefilled = (i % 4 == 0);
+                g->states[i] = prefilled ? (unsigned char)0 /*clue*/ : (unsigned char)6 /*solved*/;
+                g->clues[i] = prefilled ? sol : (unsigned char)0;
+                g->pencilMarks[i] = 0;
+            }
+            return g;
+        }
+
         static SavedGame^ SaveAndReload(SavedGame^ g)
         {
             String^ path = Path::GetTempFileName();
@@ -209,6 +281,105 @@ namespace Sudoku_3_0_Tests
             UnsupportedSaveVersionException^ ex = gcnew UnsupportedSaveVersionException(5, 1);
             Assert::AreEqual(5, (int)ex->FileVersion);
             Assert::AreEqual(1, (int)ex->SupportedVersion);
+        }
+
+        [TestMethod]
+        void RoundTrip_FinishedGame_PreservesEveryGameStateCode()
+        {
+            SavedGame^ back = SaveAndReload(MakeFinishedGameSave());
+
+            Assert::IsTrue(back->gameFinished);
+            Assert::AreEqual(0, (int)back->states[0]); // clue
+            Assert::AreEqual(2, (int)back->states[1]); // user-filled
+            Assert::AreEqual(3, (int)back->states[2]); // correct
+            Assert::AreEqual(4, (int)back->states[3]); // hint
+            Assert::AreEqual(5, (int)back->states[4]); // give-up
+        }
+
+        [TestMethod]
+        void RoundTrip_SolvedSolver_PreservesSolvedState()
+        {
+            SavedGame^ back = SaveAndReload(MakeSolvedSolverSave());
+
+            Assert::IsTrue(back->mode == GameMode::Solver);
+            Assert::IsTrue(back->gameFinished);
+            Assert::AreEqual(Cells, back->clues->Length); // a solved puzzle has a snapshot
+            Assert::AreEqual(0, (int)back->states[0]);     // pre-filled clue
+            Assert::AreEqual(6, (int)back->states[1]);     // solver-filled
+        }
+
+        [TestMethod]
+        [ExpectedException(Exception::typeid)]
+        void Load_Throws_OnValueStateMismatch()
+        {
+            SavedGame^ g = MakeGameSave();
+            g->states[0] = 1; // cell 0 holds a value but is marked empty (state 1)
+            SaveAndReload(g);
+        }
+
+        [TestMethod]
+        [ExpectedException(Exception::typeid)]
+        void Load_Throws_OnSolvedStateInGameMode()
+        {
+            SavedGame^ g = MakeGameSave();
+            g->states[0] = 6; // cell 0 is filled; solver state 6 is illegal in Game mode
+            SaveAndReload(g);
+        }
+
+        [TestMethod]
+        [ExpectedException(Exception::typeid)]
+        void Load_Throws_OnGameRevealStateInSolverMode()
+        {
+            SavedGame^ g = MakeSolverInProgressSave();
+            g->states[0] = 3; // 'correct' is a Game reveal, illegal in Solver mode
+            SaveAndReload(g);
+        }
+
+        [TestMethod]
+        [ExpectedException(Exception::typeid)]
+        void Load_Throws_OnClueSolutionMismatch()
+        {
+            SavedGame^ g = MakeGameSave();
+            // Give clue 0 a value that differs from the solution at that cell.
+            g->clues[0] = (unsigned char)(g->solution[0] == 9 ? 1 : g->solution[0] + 1);
+            SaveAndReload(g);
+        }
+
+        [TestMethod]
+        [ExpectedException(Exception::typeid)]
+        void Load_Throws_OnInvalidSolutionDigit()
+        {
+            SavedGame^ g = MakeGameSave();
+            g->solution[0] = 0; // solution digits must be 1-9
+            SaveAndReload(g);
+        }
+
+        [TestMethod]
+        void Load_ToleratesMissingPencilMarks()
+        {
+            // pencilMarks is the one optional field: a save without it loads with all marks zero.
+            SavedGame^ g = MakeGameSave();
+            String^ path = Path::GetTempFileName();
+            try
+            {
+                SaveGameStore::Save(path, g);
+
+                // Strip the pencilMarks line from the file.
+                System::Collections::Generic::List<String^>^ kept =
+                    gcnew System::Collections::Generic::List<String^>();
+                for each (String ^ line in File::ReadAllLines(path))
+                    if (!line->StartsWith("pencilMarks=")) kept->Add(line);
+                File::WriteAllLines(path, kept->ToArray());
+
+                SavedGame^ back = SaveGameStore::Load(path, Cells);
+                Assert::AreEqual(Cells, back->pencilMarks->Length);
+                for (int i = 0; i < Cells; ++i)
+                    Assert::AreEqual(0, back->pencilMarks[i]);
+            }
+            finally
+            {
+                File::Delete(path);
+            }
         }
     };
 }

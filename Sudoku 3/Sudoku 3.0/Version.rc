@@ -1,0 +1,46 @@
+// Danylo Fitel 2026
+//
+// Win32 VERSIONINFO resource. This populates the "Details" tab of the executable's
+// Explorer file-properties dialog. It is kept in a separate .rc file (not the fragile,
+// VS-managed UTF-16 app.rc) so it can #include the build-time-generated BuildInfo.h.
+//
+// FILEVERSION/PRODUCTVERSION take a comma-separated 4-tuple (SUDOKU_FILE_VERSION_COMMA);
+// the human-readable string fields take the dotted string (SUDOKU_FILE_VERSION). Both are
+// emitted by the GenerateBuildInfo MSBuild target, which runs before resource compilation.
+
+#include <windows.h>
+#include "BuildInfo.h"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION    SUDOKU_FILE_VERSION_COMMA
+ PRODUCTVERSION SUDOKU_FILE_VERSION_COMMA
+ FILEFLAGSMASK  VS_FFI_FILEFLAGSMASK
+#ifdef _DEBUG
+ FILEFLAGS      VS_FF_DEBUG
+#else
+ FILEFLAGS      0x0L
+#endif
+ FILEOS         VOS_NT_WINDOWS32
+ FILETYPE       VFT_APP
+ FILESUBTYPE    VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0" // U.S. English, Unicode
+        BEGIN
+            VALUE "CompanyName",      "Danylo Fitel"
+            VALUE "FileDescription",  "Sudoku"
+            VALUE "FileVersion",      SUDOKU_FILE_VERSION
+            VALUE "InternalName",     "Sudoku 3.0"
+            VALUE "LegalCopyright",   "Copyright (C) 2013-2026 Danylo Fitel"
+            VALUE "OriginalFilename", "Sudoku 3.0.exe"
+            VALUE "ProductName",      "Sudoku"
+            VALUE "ProductVersion",   SUDOKU_FILE_VERSION
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        // 0x0409 = U.S. English, 1200 = Unicode (matches the 040904b0 block above).
+        VALUE "Translation", 0x409, 1200
+    END
+END

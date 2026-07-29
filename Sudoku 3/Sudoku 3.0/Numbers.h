@@ -433,7 +433,7 @@ namespace Sudoku_3_0
         this->buttonClear->Text = Strings::Get(StringId::ButtonClear, lang);
         this->buttonCancel->Text = Strings::Get(StringId::ButtonCancel, lang);
 
-        // Ukrainian labels are longer — use a smaller font so they fit the fixed-size buttons
+        // Ukrainian labels are longer - use a smaller font so they fit the fixed-size buttons
         float fontSize = (lang == Language::Ukrainian) ? 12.0F : 14.25F;
         System::Drawing::Font^ font = gcnew System::Drawing::Font(
             L"Arial Narrow", fontSize,

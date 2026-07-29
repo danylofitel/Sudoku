@@ -133,6 +133,7 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="app.rc" />
+    <ResourceCompile Include="Version.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="app.ico" />
@@ -154,17 +155,20 @@
   <!-- Regenerates BuildInfo.h with a UTC build stamp before every compile. The file is a build
        artifact (git-ignored) consumed only by AssemblyInfo.cpp, so changing the stamp does not
        force the rest of the project to recompile. -->
-  <Target Name="GenerateBuildInfo" BeforeTargets="ClCompile">
+  <Target Name="GenerateBuildInfo" BeforeTargets="ClCompile;ResourceCompile">
     <PropertyGroup>
       <_BuildStamp>$([System.DateTime]::UtcNow.ToString('yyyy-MM-dd HH:mm:ss')) UTC</_BuildStamp>
       <_BuildDays>$([System.DateTime]::UtcNow.Subtract($([System.DateTime]::new(2000, 1, 1))).Days)</_BuildDays>
       <_BuildRev>$([System.Convert]::ToInt32($([MSBuild]::Divide($([System.DateTime]::UtcNow.TimeOfDay.TotalSeconds), 2))))</_BuildRev>
       <_BuildFileVersion>1.0.$(_BuildDays).$(_BuildRev)</_BuildFileVersion>
+      <!-- Comma-separated form required by the Win32 VERSIONINFO FILEVERSION/PRODUCTVERSION fields. -->
+      <_BuildFileVersionComma>1,0,$(_BuildDays),$(_BuildRev)</_BuildFileVersionComma>
     </PropertyGroup>
     <ItemGroup>
       <_BuildInfoLine Include="#pragma once" />
       <_BuildInfoLine Include="#define SUDOKU_BUILD_STAMP &quot;$(_BuildStamp)&quot;" />
       <_BuildInfoLine Include="#define SUDOKU_FILE_VERSION &quot;$(_BuildFileVersion)&quot;" />
+      <_BuildInfoLine Include="#define SUDOKU_FILE_VERSION_COMMA $(_BuildFileVersionComma)" />
     </ItemGroup>
     <WriteLinesToFile File="$(MSBuildProjectDirectory)\BuildInfo.h" Lines="@(_BuildInfoLine)" Overwrite="true" />
     <Message Text="BuildInfo.h: $(_BuildStamp) (file version $(_BuildFileVersion))" Importance="high" />

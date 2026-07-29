@@ -131,6 +131,19 @@ namespace Sudoku_3_0_Tests
             Assert::AreEqual(0, b->pencilMarksAt(0));
         }
 
+        [TestMethod]
+        void SetUserValue_Zero_KeepsPencilMarks()
+        {
+            // Clearing an empty cell back to empty must preserve its pencil marks: the marks are
+            // notes on a still-empty cell, so erasing a (never-committed) value must not lose them.
+            Board^ b = NewBoard();
+            b->togglePencilMark(0, 3);
+            b->togglePencilMark(0, 7);
+            int expected = (1 << 3) | (1 << 7);
+            b->setUserValue(0, 0);
+            Assert::AreEqual(expected, b->pencilMarksAt(0));
+        }
+
         // ---- Clues / reveals / locking ----
 
         [TestMethod]

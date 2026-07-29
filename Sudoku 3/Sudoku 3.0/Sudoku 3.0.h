@@ -3084,7 +3084,7 @@ namespace Sudoku_3_0
 
         // In pencil mode, mouse clicks are handled by cell_MouseClick (zone hit-test);
         // a plain button Click in pencil mode means the user clicked outside a digit zone
-        // or used keyboard — keyboard path goes through choiceMade directly, so just return.
+        // or used keyboard - keyboard path goes through choiceMade directly, so just return.
         if (this->pencilMode && currentButton->Enabled && !this->hintMode)
             return;
 
@@ -4155,7 +4155,7 @@ namespace Sudoku_3_0
     }
 
            // Serializes the current game state (any state is saveable) to the given file.
-           // Returns true on success, false on any failure — reporting is up to the caller.
+           // Returns true on success, false on any failure - reporting is up to the caller.
     private: bool saveGameToFile(System::String^ path)
     {
         SavedGame^ game = gcnew SavedGame();
@@ -4292,7 +4292,7 @@ namespace Sudoku_3_0
     }
 
            // Attempts to auto-save the current session on exit. Returns true on success;
-           // failures are silent — the caller falls back to the interactive save prompt.
+           // failures are silent - the caller falls back to the interactive save prompt.
     private: bool tryAutoSave()
     {
         try
