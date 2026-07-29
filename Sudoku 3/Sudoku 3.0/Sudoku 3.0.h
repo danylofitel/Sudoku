@@ -2607,6 +2607,8 @@ namespace Sudoku_3_0
             cell->MouseEnter += gcnew System::EventHandler(this, &SudokuForm::cell_MouseEnter);
             cell->MouseLeave += gcnew System::EventHandler(this, &SudokuForm::cell_MouseLeave);
             cell->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &SudokuForm::cell_MouseClick);
+            cell->GotFocus += gcnew System::EventHandler(this, &SudokuForm::cell_FocusChanged);
+            cell->LostFocus += gcnew System::EventHandler(this, &SudokuForm::cell_FocusChanged);
         }
 
         // Startup priority:
@@ -3215,6 +3217,10 @@ namespace Sudoku_3_0
         if (active) { this->hintMode = false; this->hintButton->ForeColor = defaultColor; }
         this->pencilMode = active;
         this->pencilButton->ForeColor = active ? activeButtonColor : defaultColor;
+
+        // Refresh the focused cell so its candidate ghost appears/disappears immediately on toggle
+        // (e.g. Ctrl+P while a cell is keyboard-selected).
+        if (this->ActiveControl != nullptr) this->ActiveControl->Invalidate();
     }
 
            // Set hint mode; deactivates pencil mode so both cannot be active simultaneously
@@ -3244,9 +3250,11 @@ namespace Sudoku_3_0
         int idx;
         if (!this->cellIndex->TryGetValue(cell, idx) || cell->Text->Length > 0) return;
 
-        bool isHovered = this->pencilMode && cell->Enabled && idx == this->hoveredCellIndex;
+        // Show ghost candidates on the cell under the mouse or the keyboard-focused cell.
+        bool showCandidates = this->pencilMode && cell->Enabled
+            && (idx == this->hoveredCellIndex || cell->Focused);
         int pencilMarks = this->session->board->pencilMarksAt(idx);
-        if (pencilMarks == 0 && !isHovered) return;
+        if (pencilMarks == 0 && !showCandidates) return;
 
         System::Drawing::Graphics^ g = e->Graphics;
         float w = (float)cell->ClientSize.Width;
@@ -3283,7 +3291,7 @@ namespace Sudoku_3_0
             System::Drawing::Brush^ brush;
             if (isMarked)
                 brush = isConflict ? System::Drawing::Brushes::Red : System::Drawing::Brushes::Black;
-            else if (isHovered && !isConflict)
+            else if (showCandidates && !isConflict)
                 brush = System::Drawing::Brushes::DarkGray;
             else
                 continue;
@@ -3396,6 +3404,16 @@ namespace Sudoku_3_0
             this->hoveredCellIndex = -1;
         if (this->pencilMode && this->cells[idx]->Enabled && this->cells[idx]->Text->Length == 0)
             this->cells[idx]->Invalidate();
+    }
+
+           // Pencil-mode keyboard selection: the focused cell shows candidate ghost marks, so
+           // repaint it as focus enters or leaves it (wired to both GotFocus and LostFocus).
+    private: void cell_FocusChanged(System::Object^ sender, System::EventArgs^ e)
+    {
+        if (!this->pencilMode) return;
+        Button^ cell = safe_cast<Button^>(sender);
+        if (cell->Enabled && cell->Text->Length == 0)
+            cell->Invalidate();
     }
 
            // Pencil-mode mouse click: hit-test which digit zone was clicked and toggle that mark
