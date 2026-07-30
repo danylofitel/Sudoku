@@ -15,7 +15,6 @@ namespace Sudoku_3_0
 
     public delegate void choiceAction(
         const unsigned int cellNumber,
-        const bool changed,
         const unsigned int choice);
 
     /// <summary>
@@ -24,7 +23,7 @@ namespace Sudoku_3_0
     public ref class Numbers : public System::Windows::Forms::Form
     {
     public:
-        Numbers(void) : currentCellNumber(0), choiceMade(false), choice(0), lastGridCol(0), isPencilMode(false)
+        Numbers(void) : currentCellNumber(0), lastGridCol(0), isPencilMode(false)
         {
             InitializeComponent();
         }
@@ -46,12 +45,6 @@ namespace Sudoku_3_0
 
            // Number of current cell
     private: unsigned int currentCellNumber;
-
-           // True of the choice has been made and false if the action was canceled
-    private: bool choiceMade;
-
-           // The number that was chosen
-    private: unsigned int choice;
 
            // Last column active in the 3x3 grid, used to restore position when leaving the bottom row
     private: int lastGridCol;
@@ -96,7 +89,7 @@ namespace Sudoku_3_0
                this->button1->Text = L"1";
                this->button1->UseVisualStyleBackColor = false;
                this->button1->Click += gcnew System::EventHandler(this, &Numbers::button1_Click);
-               this->button1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button1_KeyPress);
+               this->button1->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::Numbers_KeyPress);
                this->button1->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
                this->button1->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
                this->button1->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
@@ -116,7 +109,7 @@ namespace Sudoku_3_0
                this->button2->Text = L"2";
                this->button2->UseVisualStyleBackColor = false;
                this->button2->Click += gcnew System::EventHandler(this, &Numbers::button2_Click);
-               this->button2->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button2_KeyPress);
+               this->button2->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::Numbers_KeyPress);
                this->button2->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
                this->button2->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
                this->button2->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
@@ -136,7 +129,7 @@ namespace Sudoku_3_0
                this->button3->Text = L"3";
                this->button3->UseVisualStyleBackColor = false;
                this->button3->Click += gcnew System::EventHandler(this, &Numbers::button3_Click);
-               this->button3->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button3_KeyPress);
+               this->button3->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::Numbers_KeyPress);
                this->button3->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
                this->button3->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
                this->button3->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
@@ -156,7 +149,7 @@ namespace Sudoku_3_0
                this->button4->Text = L"4";
                this->button4->UseVisualStyleBackColor = false;
                this->button4->Click += gcnew System::EventHandler(this, &Numbers::button4_Click);
-               this->button4->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button4_KeyPress);
+               this->button4->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::Numbers_KeyPress);
                this->button4->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
                this->button4->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
                this->button4->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
@@ -176,7 +169,7 @@ namespace Sudoku_3_0
                this->button5->Text = L"5";
                this->button5->UseVisualStyleBackColor = false;
                this->button5->Click += gcnew System::EventHandler(this, &Numbers::button5_Click);
-               this->button5->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button5_KeyPress);
+               this->button5->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::Numbers_KeyPress);
                this->button5->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
                this->button5->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
                this->button5->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
@@ -196,7 +189,7 @@ namespace Sudoku_3_0
                this->button6->Text = L"6";
                this->button6->UseVisualStyleBackColor = false;
                this->button6->Click += gcnew System::EventHandler(this, &Numbers::button6_Click);
-               this->button6->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button6_KeyPress);
+               this->button6->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::Numbers_KeyPress);
                this->button6->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
                this->button6->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
                this->button6->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
@@ -216,7 +209,7 @@ namespace Sudoku_3_0
                this->button7->Text = L"7";
                this->button7->UseVisualStyleBackColor = false;
                this->button7->Click += gcnew System::EventHandler(this, &Numbers::button7_Click);
-               this->button7->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button7_KeyPress);
+               this->button7->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::Numbers_KeyPress);
                this->button7->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
                this->button7->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
                this->button7->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
@@ -236,7 +229,7 @@ namespace Sudoku_3_0
                this->button8->Text = L"8";
                this->button8->UseVisualStyleBackColor = false;
                this->button8->Click += gcnew System::EventHandler(this, &Numbers::button8_Click);
-               this->button8->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button8_KeyPress);
+               this->button8->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::Numbers_KeyPress);
                this->button8->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
                this->button8->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
                this->button8->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
@@ -256,7 +249,7 @@ namespace Sudoku_3_0
                this->button9->Text = L"9";
                this->button9->UseVisualStyleBackColor = false;
                this->button9->Click += gcnew System::EventHandler(this, &Numbers::button9_Click);
-               this->button9->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::button9_KeyPress);
+               this->button9->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::Numbers_KeyPress);
                this->button9->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
                this->button9->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
                this->button9->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
@@ -277,7 +270,7 @@ namespace Sudoku_3_0
                this->buttonClear->Text = L"Clear";
                this->buttonClear->UseVisualStyleBackColor = false;
                this->buttonClear->Click += gcnew System::EventHandler(this, &Numbers::buttonClear_Click);
-               this->buttonClear->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::buttonClear_KeyPress);
+               this->buttonClear->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::Numbers_KeyPress);
                this->buttonClear->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
                this->buttonClear->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
                this->buttonClear->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
@@ -298,7 +291,7 @@ namespace Sudoku_3_0
                this->buttonCancel->Text = L"Cancel";
                this->buttonCancel->UseVisualStyleBackColor = false;
                this->buttonCancel->Click += gcnew System::EventHandler(this, &Numbers::buttonCancel_Click);
-               this->buttonCancel->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::buttonCancel_KeyPress);
+               this->buttonCancel->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::Numbers_KeyPress);
                this->buttonCancel->GotFocus += gcnew System::EventHandler(this, &Numbers::button_GotFocus);
                this->buttonCancel->LostFocus += gcnew System::EventHandler(this, &Numbers::button_LostFocus);
                this->buttonCancel->PreviewKeyDown += gcnew System::Windows::Forms::PreviewKeyDownEventHandler(this, &Numbers::button_PreviewKeyDown);
@@ -421,7 +414,7 @@ namespace Sudoku_3_0
         btn->ForeColor = SystemColors::ControlText;
     }
 
-           // Set the delegate from the main form to atc when the choice has been made
+           // Set the delegate the main form supplies, invoked when a choice has been committed
     public: void setChoiceDelegate(choiceAction^ choiceActionDelegate)
     {
         this->choiceDelegate = choiceActionDelegate;
@@ -473,7 +466,6 @@ namespace Sudoku_3_0
     {
         this->Activate();
         this->currentCellNumber = cellNumber;
-        this->choiceMade = false;
     }
 
     protected:
@@ -486,160 +478,75 @@ namespace Sudoku_3_0
             }
         }
 
-        // Perform action when a choice has been made
-    private: void buttonClicked(
-        const unsigned int number,
-        System::Object^ sender,
-        System::EventArgs^ e)
+        // Commit the chosen number (0 = Clear) to the main form and hide the pad. Cancel does
+        // not route here - it simply hides without notifying the form.
+    private: void commitChoice(const unsigned int number)
     {
-        this->choiceMade = true;
-        this->choice = number;
         this->Visible = false;
-        this->choiceDelegate(this->currentCellNumber, this->choiceMade, this->choice);
+        this->choiceDelegate(this->currentCellNumber, number);
     }
 
     private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        this->buttonClicked(1, sender, e);
+        this->commitChoice(1);
     }
 
     private: System::Void button2_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        this->buttonClicked(2, sender, e);
+        this->commitChoice(2);
     }
 
     private: System::Void button3_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        this->buttonClicked(3, sender, e);
+        this->commitChoice(3);
     }
 
     private: System::Void button4_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        this->buttonClicked(4, sender, e);
+        this->commitChoice(4);
     }
 
     private: System::Void button5_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        this->buttonClicked(5, sender, e);
+        this->commitChoice(5);
     }
 
     private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        this->buttonClicked(6, sender, e);
+        this->commitChoice(6);
     }
+
     private: System::Void button7_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        this->buttonClicked(7, sender, e);
+        this->commitChoice(7);
     }
 
     private: System::Void button8_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        this->buttonClicked(8, sender, e);
+        this->commitChoice(8);
     }
 
     private: System::Void button9_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        this->buttonClicked(9, sender, e);
+        this->commitChoice(9);
     }
 
     private: System::Void buttonClear_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        this->buttonClicked(0, sender, e);
+        this->commitChoice(0);
     }
 
     private: System::Void buttonCancel_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        this->choiceMade = false;
         this->Visible = false;
     }
 
+           // Typing a digit 1-9 commits that number, no matter which control has focus. Wired to the
+           // form and to every button, so a keypress works even while a button is focused.
     private: System::Void Numbers_KeyPress(System::Object^ sender, System::Windows::Forms::KeyPressEventArgs^ e)
     {
-        switch (e->KeyChar)
-        {
-        case '1':
-            this->button1_Click(sender, e);
-            break;
-        case '2':
-            this->button2_Click(sender, e);
-            break;
-        case '3':
-            this->button3_Click(sender, e);
-            break;
-        case '4':
-            this->button4_Click(sender, e);
-            break;
-        case '5':
-            this->button5_Click(sender, e);
-            break;
-        case '6':
-            this->button6_Click(sender, e);
-            break;
-        case '7':
-            this->button7_Click(sender, e);
-            break;
-        case '8':
-            this->button8_Click(sender, e);
-            break;
-        case '9':
-            this->button9_Click(sender, e);
-            break;
-        }
-    }
-
-    private: System::Void button1_KeyPress(System::Object^ sender, System::Windows::Forms::KeyPressEventArgs^ e)
-    {
-        this->Numbers_KeyPress(sender, e);
-    }
-
-    private: System::Void button2_KeyPress(System::Object^ sender, System::Windows::Forms::KeyPressEventArgs^ e)
-    {
-        this->Numbers_KeyPress(sender, e);
-    }
-
-    private: System::Void button3_KeyPress(System::Object^ sender, System::Windows::Forms::KeyPressEventArgs^ e)
-    {
-        this->Numbers_KeyPress(sender, e);
-    }
-
-    private: System::Void button4_KeyPress(System::Object^ sender, System::Windows::Forms::KeyPressEventArgs^ e)
-    {
-        this->Numbers_KeyPress(sender, e);
-    }
-
-    private: System::Void button5_KeyPress(System::Object^ sender, System::Windows::Forms::KeyPressEventArgs^ e)
-    {
-        this->Numbers_KeyPress(sender, e);
-    }
-
-    private: System::Void button6_KeyPress(System::Object^ sender, System::Windows::Forms::KeyPressEventArgs^ e)
-    {
-        this->Numbers_KeyPress(sender, e);
-    }
-
-    private: System::Void button7_KeyPress(System::Object^ sender, System::Windows::Forms::KeyPressEventArgs^ e)
-    {
-        this->Numbers_KeyPress(sender, e);
-    }
-
-    private: System::Void button8_KeyPress(System::Object^ sender, System::Windows::Forms::KeyPressEventArgs^ e)
-    {
-        this->Numbers_KeyPress(sender, e);
-    }
-
-    private: System::Void button9_KeyPress(System::Object^ sender, System::Windows::Forms::KeyPressEventArgs^ e)
-    {
-        this->Numbers_KeyPress(sender, e);
-    }
-
-    private: System::Void buttonClear_KeyPress(System::Object^ sender, System::Windows::Forms::KeyPressEventArgs^ e)
-    {
-        this->Numbers_KeyPress(sender, e);
-    }
-
-    private: System::Void buttonCancel_KeyPress(System::Object^ sender, System::Windows::Forms::KeyPressEventArgs^ e)
-    {
-        this->Numbers_KeyPress(sender, e);
+        if (e->KeyChar >= L'1' && e->KeyChar <= L'9')
+            this->commitChoice(e->KeyChar - L'0');
     }
     };
 }

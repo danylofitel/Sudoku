@@ -3128,7 +3128,6 @@ namespace Sudoku_3_0
            // A delegate method called by the numbers form when a choice has been made
     public: void choiceMade(
         const unsigned int cellNumber,
-        const bool changed,
         const unsigned int choice)
     {
         this->closeHelperForms();
@@ -3147,21 +3146,15 @@ namespace Sudoku_3_0
             return;
         }
 
-        if (changed)
-        {
-            // No-op: clearing an already-empty cell
-            if (board->isEmpty(index) && choice == 0)
-                return;
+        // Ignore no-op edits - picking the value the cell already holds, or clearing an
+        // already-empty cell - so they never create a redundant undo entry.
+        if ((unsigned char)choice == board->valueAt(index))
+            return;
 
-            this->undoManager->push(index, this->session->board->valueAt(index), board->pencilMarksAt(index));
-            board->setUserValue(index, (unsigned char)choice);
-            this->renderCell(index);
-            this->checkGameState();
-        }
-        else
-        {
-            this->renderCell(index);
-        }
+        this->undoManager->push(index, this->session->board->valueAt(index), board->pencilMarksAt(index));
+        board->setUserValue(index, (unsigned char)choice);
+        this->renderCell(index);
+        this->checkGameState();
     }
 
     private: void restoreCell(unsigned int index, unsigned char previousValue, int previousMarks)
@@ -3360,9 +3353,7 @@ namespace Sudoku_3_0
         case Keys::Delete:
             if (!this->hintMode)
             {
-                Button^ btn = safe_cast<Button^>(sender);
-                bool changed = btn->Text->Length != 0;
-                this->choiceMade(index + 1, changed, 0);
+                this->choiceMade(index + 1, 0);
                 e->Handled = true;
             }
             break;
@@ -4146,12 +4137,8 @@ namespace Sudoku_3_0
         int index;
         if (!this->cellIndex->TryGetValue(safe_cast<Button^>(sender), index)) return;
 
-        // A change is any empty<->filled transition, or replacing a filled cell with a different digit
-        unsigned char current = this->session->board->valueAt(index);
-        bool changed = ((current == 0) != (choice == 0))
-            || (choice != 0 && current != (unsigned char)choice);
-
-        this->choiceMade(index + 1, changed, choice);
+        // choiceMade ignores no-op edits itself, so there is no need to pre-compute a change flag.
+        this->choiceMade(index + 1, choice);
     }
 
            // Serializes the current game state (any state is saveable) to the given file.
