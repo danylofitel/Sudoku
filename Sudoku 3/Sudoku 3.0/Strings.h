@@ -59,6 +59,7 @@ namespace Sudoku_3_0
         MenuLanguage,
         MenuLanguageEnglish,
         MenuLanguageUkrainian,
+        MenuShowCandidates,
 
         // ---- Menu: Help ----
         MenuHelp,
@@ -79,12 +80,14 @@ namespace Sudoku_3_0
         DialogTitleFeatures,
         DialogTitleHintsAndTips,
         DialogTitleKeyboard,
+        DialogTitleCandidates,
 
         // ---- Dialogs: messages ----
         DialogSavePrompt,
         DialogRestartPrompt,
         DialogFixPrompt,
         DialogGiveUpPrompt,
+        DialogCandidatesPrompt,
         DialogAboutText,
         DialogBuildLabel,
         DialogRulesText,
@@ -111,6 +114,7 @@ namespace Sudoku_3_0
         // ---- End-of-game message ----
         EndWin,          // headline: won with assists
         EndWinClean,     // headline: won with no hints/fixes/give-ups
+        EndWinMostlyHints, // headline: "won", but hints revealed almost the whole board
         EndGiveUp,       // headline: gave up
         StatDifficulty,
         StatClues,       // parenthetical clue count appended to the difficulty line ("{0}" = count)
@@ -119,7 +123,11 @@ namespace Sudoku_3_0
         StatHints,
         StatFixes,
         StatGiveUps,
+        StatCandidateHelp,   // "Candidate help: " followed by WordYes/WordNo
         StatWinStreak,
+        StatCleanWinStreak,
+        WordYes,
+        WordNo,
 
         // ---- Clipboard puzzle ----
         ButtonPastePuzzle,
@@ -339,6 +347,11 @@ namespace Sudoku_3_0
                 return L"English";
             case StringId::MenuLanguageUkrainian:
                 return L"Українська";
+            case StringId::MenuShowCandidates:
+                switch (lang) {
+                case Language::Ukrainian: return L"Показувати кандидатів";
+                default:                 return L"Show candidates";
+                }
 
                 // ---- Menu: Help ----
             case StringId::MenuHelp:
@@ -423,6 +436,11 @@ namespace Sudoku_3_0
                 case Language::Ukrainian: return L"Клавіатура";
                 default:                 return L"Keyboard";
                 }
+            case StringId::DialogTitleCandidates:
+                switch (lang) {
+                case Language::Ukrainian: return L"Показувати кандидатів";
+                default:                 return L"Show Candidates";
+                }
 
                 // ---- Dialog messages ----
             case StringId::DialogSavePrompt:
@@ -444,6 +462,11 @@ namespace Sudoku_3_0
                 switch (lang) {
                 case Language::Ukrainian: return L"Ви впевнені, що хочете здатися?\nЦе позбавить вас можливості чистої перемоги в цій задачі та обнулить вашу серію перемог.";
                 default:                 return L"Are you sure you want to give up?\nThis will disqualify you from a clean win on this puzzle and reset your win streak.";
+                }
+            case StringId::DialogCandidatesPrompt:
+                switch (lang) {
+                case Language::Ukrainian: return L"Показ кандидатів вважається підказкою. Будь-яка задача, яку ви розв'яжете з увімкненим показом, не зарахується як чиста перемога, і вашу серію чистих перемог буде обнулено.\n\nУвімкнути показ кандидатів?";
+                default:                 return L"Showing candidates counts as assistance. Any puzzle you solve while it is on will not count as a clean win, and your clean win streak will reset.\n\nEnable candidate display?";
                 }
             case StringId::DialogAboutText:
                 switch (lang) {
@@ -591,6 +614,11 @@ namespace Sudoku_3_0
                 case Language::Ukrainian: return L"Вітаємо! Бездоганна перемога!";
                 default:                 return L"Congratulations! A flawless win!";
                 }
+            case StringId::EndWinMostlyHints:
+                switch (lang) {
+                case Language::Ukrainian: return L"Задачу завершено, але майже всю роботу зробили підказки — навряд чи краще, ніж здатися.";
+                default:                 return L"Puzzle finished, but hints did almost all the work — hardly better than giving up.";
+                }
             case StringId::EndGiveUp:
                 switch (lang) {
                 case Language::Ukrainian: return L"Ви здалися. Ось розв'язок.";
@@ -631,10 +659,30 @@ namespace Sudoku_3_0
                 case Language::Ukrainian: return L"Капітуляцій: ";
                 default:                 return L"Give-ups: ";
                 }
+            case StringId::StatCandidateHelp:
+                switch (lang) {
+                case Language::Ukrainian: return L"Показ кандидатів: ";
+                default:                 return L"Candidate help: ";
+                }
             case StringId::StatWinStreak:
                 switch (lang) {
                 case Language::Ukrainian: return L"Серія перемог: ";
                 default:                 return L"Win streak: ";
+                }
+            case StringId::StatCleanWinStreak:
+                switch (lang) {
+                case Language::Ukrainian: return L"Серія чистих перемог: ";
+                default:                 return L"Clean win streak: ";
+                }
+            case StringId::WordYes:
+                switch (lang) {
+                case Language::Ukrainian: return L"Так";
+                default:                 return L"Yes";
+                }
+            case StringId::WordNo:
+                switch (lang) {
+                case Language::Ukrainian: return L"Ні";
+                default:                 return L"No";
                 }
 
                 // ---- Clipboard puzzle ----

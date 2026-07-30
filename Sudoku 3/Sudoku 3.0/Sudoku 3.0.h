@@ -217,6 +217,7 @@ namespace Sudoku_3_0
     private: System::Windows::Forms::ToolStripMenuItem^ optionsToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ difficultyToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ languageToolStripMenuItem;
+    private: System::Windows::Forms::ToolStripMenuItem^ candidatesToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ englishToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ ukrainianToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ veryEasyToolStripMenuItem;
@@ -267,6 +268,10 @@ namespace Sudoku_3_0
            // Difficulty index that backs the combo box and is used as the next-game preference (0-4).
            // Distinct from session->difficulty, which records the loaded puzzle's actual difficulty.
     private: unsigned int selectedDifficulty;
+
+           // Mirror of the persisted "show non-conflicting candidates in pencil mode" preference.
+           // Gates the candidate ghost in cell_Paint; toggled via the Options menu item.
+    private: bool showPencilCandidates;
 
            // Window dragging
     private: WindowDragger^ dragger;
@@ -407,6 +412,7 @@ namespace Sudoku_3_0
                this->undoToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->optionsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->difficultyToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+               this->candidatesToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->veryEasyToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->easyToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->mediumToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -2209,9 +2215,9 @@ namespace Sudoku_3_0
                // 
                // optionsToolStripMenuItem
                // 
-               this->optionsToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
+               this->optionsToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {
                    this->difficultyToolStripMenuItem,
-                       this->languageToolStripMenuItem
+                       this->languageToolStripMenuItem, this->candidatesToolStripMenuItem
                });
                this->optionsToolStripMenuItem->Name = L"optionsToolStripMenuItem";
                this->optionsToolStripMenuItem->Size = System::Drawing::Size(92, 32);
@@ -2290,7 +2296,16 @@ namespace Sudoku_3_0
                this->ukrainianToolStripMenuItem->Size = System::Drawing::Size(202, 34);
                this->ukrainianToolStripMenuItem->Text = L"Українська";
                this->ukrainianToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::ukrainianToolStripMenuItem_Click);
-               // 
+               //
+               // candidatesToolStripMenuItem
+               //
+               this->candidatesToolStripMenuItem->Name = L"candidatesToolStripMenuItem";
+               this->candidatesToolStripMenuItem->Size = System::Drawing::Size(202, 34);
+               this->candidatesToolStripMenuItem->Text = L"Show candidates";
+               // CheckOnClick stays false: the handler manages Checked itself so it can veto the
+               // change when the user cancels the confirmation dialog.
+               this->candidatesToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::candidatesToolStripMenuItem_Click);
+               //
                // helpToolStripMenuItem
                // 
                this->helpToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(5) {
@@ -2561,8 +2576,13 @@ namespace Sudoku_3_0
         // No cell is hovered until the mouse enters one (MouseEnter/Leave keep this current).
         this->hoveredCellIndex = -1;
 
-        // Restore the win streak earned in previous runs
+        // Restore the win streak and clean win streak earned in previous runs
         this->playerStats->winStreak = Settings::LoadWinStreak();
+        this->playerStats->cleanWinStreak = Settings::LoadCleanWinStreak();
+
+        // Restore the candidate-display preference and reflect it in the Options menu checkmark.
+        this->showPencilCandidates = Settings::LoadShowCandidates();
+        this->candidatesToolStripMenuItem->Checked = this->showPencilCandidates;
 
         // Restore the preferred difficulty. selectedDifficulty is set BEFORE the combo box
         // index so that difficultyComboBox_SelectedIndexChanged sees an unchanged value and
@@ -2693,6 +2713,7 @@ namespace Sudoku_3_0
         this->languageToolStripMenuItem->Text = Strings::Get(StringId::MenuLanguage, lang);
         this->englishToolStripMenuItem->Text = Strings::Get(StringId::MenuLanguageEnglish, lang);
         this->ukrainianToolStripMenuItem->Text = Strings::Get(StringId::MenuLanguageUkrainian, lang);
+        this->candidatesToolStripMenuItem->Text = Strings::Get(StringId::MenuShowCandidates, lang);
 
         // Menu: Help
         this->helpToolStripMenuItem->Text = Strings::Get(StringId::MenuHelp, lang);
@@ -2724,6 +2745,30 @@ namespace Sudoku_3_0
     private: void ukrainianToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
         this->setLanguage(Language::Ukrainian, true);
+    }
+
+           // Toggles the "show non-conflicting candidates" preference. Turning it OFF is silent;
+           // turning it ON first warns that it forfeits the clean-win badge (and clean streak) for
+           // any game it is used in, and does nothing if the user cancels.
+    private: void candidatesToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
+    {
+        if (!this->showPencilCandidates)
+        {
+            System::Windows::Forms::DialogResult confirm = MessageBox::Show(
+                Strings::Get(StringId::DialogCandidatesPrompt, this->currentLanguage),
+                Strings::Get(StringId::DialogTitleCandidates, this->currentLanguage),
+                MessageBoxButtons::YesNo,
+                MessageBoxIcon::Warning);
+            if (confirm != System::Windows::Forms::DialogResult::Yes)
+                return;
+        }
+
+        this->showPencilCandidates = !this->showPencilCandidates;
+        this->candidatesToolStripMenuItem->Checked = this->showPencilCandidates;
+        Settings::SaveShowCandidates(this->showPencilCandidates);
+
+        // Repaint so the candidate ghost appears or disappears immediately.
+        this->renderAll();
     }
 
     private: void initializeCells()
@@ -2988,6 +3033,9 @@ namespace Sudoku_3_0
         this->gameTimer->stop();
 
         this->setWinStreak(this->session->numberOfGiveUps > 0 ? 0 : this->playerStats->winStreak + 1);
+
+        // A win with any assistance breaks the clean streak but not the plain win streak.
+        this->setCleanWinStreak(this->session->isClean() ? this->playerStats->cleanWinStreak + 1 : 0);
     }
 
            // Updates the win streak and persists it, writing to the registry only when
@@ -2997,6 +3045,15 @@ namespace Sudoku_3_0
         if (this->playerStats->winStreak == value) return;
         this->playerStats->winStreak = value;
         Settings::SaveWinStreak(value);
+    }
+
+           // Updates the clean win streak and persists it, writing to the registry only when
+           // the value actually changes (mirrors setWinStreak).
+    private: void setCleanWinStreak(unsigned int value)
+    {
+        if (this->playerStats->cleanWinStreak == value) return;
+        this->playerStats->cleanWinStreak = value;
+        Settings::SaveCleanWinStreak(value);
     }
 
            // Number of engine-provided clues in the current puzzle (the finer-grained difficulty
@@ -3012,6 +3069,18 @@ namespace Sudoku_3_0
         return count;
     }
 
+           // Number of cells currently revealed as hints. Counted from the board (not the hint
+           // counter) so an undone-and-retaken hint is not double-counted; Hint cells are not
+           // editable, so they survive applyWin's lockAsCorrect and are still countable here.
+    private: int hintRevealCount()
+    {
+        int count = 0;
+        for (unsigned int i = 0; i < this->numberOfCells; ++i)
+            if (this->session->board->kindAt(i) == CellKind::Hint)
+                ++count;
+        return count;
+    }
+
            // Builds the end-of-game message: a headline line, then each per-puzzle statistic on
            // its own line. Shown both on a win and after a give-up.
     private: System::String^ buildEndMessage(bool won)
@@ -3019,10 +3088,18 @@ namespace Sudoku_3_0
         System::String^ headline;
         if (won)
         {
-            bool clean = this->session->numberOfGiveUps == 0
-                && this->session->numberOfHints == 0
-                && this->session->numberOfFixes == 0;
-            headline = Strings::Get(clean ? StringId::EndWinClean : StringId::EndWin, this->currentLanguage);
+            if (this->session->isClean())
+            {
+                headline = Strings::Get(StringId::EndWinClean, this->currentLanguage);
+            }
+            else
+            {
+                // If hints revealed at least 90% of the cells the player had to fill, this "win"
+                // is barely better than giving up - deflate the message instead of celebrating.
+                int fillable = (int)this->numberOfCells - this->clueCount();
+                bool mostlyHints = fillable > 0 && this->hintRevealCount() * 10 >= fillable * 9;
+                headline = Strings::Get(mostlyHints ? StringId::EndWinMostlyHints : StringId::EndWin, this->currentLanguage);
+            }
         }
         else
         {
@@ -3036,11 +3113,15 @@ namespace Sudoku_3_0
         msg += Strings::Get(StringId::StatRestarts, this->currentLanguage) + this->session->numberOfRestarts + "\n";
         msg += Strings::Get(StringId::StatHints, this->currentLanguage) + this->session->numberOfHints + "\n";
         msg += Strings::Get(StringId::StatFixes, this->currentLanguage) + this->session->numberOfFixes + "\n";
-        msg += Strings::Get(StringId::StatGiveUps, this->currentLanguage) + this->session->numberOfGiveUps;
+        msg += Strings::Get(StringId::StatGiveUps, this->currentLanguage) + this->session->numberOfGiveUps + "\n";
+        msg += Strings::Get(StringId::StatCandidateHelp, this->currentLanguage)
+            + Strings::Get(this->session->usedCandidateAssist ? StringId::WordYes : StringId::WordNo, this->currentLanguage);
 
-        // Win streak is a cross-game stat; show it only on a win, and only once it is a streak.
+        // Win streaks are cross-game stats; show each only on a win, and only once it is a streak.
         if (won && this->playerStats->winStreak > 1)
             msg += "\n" + Strings::Get(StringId::StatWinStreak, this->currentLanguage) + this->playerStats->winStreak;
+        if (won && this->playerStats->cleanWinStreak > 1)
+            msg += "\n" + Strings::Get(StringId::StatCleanWinStreak, this->currentLanguage) + this->playerStats->cleanWinStreak;
 
         return msg;
     }
@@ -3243,9 +3324,15 @@ namespace Sudoku_3_0
         int idx;
         if (!this->cellIndex->TryGetValue(cell, idx) || cell->Text->Length > 0) return;
 
-        // Show ghost candidates on the cell under the mouse or the keyboard-focused cell.
-        bool showCandidates = this->pencilMode && cell->Enabled
+        // Show ghost candidates on the cell under the mouse or the keyboard-focused cell,
+        // but only when the player has opted into the candidate assist.
+        bool showCandidates = this->showPencilCandidates && this->pencilMode && cell->Enabled
             && (idx == this->hoveredCellIndex || cell->Focused);
+
+        // Latch: once candidates are actually shown, this game no longer qualifies as a clean win.
+        if (showCandidates)
+            this->session->usedCandidateAssist = true;
+
         int pencilMarks = this->session->board->pencilMarksAt(idx);
         if (pencilMarks == 0 && !showCandidates) return;
 
@@ -3593,6 +3680,7 @@ namespace Sudoku_3_0
 
         ++this->session->numberOfGiveUps;
         this->setWinStreak(0);
+        this->setCleanWinStreak(0);
 
         // Reveal the solution in every editable cell.
         for (unsigned int index = 0; index < this->numberOfCells; ++index)
@@ -4151,6 +4239,7 @@ namespace Sudoku_3_0
         game->numberOfHints = this->session->numberOfHints;
         game->numberOfFixes = this->session->numberOfFixes;
         game->numberOfGiveUps = this->session->numberOfGiveUps;
+        game->usedCandidateAssist = this->session->usedCandidateAssist;
         game->mode = this->session->mode;
         game->gameFinished = this->isGameFinished();
         game->elapsedSeconds = (unsigned int)this->gameTimer->Elapsed.TotalSeconds;
@@ -4241,6 +4330,7 @@ namespace Sudoku_3_0
         this->session->numberOfHints = save->numberOfHints;
         this->session->numberOfFixes = save->numberOfFixes;
         this->session->numberOfGiveUps = save->numberOfGiveUps;
+        this->session->usedCandidateAssist = save->usedCandidateAssist;
         this->session->mode = save->mode;
         this->setGameControls(
             this->session->mode == GameMode::Game && !save->gameFinished,

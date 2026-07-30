@@ -15,9 +15,15 @@ namespace Sudoku_3_0
         // the streak, and completing that same puzzle afterwards does not count).
         unsigned int winStreak;
 
+        // Number of consecutive clean wins (see GameSession::isClean): a win that used any
+        // assistance - a hint, a fix, or the candidate display - resets it, as does a give-up.
+        // Always <= winStreak.
+        unsigned int cleanWinStreak;
+
         PlayerStats()
         {
             this->winStreak = 0;
+            this->cleanWinStreak = 0;
         }
     };
 }

@@ -17,7 +17,7 @@ namespace Sudoku_3_0
     // File format (UTF-8 text, one "key=value" per line):
     //   Sudoku3Save=<format version>
     //   difficulty, numberOfRestarts, numberOfHints, numberOfFixes, numberOfGiveUps,
-    //   gameMode, gameFinished               (all integers; booleans as 0/1)
+    //   gameMode, gameFinished, usedCandidateAssist   (all integers; booleans as 0/1)
     //   elapsedSeconds                       (total play time in whole seconds)
     //   clues, solution, value, state        (digit strings, one char per cell)
     //   pencilMarks                          (space-separated bitmasks, one per cell)
@@ -41,6 +41,7 @@ namespace Sudoku_3_0
                 writer->WriteLine("numberOfGiveUps=" + game->numberOfGiveUps.ToString());
                 writer->WriteLine("gameMode=" + (static_cast<unsigned int>(game->mode)).ToString());
                 writer->WriteLine("gameFinished=" + (game->gameFinished ? 1 : 0).ToString());
+                writer->WriteLine("usedCandidateAssist=" + (game->usedCandidateAssist ? 1 : 0).ToString());
                 writer->WriteLine("elapsedSeconds=" + game->elapsedSeconds.ToString());
                 writer->WriteLine("clues=" + EncodeDigits(game->clues));
                 writer->WriteLine("solution=" + EncodeDigits(game->solution));
@@ -97,6 +98,7 @@ namespace Sudoku_3_0
             game->numberOfFixes = RequireUInt(fields, "numberOfFixes");
             game->numberOfGiveUps = RequireUInt(fields, "numberOfGiveUps");
             game->gameFinished = RequireUInt(fields, "gameFinished") != 0;
+            game->usedCandidateAssist = RequireUInt(fields, "usedCandidateAssist") != 0;
             game->elapsedSeconds = RequireUInt(fields, "elapsedSeconds");
 
             unsigned int gameMode = RequireUInt(fields, "gameMode");
@@ -151,9 +153,7 @@ namespace Sudoku_3_0
                     throw gcnew System::Exception("Invalid state " + s.ToString() + " in solver mode at index " + i.ToString());
             }
 
-            game->pencilMarks = DecodePencilMarks(
-                fields->ContainsKey("pencilMarks") ? fields["pencilMarks"] : gcnew System::String(L""),
-                expectedNumberOfCells);
+            game->pencilMarks = DecodePencilMarks(RequireStr(fields, "pencilMarks"), expectedNumberOfCells);
 
             return game;
         }
@@ -203,20 +203,27 @@ namespace Sudoku_3_0
             return sb->ToString();
         }
 
-        // Decodes space-separated pencil-mark bitmasks into an array of the expected length.
-        // Lenient: missing or unparsable entries default to 0 (no marks).
+        // Decodes space-separated pencil-mark bitmasks into an array. Strict, like the digit
+        // fields: there must be exactly expectedLength entries, each a valid bitmask (only bits
+        // 1-9 may be set, matching what the game writes).
         static array<int>^ DecodePencilMarks(System::String^ text, unsigned int expectedLength)
         {
+            // A full board always writes expectedLength space-separated tokens (all-zero cells
+            // included), so an empty value is only well-formed when no cells are expected.
+            array<System::String^>^ parts = text->Length == 0
+                ? gcnew array<System::String^>(0)
+                : text->Split(' ');
+            if ((unsigned int)parts->Length != expectedLength)
+                throw gcnew System::Exception("Invalid length for field 'pencilMarks'");
+
+            const int validBits = 0x3FE; // bits 1..9
             array<int>^ marks = gcnew array<int>(expectedLength);
-            if (text != nullptr && text->Length > 0)
+            for (unsigned int i = 0; i < expectedLength; ++i)
             {
-                array<System::String^>^ parts = text->Split(' ');
-                for (unsigned int i = 0; i < expectedLength && i < (unsigned int)parts->Length; ++i)
-                {
-                    int m = 0;
-                    if (System::Int32::TryParse(parts[i], m))
-                        marks[i] = m;
-                }
+                int m = 0;
+                if (!System::Int32::TryParse(parts[i], m) || m < 0 || (m & ~validBits) != 0)
+                    throw gcnew System::Exception("Invalid pencilMarks value '" + parts[i] + "' at index " + i.ToString());
+                marks[i] = m;
             }
             return marks;
         }

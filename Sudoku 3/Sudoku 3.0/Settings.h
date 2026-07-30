@@ -20,11 +20,16 @@ namespace Sudoku_3_0
         static System::String^ LanguageValueName = L"Language";
         static System::String^ DifficultyValueName = L"Difficulty";
         static System::String^ WinStreakValueName = L"WinStreak";
+        static System::String^ CleanWinStreakValueName = L"CleanWinStreak";
+        static System::String^ ShowCandidatesValueName = L"ShowCandidates";
         static System::String^ WindowLeftValueName = L"WindowLeft";
         static System::String^ WindowTopValueName = L"WindowTop";
 
         static const Language DefaultLanguage = Language::English;
         static const unsigned int DefaultDifficulty = 2; // Medium
+        // Off by default: a fresh game shows no candidates, so it is clean by nature. Enabling
+        // it is a deliberate opt-in that forfeits the clean-win badge (see GameSession::isClean).
+        static const bool DefaultShowCandidates = false;
 
         // Reads an integer value. Returns true and sets result only if the value exists
         // and is convertible; false on any failure.
@@ -119,6 +124,36 @@ namespace Sudoku_3_0
         static void SaveWinStreak(unsigned int streak)
         {
             WriteInt(WinStreakValueName, static_cast<int>(streak));
+        }
+
+        // ---- Clean win streak (consecutive wins with no assistance) ----
+
+        static unsigned int LoadCleanWinStreak()
+        {
+            int stored = 0;
+            if (TryReadInt(CleanWinStreakValueName, stored) && stored >= 0)
+                return static_cast<unsigned int>(stored);
+            return 0;
+        }
+
+        static void SaveCleanWinStreak(unsigned int streak)
+        {
+            WriteInt(CleanWinStreakValueName, static_cast<int>(streak));
+        }
+
+        // ---- Show non-conflicting candidates in pencil mode ----
+
+        static bool LoadShowCandidates()
+        {
+            int stored = 0;
+            if (TryReadInt(ShowCandidatesValueName, stored))
+                return stored != 0;
+            return DefaultShowCandidates;
+        }
+
+        static void SaveShowCandidates(bool show)
+        {
+            WriteInt(ShowCandidatesValueName, show ? 1 : 0);
         }
 
         // ---- Window position ----

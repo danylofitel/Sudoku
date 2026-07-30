@@ -355,26 +355,67 @@ namespace Sudoku_3_0_Tests
         }
 
         [TestMethod]
-        void Load_ToleratesMissingPencilMarks()
+        [ExpectedException(Exception::typeid)]
+        void Load_Throws_OnMissingPencilMarks()
         {
-            // pencilMarks is the one optional field: a save without it loads with all marks zero.
+            // pencilMarks is a required field: a save missing it is rejected, not silently zeroed.
             SavedGame^ g = MakeGameSave();
             String^ path = Path::GetTempFileName();
             try
             {
                 SaveGameStore::Save(path, g);
 
-                // Strip the pencilMarks line from the file.
                 System::Collections::Generic::List<String^>^ kept =
                     gcnew System::Collections::Generic::List<String^>();
                 for each (String ^ line in File::ReadAllLines(path))
                     if (!line->StartsWith("pencilMarks=")) kept->Add(line);
                 File::WriteAllLines(path, kept->ToArray());
 
-                SavedGame^ back = SaveGameStore::Load(path, Cells);
-                Assert::AreEqual(Cells, back->pencilMarks->Length);
-                for (int i = 0; i < Cells; ++i)
-                    Assert::AreEqual(0, back->pencilMarks[i]);
+                SaveGameStore::Load(path, Cells);
+            }
+            finally
+            {
+                File::Delete(path);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(Exception::typeid)]
+        void Load_Throws_OnInvalidPencilMarkBit()
+        {
+            // Bit 0 is never a valid pencil mark (digits are bits 1-9), so value 1 is rejected.
+            SavedGame^ g = MakeGameSave();
+            g->pencilMarks[0] = 1; // bit 0 set
+            SaveAndReload(g);
+        }
+
+        [TestMethod]
+        void RoundTrip_PreservesUsedCandidateAssist()
+        {
+            SavedGame^ g = MakeGameSave();
+            g->usedCandidateAssist = true;
+            SavedGame^ back = SaveAndReload(g);
+            Assert::IsTrue(back->usedCandidateAssist);
+        }
+
+        [TestMethod]
+        [ExpectedException(Exception::typeid)]
+        void Load_Throws_OnMissingUsedCandidateAssist()
+        {
+            // usedCandidateAssist is a required field: a save missing it is rejected.
+            SavedGame^ g = MakeGameSave();
+            String^ path = Path::GetTempFileName();
+            try
+            {
+                SaveGameStore::Save(path, g);
+
+                System::Collections::Generic::List<String^>^ kept =
+                    gcnew System::Collections::Generic::List<String^>();
+                for each (String ^ line in File::ReadAllLines(path))
+                    if (!line->StartsWith("usedCandidateAssist=")) kept->Add(line);
+                File::WriteAllLines(path, kept->ToArray());
+
+                SaveGameStore::Load(path, Cells);
             }
             finally
             {

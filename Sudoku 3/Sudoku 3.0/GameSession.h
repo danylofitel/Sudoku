@@ -40,6 +40,11 @@ namespace Sudoku_3_0
         // least once; can exceed 1 since Restart re-enables Give Up without clearing this)
         unsigned int numberOfGiveUps;
 
+        // Whether the non-conflicting candidate display was ever shown to the player during
+        // this game. Latched true the first time candidates are rendered; disqualifies a clean
+        // win, exactly like a hint or a fix. Persisted with the save so a loaded game stays honest.
+        bool usedCandidateAssist;
+
         // One-time initialization with a default difficulty. The caller (SudokuForm)
         // immediately starts a real game, so the initial difficulty is only transient.
         GameSession(unsigned int numberOfCells)
@@ -62,6 +67,16 @@ namespace Sudoku_3_0
             this->reset(GameMode::Solver);
         }
 
+        // A win is "clean" only if the player used no assistance of any kind. Shared by the
+        // win-handling and end-of-game message so the definition lives in exactly one place.
+        bool isClean()
+        {
+            return this->numberOfGiveUps == 0
+                && this->numberOfHints == 0
+                && this->numberOfFixes == 0
+                && !this->usedCandidateAssist;
+        }
+
     private:
         // Resets every per-puzzle field (board and counters) to its initial state for the given
         // mode. Difficulty is set by the caller, since it is a game-only concept.
@@ -74,6 +89,7 @@ namespace Sudoku_3_0
             this->numberOfHints = 0;
             this->numberOfFixes = 0;
             this->numberOfGiveUps = 0;
+            this->usedCandidateAssist = false;
         }
     };
 }
