@@ -17,7 +17,7 @@ namespace Sudoku_3_0
     // File format (UTF-8 text, one "key=value" per line):
     //   Sudoku3Save=<format version>
     //   difficulty, numberOfRestarts, numberOfHints, numberOfFixes, numberOfGiveUps,
-    //   gameMode, gameFinished, usedCandidateAssist   (all integers; booleans as 0/1)
+    //   gameMode, gameFinished, candidateAssist   (all integers; gameFinished is 0/1)
     //   elapsedSeconds                       (total play time in whole seconds)
     //   clues, solution, value, state        (digit strings, one char per cell)
     //   pencilMarks                          (space-separated bitmasks, one per cell)
@@ -41,7 +41,7 @@ namespace Sudoku_3_0
                 writer->WriteLine("numberOfGiveUps=" + game->numberOfGiveUps.ToString());
                 writer->WriteLine("gameMode=" + (static_cast<unsigned int>(game->mode)).ToString());
                 writer->WriteLine("gameFinished=" + (game->gameFinished ? 1 : 0).ToString());
-                writer->WriteLine("usedCandidateAssist=" + (game->usedCandidateAssist ? 1 : 0).ToString());
+                writer->WriteLine("candidateAssist=" + (static_cast<unsigned int>(game->candidateAssist)).ToString());
                 writer->WriteLine("elapsedSeconds=" + game->elapsedSeconds.ToString());
                 writer->WriteLine("clues=" + EncodeDigits(game->clues));
                 writer->WriteLine("solution=" + EncodeDigits(game->solution));
@@ -98,7 +98,12 @@ namespace Sudoku_3_0
             game->numberOfFixes = RequireUInt(fields, "numberOfFixes");
             game->numberOfGiveUps = RequireUInt(fields, "numberOfGiveUps");
             game->gameFinished = RequireUInt(fields, "gameFinished") != 0;
-            game->usedCandidateAssist = RequireUInt(fields, "usedCandidateAssist") != 0;
+
+            unsigned int candidateAssist = RequireUInt(fields, "candidateAssist");
+            if (candidateAssist > static_cast<unsigned int>(CandidateDisplay::AllCells))
+                throw gcnew System::Exception("Invalid candidateAssist value " + candidateAssist.ToString());
+            game->candidateAssist = static_cast<CandidateDisplay>(candidateAssist);
+
             game->elapsedSeconds = RequireUInt(fields, "elapsedSeconds");
 
             unsigned int gameMode = RequireUInt(fields, "gameMode");

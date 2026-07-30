@@ -10,6 +10,7 @@
 #pragma once
 
 #include "Language.h"
+#include "CandidateDisplay.h"
 
 namespace Sudoku_3_0
 {
@@ -21,15 +22,15 @@ namespace Sudoku_3_0
         static System::String^ DifficultyValueName = L"Difficulty";
         static System::String^ WinStreakValueName = L"WinStreak";
         static System::String^ CleanWinStreakValueName = L"CleanWinStreak";
-        static System::String^ ShowCandidatesValueName = L"ShowCandidates";
+        static System::String^ CandidateDisplayValueName = L"CandidateDisplay";
         static System::String^ WindowLeftValueName = L"WindowLeft";
         static System::String^ WindowTopValueName = L"WindowTop";
 
         static const Language DefaultLanguage = Language::English;
         static const unsigned int DefaultDifficulty = 2; // Medium
-        // Off by default: a fresh game shows no candidates, so it is clean by nature. Enabling
-        // it is a deliberate opt-in that forfeits the clean-win badge (see GameSession::isClean).
-        static const bool DefaultShowCandidates = false;
+        // None by default: a fresh game shows no candidates, so it is clean by nature. Any other
+        // level is a deliberate opt-in that forfeits the clean-win badge (see GameSession::isClean).
+        static const CandidateDisplay DefaultCandidateDisplay = CandidateDisplay::None;
 
         // Reads an integer value. Returns true and sets result only if the value exists
         // and is convertible; false on any failure.
@@ -141,19 +142,20 @@ namespace Sudoku_3_0
             WriteInt(CleanWinStreakValueName, static_cast<int>(streak));
         }
 
-        // ---- Show non-conflicting candidates in pencil mode ----
+        // ---- Candidate display level (None / CurrentCell / AllCells) ----
 
-        static bool LoadShowCandidates()
+        static CandidateDisplay LoadCandidateDisplay()
         {
             int stored = 0;
-            if (TryReadInt(ShowCandidatesValueName, stored))
-                return stored != 0;
-            return DefaultShowCandidates;
+            if (TryReadInt(CandidateDisplayValueName, stored)
+                && stored >= 0 && stored <= static_cast<int>(CandidateDisplay::AllCells))
+                return static_cast<CandidateDisplay>(stored);
+            return DefaultCandidateDisplay;
         }
 
-        static void SaveShowCandidates(bool show)
+        static void SaveCandidateDisplay(CandidateDisplay level)
         {
-            WriteInt(ShowCandidatesValueName, show ? 1 : 0);
+            WriteInt(CandidateDisplayValueName, static_cast<int>(level));
         }
 
         // ---- Window position ----

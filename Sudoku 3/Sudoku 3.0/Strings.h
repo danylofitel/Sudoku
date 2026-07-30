@@ -59,7 +59,10 @@ namespace Sudoku_3_0
         MenuLanguage,
         MenuLanguageEnglish,
         MenuLanguageUkrainian,
-        MenuShowCandidates,
+        MenuCandidates,
+        CandidateLevelNone,
+        CandidateLevelCurrentCell,
+        CandidateLevelAllCells,
 
         // ---- Menu: Help ----
         MenuHelp,
@@ -123,11 +126,9 @@ namespace Sudoku_3_0
         StatHints,
         StatFixes,
         StatGiveUps,
-        StatCandidateHelp,   // "Candidate help: " followed by WordYes/WordNo
+        StatCandidateHelp,   // "Candidate help: " followed by a CandidateLevel* name
         StatWinStreak,
         StatCleanWinStreak,
-        WordYes,
-        WordNo,
 
         // ---- Clipboard puzzle ----
         ButtonPastePuzzle,
@@ -347,10 +348,25 @@ namespace Sudoku_3_0
                 return L"English";
             case StringId::MenuLanguageUkrainian:
                 return L"Українська";
-            case StringId::MenuShowCandidates:
+            case StringId::MenuCandidates:
                 switch (lang) {
-                case Language::Ukrainian: return L"Показувати кандидатів";
-                default:                 return L"Show candidates";
+                case Language::Ukrainian: return L"Кандидати";
+                default:                 return L"Candidates";
+                }
+            case StringId::CandidateLevelNone:
+                switch (lang) {
+                case Language::Ukrainian: return L"Немає";
+                default:                 return L"None";
+                }
+            case StringId::CandidateLevelCurrentCell:
+                switch (lang) {
+                case Language::Ukrainian: return L"Поточна клітинка";
+                default:                 return L"Current cell";
+                }
+            case StringId::CandidateLevelAllCells:
+                switch (lang) {
+                case Language::Ukrainian: return L"Усі клітинки";
+                default:                 return L"All cells";
                 }
 
                 // ---- Menu: Help ----
@@ -673,16 +689,6 @@ namespace Sudoku_3_0
                 switch (lang) {
                 case Language::Ukrainian: return L"Серія чистих перемог: ";
                 default:                 return L"Clean win streak: ";
-                }
-            case StringId::WordYes:
-                switch (lang) {
-                case Language::Ukrainian: return L"Так";
-                default:                 return L"Yes";
-                }
-            case StringId::WordNo:
-                switch (lang) {
-                case Language::Ukrainian: return L"Ні";
-                default:                 return L"No";
                 }
 
                 // ---- Clipboard puzzle ----

@@ -390,19 +390,19 @@ namespace Sudoku_3_0_Tests
         }
 
         [TestMethod]
-        void RoundTrip_PreservesUsedCandidateAssist()
+        void RoundTrip_PreservesCandidateAssist()
         {
             SavedGame^ g = MakeGameSave();
-            g->usedCandidateAssist = true;
+            g->candidateAssist = CandidateDisplay::AllCells;
             SavedGame^ back = SaveAndReload(g);
-            Assert::IsTrue(back->usedCandidateAssist);
+            Assert::IsTrue(back->candidateAssist == CandidateDisplay::AllCells);
         }
 
         [TestMethod]
         [ExpectedException(Exception::typeid)]
-        void Load_Throws_OnMissingUsedCandidateAssist()
+        void Load_Throws_OnMissingCandidateAssist()
         {
-            // usedCandidateAssist is a required field: a save missing it is rejected.
+            // candidateAssist is a required field: a save missing it is rejected.
             SavedGame^ g = MakeGameSave();
             String^ path = Path::GetTempFileName();
             try
@@ -412,8 +412,34 @@ namespace Sudoku_3_0_Tests
                 System::Collections::Generic::List<String^>^ kept =
                     gcnew System::Collections::Generic::List<String^>();
                 for each (String ^ line in File::ReadAllLines(path))
-                    if (!line->StartsWith("usedCandidateAssist=")) kept->Add(line);
+                    if (!line->StartsWith("candidateAssist=")) kept->Add(line);
                 File::WriteAllLines(path, kept->ToArray());
+
+                SaveGameStore::Load(path, Cells);
+            }
+            finally
+            {
+                File::Delete(path);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(Exception::typeid)]
+        void Load_Throws_OnCandidateAssistOutOfRange()
+        {
+            // Only 0..2 (None/CurrentCell/AllCells) are valid; a save is written by hand here
+            // with an out-of-range level and must be rejected.
+            SavedGame^ g = MakeGameSave();
+            String^ path = Path::GetTempFileName();
+            try
+            {
+                SaveGameStore::Save(path, g);
+
+                System::Collections::Generic::List<String^>^ lines =
+                    gcnew System::Collections::Generic::List<String^>();
+                for each (String ^ line in File::ReadAllLines(path))
+                    lines->Add(line->StartsWith("candidateAssist=") ? "candidateAssist=3" : line);
+                File::WriteAllLines(path, lines->ToArray());
 
                 SaveGameStore::Load(path, Cells);
             }

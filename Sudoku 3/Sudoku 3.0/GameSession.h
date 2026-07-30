@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameMode.h"
+#include "CandidateDisplay.h"
 #include "Puzzle.h"
 #include "Board.h"
 
@@ -40,10 +41,10 @@ namespace Sudoku_3_0
         // least once; can exceed 1 since Restart re-enables Give Up without clearing this)
         unsigned int numberOfGiveUps;
 
-        // Whether the non-conflicting candidate display was ever shown to the player during
-        // this game. Latched true the first time candidates are rendered; disqualifies a clean
-        // win, exactly like a hint or a fix. Persisted with the save so a loaded game stays honest.
-        bool usedCandidateAssist;
+        // The strongest candidate-display level that was enabled at any point during this game.
+        // Any level other than None disqualifies a clean win, like a hint or a fix. Persisted
+        // with the save so a loaded game stays honest.
+        CandidateDisplay maxCandidateAssist;
 
         // One-time initialization with a default difficulty. The caller (SudokuForm)
         // immediately starts a real game, so the initial difficulty is only transient.
@@ -74,7 +75,7 @@ namespace Sudoku_3_0
             return this->numberOfGiveUps == 0
                 && this->numberOfHints == 0
                 && this->numberOfFixes == 0
-                && !this->usedCandidateAssist;
+                && this->maxCandidateAssist == CandidateDisplay::None;
         }
 
     private:
@@ -89,7 +90,7 @@ namespace Sudoku_3_0
             this->numberOfHints = 0;
             this->numberOfFixes = 0;
             this->numberOfGiveUps = 0;
-            this->usedCandidateAssist = false;
+            this->maxCandidateAssist = CandidateDisplay::None;
         }
     };
 }

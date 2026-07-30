@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameMode.h"
+#include "CandidateDisplay.h"
 
 namespace Sudoku_3_0
 {
@@ -27,8 +28,9 @@ namespace Sudoku_3_0
         // Whether the puzzle is finished (won, given up, or solved)
         bool gameFinished;
 
-        // Whether the candidate display was used during this game (disqualifies a clean win).
-        bool usedCandidateAssist;
+        // Strongest candidate-display level enabled during this game (any level but None
+        // disqualifies a clean win).
+        CandidateDisplay candidateAssist;
 
         // Total play time in whole seconds
         unsigned int elapsedSeconds;

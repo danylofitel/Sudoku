@@ -218,6 +218,9 @@ namespace Sudoku_3_0
     private: System::Windows::Forms::ToolStripMenuItem^ difficultyToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ languageToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ candidatesToolStripMenuItem;
+    private: System::Windows::Forms::ToolStripMenuItem^ candidatesNoneToolStripMenuItem;
+    private: System::Windows::Forms::ToolStripMenuItem^ candidatesCurrentCellToolStripMenuItem;
+    private: System::Windows::Forms::ToolStripMenuItem^ candidatesAllCellsToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ englishToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ ukrainianToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ veryEasyToolStripMenuItem;
@@ -269,9 +272,9 @@ namespace Sudoku_3_0
            // Distinct from session->difficulty, which records the loaded puzzle's actual difficulty.
     private: unsigned int selectedDifficulty;
 
-           // Mirror of the persisted "show non-conflicting candidates in pencil mode" preference.
-           // Gates the candidate ghost in cell_Paint; toggled via the Options menu item.
-    private: bool showPencilCandidates;
+           // Mirror of the persisted candidate-display level (None / CurrentCell / AllCells).
+           // Gates the candidate ghost in cell_Paint; chosen via the Options > Candidates submenu.
+    private: CandidateDisplay candidateDisplay;
 
            // Window dragging
     private: WindowDragger^ dragger;
@@ -413,6 +416,9 @@ namespace Sudoku_3_0
                this->optionsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->difficultyToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->candidatesToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+               this->candidatesNoneToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+               this->candidatesCurrentCellToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+               this->candidatesAllCellsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->veryEasyToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->easyToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->mediumToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -2216,8 +2222,8 @@ namespace Sudoku_3_0
                // optionsToolStripMenuItem
                // 
                this->optionsToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {
-                   this->difficultyToolStripMenuItem,
-                       this->languageToolStripMenuItem, this->candidatesToolStripMenuItem
+                   this->languageToolStripMenuItem,
+                       this->difficultyToolStripMenuItem, this->candidatesToolStripMenuItem
                });
                this->optionsToolStripMenuItem->Name = L"optionsToolStripMenuItem";
                this->optionsToolStripMenuItem->Size = System::Drawing::Size(92, 32);
@@ -2299,12 +2305,34 @@ namespace Sudoku_3_0
                //
                // candidatesToolStripMenuItem
                //
+               this->candidatesToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {
+                   this->candidatesNoneToolStripMenuItem,
+                       this->candidatesCurrentCellToolStripMenuItem, this->candidatesAllCellsToolStripMenuItem
+               });
                this->candidatesToolStripMenuItem->Name = L"candidatesToolStripMenuItem";
-               this->candidatesToolStripMenuItem->Size = System::Drawing::Size(202, 34);
-               this->candidatesToolStripMenuItem->Text = L"Show candidates";
-               // CheckOnClick stays false: the handler manages Checked itself so it can veto the
-               // change when the user cancels the confirmation dialog.
-               this->candidatesToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::candidatesToolStripMenuItem_Click);
+               this->candidatesToolStripMenuItem->Size = System::Drawing::Size(191, 34);
+               this->candidatesToolStripMenuItem->Text = L"Candidates";
+               //
+               // candidatesNoneToolStripMenuItem
+               //
+               this->candidatesNoneToolStripMenuItem->Name = L"candidatesNoneToolStripMenuItem";
+               this->candidatesNoneToolStripMenuItem->Size = System::Drawing::Size(202, 34);
+               this->candidatesNoneToolStripMenuItem->Text = L"None";
+               this->candidatesNoneToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::candidatesNoneToolStripMenuItem_Click);
+               //
+               // candidatesCurrentCellToolStripMenuItem
+               //
+               this->candidatesCurrentCellToolStripMenuItem->Name = L"candidatesCurrentCellToolStripMenuItem";
+               this->candidatesCurrentCellToolStripMenuItem->Size = System::Drawing::Size(202, 34);
+               this->candidatesCurrentCellToolStripMenuItem->Text = L"Current cell";
+               this->candidatesCurrentCellToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::candidatesCurrentCellToolStripMenuItem_Click);
+               //
+               // candidatesAllCellsToolStripMenuItem
+               //
+               this->candidatesAllCellsToolStripMenuItem->Name = L"candidatesAllCellsToolStripMenuItem";
+               this->candidatesAllCellsToolStripMenuItem->Size = System::Drawing::Size(202, 34);
+               this->candidatesAllCellsToolStripMenuItem->Text = L"All cells";
+               this->candidatesAllCellsToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::candidatesAllCellsToolStripMenuItem_Click);
                //
                // helpToolStripMenuItem
                // 
@@ -2580,9 +2608,9 @@ namespace Sudoku_3_0
         this->playerStats->winStreak = Settings::LoadWinStreak();
         this->playerStats->cleanWinStreak = Settings::LoadCleanWinStreak();
 
-        // Restore the candidate-display preference and reflect it in the Options menu checkmark.
-        this->showPencilCandidates = Settings::LoadShowCandidates();
-        this->candidatesToolStripMenuItem->Checked = this->showPencilCandidates;
+        // Restore the candidate-display preference and reflect it in the Options menu checkmarks.
+        this->candidateDisplay = Settings::LoadCandidateDisplay();
+        this->updateCandidateMenuChecks();
 
         // Restore the preferred difficulty. selectedDifficulty is set BEFORE the combo box
         // index so that difficultyComboBox_SelectedIndexChanged sees an unchanged value and
@@ -2713,7 +2741,10 @@ namespace Sudoku_3_0
         this->languageToolStripMenuItem->Text = Strings::Get(StringId::MenuLanguage, lang);
         this->englishToolStripMenuItem->Text = Strings::Get(StringId::MenuLanguageEnglish, lang);
         this->ukrainianToolStripMenuItem->Text = Strings::Get(StringId::MenuLanguageUkrainian, lang);
-        this->candidatesToolStripMenuItem->Text = Strings::Get(StringId::MenuShowCandidates, lang);
+        this->candidatesToolStripMenuItem->Text = Strings::Get(StringId::MenuCandidates, lang);
+        this->candidatesNoneToolStripMenuItem->Text = Strings::Get(StringId::CandidateLevelNone, lang);
+        this->candidatesCurrentCellToolStripMenuItem->Text = Strings::Get(StringId::CandidateLevelCurrentCell, lang);
+        this->candidatesAllCellsToolStripMenuItem->Text = Strings::Get(StringId::CandidateLevelAllCells, lang);
 
         // Menu: Help
         this->helpToolStripMenuItem->Text = Strings::Get(StringId::MenuHelp, lang);
@@ -2747,12 +2778,30 @@ namespace Sudoku_3_0
         this->setLanguage(Language::Ukrainian, true);
     }
 
-           // Toggles the "show non-conflicting candidates" preference. Turning it OFF is silent;
-           // turning it ON first warns that it forfeits the clean-win badge (and clean streak) for
-           // any game it is used in, and does nothing if the user cancels.
-    private: void candidatesToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
+    private: void candidatesNoneToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        if (!this->showPencilCandidates)
+        this->setCandidateDisplay(CandidateDisplay::None);
+    }
+
+    private: void candidatesCurrentCellToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
+    {
+        this->setCandidateDisplay(CandidateDisplay::CurrentCell);
+    }
+
+    private: void candidatesAllCellsToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
+    {
+        this->setCandidateDisplay(CandidateDisplay::AllCells);
+    }
+
+           // Changes the candidate-display level. Turning assistance ON (from None) first warns
+           // that it forfeits the clean-win badge and clean streak, and does nothing if cancelled;
+           // moving between non-None levels or back to None is silent.
+    private: void setCandidateDisplay(CandidateDisplay level)
+    {
+        if (level == this->candidateDisplay)
+            return;
+
+        if (this->candidateDisplay == CandidateDisplay::None && level != CandidateDisplay::None)
         {
             System::Windows::Forms::DialogResult confirm = MessageBox::Show(
                 Strings::Get(StringId::DialogCandidatesPrompt, this->currentLanguage),
@@ -2763,12 +2812,44 @@ namespace Sudoku_3_0
                 return;
         }
 
-        this->showPencilCandidates = !this->showPencilCandidates;
-        this->candidatesToolStripMenuItem->Checked = this->showPencilCandidates;
-        Settings::SaveShowCandidates(this->showPencilCandidates);
+        this->candidateDisplay = level;
+        Settings::SaveCandidateDisplay(level);
+        this->updateCandidateMenuChecks();
+        this->recordCandidateLevel(level); // taint the in-progress game with this level
 
-        // Repaint so the candidate ghost appears or disappears immediately.
+        // Repaint so the candidate ghost appears, moves, or disappears immediately.
         this->renderAll();
+    }
+
+           // Reflects the selected candidate level as a checkmark in the Options > Candidates submenu.
+    private: void updateCandidateMenuChecks()
+    {
+        this->candidatesNoneToolStripMenuItem->Checked = (this->candidateDisplay == CandidateDisplay::None);
+        this->candidatesCurrentCellToolStripMenuItem->Checked = (this->candidateDisplay == CandidateDisplay::CurrentCell);
+        this->candidatesAllCellsToolStripMenuItem->Checked = (this->candidateDisplay == CandidateDisplay::AllCells);
+    }
+
+           // Records that the in-progress game was played with at least this candidate level.
+           // No-op once the game is finished, so its recorded assist level stays frozen (and a
+           // later setting change cannot retroactively taint a completed game).
+    private: void recordCandidateLevel(CandidateDisplay level)
+    {
+        if (this->isGameFinished()) return;
+        if (level > this->session->maxCandidateAssist)
+            this->session->maxCandidateAssist = level;
+    }
+
+           // Localized name of a candidate-display level, for the end-of-game stats line.
+    private: System::String^ candidateLevelName(CandidateDisplay level)
+    {
+        StringId id;
+        switch (level)
+        {
+        case CandidateDisplay::CurrentCell: id = StringId::CandidateLevelCurrentCell; break;
+        case CandidateDisplay::AllCells:    id = StringId::CandidateLevelAllCells; break;
+        default:                            id = StringId::CandidateLevelNone; break;
+        }
+        return Strings::Get(id, this->currentLanguage);
     }
 
     private: void initializeCells()
@@ -2986,6 +3067,7 @@ namespace Sudoku_3_0
         this->undoManager->clear();
         this->gameTimer->restart();
         this->setGameControls(true, true, false);
+        this->recordCandidateLevel(this->candidateDisplay); // this game is played under the current level
         this->updateClipboardControls();
 
         // Move focus to the first editable cell
@@ -3115,7 +3197,7 @@ namespace Sudoku_3_0
         msg += Strings::Get(StringId::StatFixes, this->currentLanguage) + this->session->numberOfFixes + "\n";
         msg += Strings::Get(StringId::StatGiveUps, this->currentLanguage) + this->session->numberOfGiveUps + "\n";
         msg += Strings::Get(StringId::StatCandidateHelp, this->currentLanguage)
-            + Strings::Get(this->session->usedCandidateAssist ? StringId::WordYes : StringId::WordNo, this->currentLanguage);
+            + this->candidateLevelName(this->session->maxCandidateAssist);
 
         // Win streaks are cross-game stats; show each only on a win, and only once it is a streak.
         if (won && this->playerStats->winStreak > 1)
@@ -3324,14 +3406,13 @@ namespace Sudoku_3_0
         int idx;
         if (!this->cellIndex->TryGetValue(cell, idx) || cell->Text->Length > 0) return;
 
-        // Show ghost candidates on the cell under the mouse or the keyboard-focused cell,
-        // but only when the player has opted into the candidate assist.
-        bool showCandidates = this->showPencilCandidates && this->pencilMode && cell->Enabled
-            && (idx == this->hoveredCellIndex || cell->Focused);
-
-        // Latch: once candidates are actually shown, this game no longer qualifies as a clean win.
-        if (showCandidates)
-            this->session->usedCandidateAssist = true;
+        // Candidate-ghost visibility is driven purely by the CandidateDisplay level (independent
+        // of pencil mode, which only governs input): None never shows, CurrentCell shows on the
+        // hovered/focused cell, AllCells shows on every empty cell.
+        bool showCandidates = cell->Enabled &&
+            (this->candidateDisplay == CandidateDisplay::AllCells ||
+             (this->candidateDisplay == CandidateDisplay::CurrentCell
+              && (idx == this->hoveredCellIndex || cell->Focused)));
 
         int pencilMarks = this->session->board->pencilMarksAt(idx);
         if (pencilMarks == 0 && !showCandidates) return;
@@ -3832,6 +3913,7 @@ namespace Sudoku_3_0
         this->undoManager->clear();
         this->gameTimer->restart();
         this->setGameControls(false, false, true);
+        this->recordCandidateLevel(this->candidateDisplay); // this session is played under the current level
         this->updateClipboardControls();
     }
 
@@ -4239,7 +4321,7 @@ namespace Sudoku_3_0
         game->numberOfHints = this->session->numberOfHints;
         game->numberOfFixes = this->session->numberOfFixes;
         game->numberOfGiveUps = this->session->numberOfGiveUps;
-        game->usedCandidateAssist = this->session->usedCandidateAssist;
+        game->candidateAssist = this->session->maxCandidateAssist;
         game->mode = this->session->mode;
         game->gameFinished = this->isGameFinished();
         game->elapsedSeconds = (unsigned int)this->gameTimer->Elapsed.TotalSeconds;
@@ -4330,12 +4412,16 @@ namespace Sudoku_3_0
         this->session->numberOfHints = save->numberOfHints;
         this->session->numberOfFixes = save->numberOfFixes;
         this->session->numberOfGiveUps = save->numberOfGiveUps;
-        this->session->usedCandidateAssist = save->usedCandidateAssist;
+        this->session->maxCandidateAssist = save->candidateAssist;
         this->session->mode = save->mode;
         this->setGameControls(
             this->session->mode == GameMode::Game && !save->gameFinished,
             this->session->mode == GameMode::Game,
             this->session->mode == GameMode::Solver && !save->gameFinished);
+
+        // Resuming an unfinished game means continuing to play it under the current setting,
+        // so that level counts too (recordCandidateLevel is a no-op once the game is finished).
+        this->recordCandidateLevel(this->candidateDisplay);
 
         // Restore the immutable puzzle snapshot if the save has one. A Solver session saved
         // mid-entry has no solution yet, so the puzzle stays nullptr until the user solves it.
