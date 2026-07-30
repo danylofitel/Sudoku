@@ -6,6 +6,7 @@
 #pragma once
 
 #include "Language.h"
+#include "BuildInfo.h" // generated at build time; defines SUDOKU_COPYRIGHT_YEAR_W
 
 namespace Sudoku_3_0
 {
@@ -446,8 +447,8 @@ namespace Sudoku_3_0
                 }
             case StringId::DialogAboutText:
                 switch (lang) {
-                case Language::Ukrainian: return L"Судоку 3.0\n\n© 2013–2026 Фітель Данило\nУсі права захищені";
-                default:                 return L"Sudoku 3.0\n\n© 2013–2026 Danylo Fitel\nAll rights reserved";
+                case Language::Ukrainian: return L"Судоку 3.0\n\n© 2013–" SUDOKU_COPYRIGHT_YEAR_W L" Фітель Данило\nУсі права захищені";
+                default:                 return L"Sudoku 3.0\n\n© 2013–" SUDOKU_COPYRIGHT_YEAR_W L" Danylo Fitel\nAll rights reserved";
                 }
             case StringId::DialogBuildLabel:
                 switch (lang) {

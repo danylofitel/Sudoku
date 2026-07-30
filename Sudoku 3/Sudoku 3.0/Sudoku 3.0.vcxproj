@@ -163,12 +163,16 @@
       <_BuildFileVersion>1.0.$(_BuildDays).$(_BuildRev)</_BuildFileVersion>
       <!-- Comma-separated form required by the Win32 VERSIONINFO FILEVERSION/PRODUCTVERSION fields. -->
       <_BuildFileVersionComma>1,0,$(_BuildDays),$(_BuildRev)</_BuildFileVersionComma>
+      <!-- Current (UTC) year, so copyright notices advance without a source edit. -->
+      <_Year>$([System.DateTime]::UtcNow.Year)</_Year>
     </PropertyGroup>
     <ItemGroup>
       <_BuildInfoLine Include="#pragma once" />
       <_BuildInfoLine Include="#define SUDOKU_BUILD_STAMP &quot;$(_BuildStamp)&quot;" />
       <_BuildInfoLine Include="#define SUDOKU_FILE_VERSION &quot;$(_BuildFileVersion)&quot;" />
       <_BuildInfoLine Include="#define SUDOKU_FILE_VERSION_COMMA $(_BuildFileVersionComma)" />
+      <_BuildInfoLine Include="#define SUDOKU_COPYRIGHT_YEAR &quot;$(_Year)&quot;" />
+      <_BuildInfoLine Include="#define SUDOKU_COPYRIGHT_YEAR_W L&quot;$(_Year)&quot;" />
     </ItemGroup>
     <WriteLinesToFile File="$(MSBuildProjectDirectory)\BuildInfo.h" Lines="@(_BuildInfoLine)" Overwrite="true" />
     <Message Text="BuildInfo.h: $(_BuildStamp) (file version $(_BuildFileVersion))" Importance="high" />

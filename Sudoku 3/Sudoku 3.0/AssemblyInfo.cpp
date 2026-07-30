@@ -19,7 +19,7 @@ using namespace System::Security::Permissions;
 [assembly:AssemblyConfigurationAttribute("")];
 [assembly:AssemblyCompanyAttribute("")];
 [assembly:AssemblyProductAttribute("Sudoku_3_0")];
-[assembly:AssemblyCopyrightAttribute("Copyright (c) 2013-2026 Danylo Fitel")];
+[assembly:AssemblyCopyrightAttribute("Copyright (c) 2013-" SUDOKU_COPYRIGHT_YEAR " Danylo Fitel")];
 [assembly:AssemblyTrademarkAttribute("")];
 [assembly:AssemblyCultureAttribute("")];
 
