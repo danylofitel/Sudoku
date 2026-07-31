@@ -34,10 +34,10 @@ using namespace System::Security::Permissions;
 // AssemblyVersion is the managed identity and is kept fixed so it does not change on every
 // build. The per-build stamp lives in the file and informational versions below, generated in
 // UTC by the GenerateBuildInfo MSBuild target:
-//   AssemblyFileVersion        - numeric "File version" (1.0.<days since 2000>.<half-seconds>)
+//   AssemblyFileVersion        - numeric "File version" (3.0.<days since 2000>.<half-seconds>)
 //   AssemblyInformationalVersion - human-readable UTC stamp, shown in About and "Product version"
 
-[assembly:AssemblyVersionAttribute("1.0.0.0")];
+[assembly:AssemblyVersionAttribute("3.0.0.0")];
 [assembly:AssemblyFileVersionAttribute(SUDOKU_FILE_VERSION)];
 [assembly:AssemblyInformationalVersionAttribute(SUDOKU_BUILD_STAMP)];
 

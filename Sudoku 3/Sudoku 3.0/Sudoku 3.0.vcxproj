@@ -161,9 +161,9 @@
       <_BuildStamp>$([System.DateTime]::UtcNow.ToString('yyyy-MM-dd HH:mm:ss')) UTC</_BuildStamp>
       <_BuildDays>$([System.DateTime]::UtcNow.Subtract($([System.DateTime]::new(2000, 1, 1))).Days)</_BuildDays>
       <_BuildRev>$([System.Convert]::ToInt32($([MSBuild]::Divide($([System.DateTime]::UtcNow.TimeOfDay.TotalSeconds), 2))))</_BuildRev>
-      <_BuildFileVersion>1.0.$(_BuildDays).$(_BuildRev)</_BuildFileVersion>
+      <_BuildFileVersion>3.0.$(_BuildDays).$(_BuildRev)</_BuildFileVersion>
       <!-- Comma-separated form required by the Win32 VERSIONINFO FILEVERSION/PRODUCTVERSION fields. -->
-      <_BuildFileVersionComma>1,0,$(_BuildDays),$(_BuildRev)</_BuildFileVersionComma>
+      <_BuildFileVersionComma>3,0,$(_BuildDays),$(_BuildRev)</_BuildFileVersionComma>
       <!-- Current (UTC) year, so copyright notices advance without a source edit. -->
       <_Year>$([System.DateTime]::UtcNow.Year)</_Year>
     </PropertyGroup>

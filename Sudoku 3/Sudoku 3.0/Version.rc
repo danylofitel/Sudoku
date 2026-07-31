@@ -34,7 +34,7 @@ BEGIN
             VALUE "InternalName",     "Sudoku 3.0"
             VALUE "LegalCopyright",   "Copyright (C) 2013-" SUDOKU_COPYRIGHT_YEAR " Danylo Fitel"
             VALUE "OriginalFilename", "Sudoku 3.0.exe"
-            VALUE "ProductName",      "Sudoku"
+            VALUE "ProductName",      "Sudoku 3.0"
             VALUE "ProductVersion",   SUDOKU_FILE_VERSION
         END
     END
