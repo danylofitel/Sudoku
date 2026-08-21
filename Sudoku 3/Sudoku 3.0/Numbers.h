@@ -316,14 +316,15 @@ namespace Sudoku_3_0
                this->Controls->Add(this->button1);
                this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::None;
                this->MaximizeBox = false;
-               this->MaximumSize = System::Drawing::Size(150, 200);
+               // Window is 2px larger than the 150x200 client to leave room for the 1px WS_BORDER
+               // added in CreateParams; the client area (and the button layout) stay 150x200.
+               this->MaximumSize = System::Drawing::Size(152, 202);
                this->MinimizeBox = false;
-               this->MinimumSize = System::Drawing::Size(150, 200);
+               this->MinimumSize = System::Drawing::Size(152, 202);
                this->Name = L"Numbers";
                this->ShowIcon = false;
                this->ShowInTaskbar = false;
                this->StartPosition = System::Windows::Forms::FormStartPosition::CenterParent;
-               this->TransparencyKey = System::Drawing::Color::White;
                this->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::Numbers_KeyPress);
                this->ResumeLayout(false);
 
@@ -469,6 +470,20 @@ namespace Sudoku_3_0
     }
 
     protected:
+        // Give the borderless popup a thin system border and an OS drop shadow, so it reads as a
+        // separate window floating over the main form instead of blending into it. The shadow
+        // requires a non-layered window, which is why TransparencyKey is not set on this form.
+        virtual property System::Windows::Forms::CreateParams^ CreateParams
+        {
+            System::Windows::Forms::CreateParams^ get() override
+            {
+                System::Windows::Forms::CreateParams^ cp = __super::CreateParams;
+                cp->ClassStyle |= 0x00020000; // CS_DROPSHADOW
+                cp->Style |= 0x00800000;      // WS_BORDER (thin single-line frame)
+                return cp;
+            }
+        }
+
         virtual void OnVisibleChanged(System::EventArgs^ e) override
         {
             Form::OnVisibleChanged(e);
