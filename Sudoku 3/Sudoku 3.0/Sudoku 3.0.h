@@ -2706,8 +2706,12 @@ namespace Sudoku_3_0
         this->undoButton->Text = Strings::Get(StringId::ButtonUndo, lang);
         this->pencilButton->Text = Strings::Get(StringId::ButtonPencil, lang);
 
-        // Difficulty label
+        // Keep the timer and the difficulty dropdown self-describing
+        // via accessible name (screen readers) and a hover tooltip (sighted users). The timer
+        // carries its own tooltip; hiding it in Solver mode suppresses that tooltip automatically.
         this->difficultyComboBox->AccessibleName = Strings::Get(StringId::LabelDifficulty, lang);
+        this->buttonToolTips->SetToolTip(this->difficultyComboBox, Strings::Get(StringId::LabelDifficulty, lang));
+        this->buttonToolTips->SetToolTip(this->timerLabel, Strings::Get(StringId::TooltipTimer, lang));
 
         // Difficulty combo items
         this->difficultyComboBox->Items->Clear();
@@ -4315,6 +4319,14 @@ namespace Sudoku_3_0
     private: void updateTimerDisplay()
     {
         if (this->gameTimer == nullptr) return; // ticks can fire before the timer is constructed
+
+        // Enter Puzzle (Solver) mode is not a timed challenge, so the clock is hidden there.
+        // Hiding also suppresses its tooltip (a hidden control gets no hover), which matches how
+        // disabled buttons behave. The clock keeps running under the hood regardless.
+        bool solver = (this->session->mode == GameMode::Solver);
+        this->timerLabel->Visible = !solver;
+        if (solver) return;
+
         System::String^ text = this->formatElapsed(this->gameTimer->Elapsed);
         if (!this->timerLabel->Text->Equals(text)) // only repaint when the shown second changes
             this->timerLabel->Text = text;

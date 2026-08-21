@@ -28,6 +28,7 @@ namespace Sudoku_3_0
 
         // ---- Difficulty label & combo items ----
         LabelDifficulty,
+        TooltipTimer,
         DifficultyVeryEasy,
         DifficultyEasy,
         DifficultyMedium,
@@ -222,6 +223,11 @@ namespace Sudoku_3_0
                 switch (lang) {
                 case Language::Ukrainian: return L"Складність";
                 default:                 return L"Difficulty";
+                }
+            case StringId::TooltipTimer:
+                switch (lang) {
+                case Language::Ukrainian: return L"Час, витрачений на поточну задачу";
+                default:                 return L"Time spent on current puzzle";
                 }
             case StringId::DifficultyVeryEasy:
                 switch (lang) {
