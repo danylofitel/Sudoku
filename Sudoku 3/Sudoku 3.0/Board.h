@@ -35,6 +35,15 @@ namespace Sudoku_3_0
         CellKind kindAt(unsigned int index) { return this->kinds[index]; }
         int pencilMarksAt(unsigned int index) { return this->marks[index]; }
 
+        // Number of cells with the given kind (e.g. how many were revealed as hints).
+        unsigned int countOfKind(CellKind kind)
+        {
+            unsigned int count = 0;
+            for (int i = 0; i < this->kinds->Length; ++i)
+                if (this->kinds[i] == kind) ++count;
+            return count;
+        }
+
         bool isEmpty(unsigned int index) { return this->values[index] == 0; }
 
         // Editable = the user can change it: an empty or user-filled cell (never a clue/reveal).

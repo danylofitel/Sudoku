@@ -25,5 +25,20 @@ namespace Sudoku_3_0
             this->winStreak = 0;
             this->cleanWinStreak = 0;
         }
+
+        // A win always advances the win streak; the clean win streak advances only if the win
+        // was clean (no assistance), otherwise it resets to zero.
+        void recordWin(bool clean)
+        {
+            ++this->winStreak;
+            this->cleanWinStreak = clean ? this->cleanWinStreak + 1 : 0;
+        }
+
+        // Giving up resets both streaks.
+        void recordGiveUp()
+        {
+            this->winStreak = 0;
+            this->cleanWinStreak = 0;
+        }
     };
 }

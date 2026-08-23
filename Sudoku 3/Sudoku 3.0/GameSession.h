@@ -78,6 +78,24 @@ namespace Sudoku_3_0
                 && this->maxCandidateAssist == CandidateDisplay::None;
         }
 
+        // Number of engine-provided clues in the current puzzle (the finer-grained difficulty
+        // measure). 0 if there is no puzzle snapshot yet.
+        int clueCount()
+        {
+            int count = 0;
+            if (this->puzzle != nullptr)
+                for each (unsigned char clue in this->puzzle->clues)
+                    if (clue != 0) ++count;
+            return count;
+        }
+
+        // Number of cells currently revealed as hints. Counted from the board (not the hint
+        // counter), so an undone-and-retaken hint is not double-counted.
+        int hintCount()
+        {
+            return (int)this->board->countOfKind(CellKind::Hint);
+        }
+
     private:
         // Resets every per-puzzle field (board and counters) to its initial state for the given
         // mode. Difficulty is set by the caller, since it is a game-only concept.

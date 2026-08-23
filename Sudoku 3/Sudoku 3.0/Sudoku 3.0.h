@@ -3131,53 +3131,35 @@ namespace Sudoku_3_0
         // Freeze the play time before the win message reads it
         this->gameTimer->stop();
 
-        this->setWinStreak(this->session->numberOfGiveUps > 0 ? 0 : this->playerStats->winStreak + 1);
-
-        // A win with any assistance breaks the clean streak but not the plain win streak.
-        this->setCleanWinStreak(this->session->isClean() ? this->playerStats->cleanWinStreak + 1 : 0);
+        // A win advances the win streak; the clean streak advances only if the win was clean.
+        unsigned int previousWin = this->playerStats->winStreak;
+        unsigned int previousClean = this->playerStats->cleanWinStreak;
+        this->playerStats->recordWin(this->session->isClean());
+        this->persistStreaks(previousWin, previousClean);
     }
 
-           // Updates the win streak and persists it, writing to the registry only when
-           // the value actually changes (e.g. a give-up when the streak is already 0 is a no-op).
-    private: void setWinStreak(unsigned int value)
+           // Persists the two streaks, writing each to the registry only when it actually changed
+           // (e.g. a give-up while both are already 0 writes nothing).
+    private: void persistStreaks(unsigned int previousWin, unsigned int previousClean)
     {
-        if (this->playerStats->winStreak == value) return;
-        this->playerStats->winStreak = value;
-        Settings::SaveWinStreak(value);
+        if (this->playerStats->winStreak != previousWin)
+            Settings::SaveWinStreak(this->playerStats->winStreak);
+        if (this->playerStats->cleanWinStreak != previousClean)
+            Settings::SaveCleanWinStreak(this->playerStats->cleanWinStreak);
     }
 
-           // Updates the clean win streak and persists it, writing to the registry only when
-           // the value actually changes (mirrors setWinStreak).
-    private: void setCleanWinStreak(unsigned int value)
-    {
-        if (this->playerStats->cleanWinStreak == value) return;
-        this->playerStats->cleanWinStreak = value;
-        Settings::SaveCleanWinStreak(value);
-    }
+           // A win counts as "mostly hints" - barely better than giving up - once hint reveals
+           // reach this share of the cells the player had to fill.
+    private: literal int MostlyHintsThresholdPercent = 90;
 
-           // Number of engine-provided clues in the current puzzle (the finer-grained difficulty
-           // measure). 0 if there is no puzzle snapshot yet.
-    private: int clueCount()
+           // Presentation policy: was this win carried mostly by hint reveals? Reads the session's
+           // factual counts and applies the threshold above (kept here, in the view, rather than in
+           // the session data model).
+    private: bool wonMostlyByHints()
     {
-        int count = 0;
-        if (this->session->puzzle != nullptr)
-        {
-            for each (unsigned char clue in this->session->puzzle->clues)
-                if (clue != 0) ++count;
-        }
-        return count;
-    }
-
-           // Number of cells currently revealed as hints. Counted from the board (not the hint
-           // counter) so an undone-and-retaken hint is not double-counted; Hint cells are not
-           // editable, so they survive applyWin's lockAsCorrect and are still countable here.
-    private: int hintRevealCount()
-    {
-        int count = 0;
-        for (unsigned int i = 0; i < this->numberOfCells; ++i)
-            if (this->session->board->kindAt(i) == CellKind::Hint)
-                ++count;
-        return count;
+        int fillable = (int)this->numberOfCells - this->session->clueCount();
+        return fillable > 0
+            && this->session->hintCount() * 100 >= fillable * MostlyHintsThresholdPercent;
     }
 
            // Builds the end-of-game message: a headline line, then each per-puzzle statistic on
@@ -3193,11 +3175,11 @@ namespace Sudoku_3_0
             }
             else
             {
-                // If hints revealed at least 90% of the cells the player had to fill, this "win"
-                // is barely better than giving up - deflate the message instead of celebrating.
-                int fillable = (int)this->numberOfCells - this->clueCount();
-                bool mostlyHints = fillable > 0 && this->hintRevealCount() * 10 >= fillable * 9;
-                headline = Strings::Get(mostlyHints ? StringId::EndWinMostlyHints : StringId::EndWin, this->currentLanguage);
+                // If hints revealed almost the whole board, this "win" is barely better than
+                // giving up - deflate the message instead of celebrating.
+                StringId headlineId = this->wonMostlyByHints()
+                    ? StringId::EndWinMostlyHints : StringId::EndWin;
+                headline = Strings::Get(headlineId, this->currentLanguage);
             }
         }
         else
@@ -3207,7 +3189,7 @@ namespace Sudoku_3_0
 
         System::String^ msg = headline + "\n\n";
         msg += Strings::Get(StringId::StatDifficulty, this->currentLanguage) + this->difficultyName(this->session->difficulty)
-            + " " + System::String::Format(Strings::Get(StringId::StatClues, this->currentLanguage), this->clueCount()) + "\n";
+            + " " + System::String::Format(Strings::Get(StringId::StatClues, this->currentLanguage), this->session->clueCount()) + "\n";
         msg += Strings::Get(StringId::StatTime, this->currentLanguage) + this->formatElapsed(this->gameTimer->Elapsed) + "\n";
         msg += Strings::Get(StringId::StatRestarts, this->currentLanguage) + this->session->numberOfRestarts + "\n";
         msg += Strings::Get(StringId::StatHints, this->currentLanguage) + this->session->numberOfHints + "\n";
@@ -3777,8 +3759,10 @@ namespace Sudoku_3_0
         this->clearActiveModes();
 
         ++this->session->numberOfGiveUps;
-        this->setWinStreak(0);
-        this->setCleanWinStreak(0);
+        unsigned int previousWin = this->playerStats->winStreak;
+        unsigned int previousClean = this->playerStats->cleanWinStreak;
+        this->playerStats->recordGiveUp();
+        this->persistStreaks(previousWin, previousClean);
 
         // Reveal the solution in every editable cell.
         for (unsigned int index = 0; index < this->numberOfCells; ++index)

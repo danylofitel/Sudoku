@@ -87,7 +87,7 @@ namespace Sudoku_3_0_Tests
 
         [TestMethod]
         [ExpectedException(ArgumentOutOfRangeException::typeid)]
-        void SetUserValue_Throws_OnOutOfRange()
+            void SetUserValue_Throws_OnOutOfRange()
         {
             NewBoard()->setUserValue(0, 10);
         }
@@ -159,7 +159,7 @@ namespace Sudoku_3_0_Tests
 
         [TestMethod]
         [ExpectedException(ArgumentOutOfRangeException::typeid)]
-        void SetClue_Throws_OnZero()
+            void SetClue_Throws_OnZero()
         {
             NewBoard()->setClue(0, 0);
         }
@@ -180,9 +180,22 @@ namespace Sudoku_3_0_Tests
 
         [TestMethod]
         [ExpectedException(ArgumentException::typeid)]
-        void Reveal_Throws_OnNonRevealKind()
+            void Reveal_Throws_OnNonRevealKind()
         {
             NewBoard()->reveal(0, 8, CellKind::UserFilled);
+        }
+
+        [TestMethod]
+        void CountOfKind_CountsCellsByKind()
+        {
+            Board^ b = NewBoard(); // 81 cells, all UserEmpty
+            b->setClue(0, 5);
+            b->setClue(1, 3);
+            b->reveal(2, 7, CellKind::Hint);
+
+            Assert::AreEqual((unsigned int)2, b->countOfKind(CellKind::Clue));
+            Assert::AreEqual((unsigned int)1, b->countOfKind(CellKind::Hint));
+            Assert::AreEqual((unsigned int)78, b->countOfKind(CellKind::UserEmpty)); // 81 - 2 - 1
         }
 
         [TestMethod]
@@ -200,7 +213,7 @@ namespace Sudoku_3_0_Tests
 
         [TestMethod]
         [ExpectedException(InvalidOperationException::typeid)]
-        void LockAsCorrect_Throws_OnEmptyCell()
+            void LockAsCorrect_Throws_OnEmptyCell()
         {
             NewBoard()->lockAsCorrect(0);
         }
