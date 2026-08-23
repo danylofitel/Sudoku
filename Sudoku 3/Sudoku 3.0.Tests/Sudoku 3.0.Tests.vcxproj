@@ -57,6 +57,7 @@
     <ClCompile Include="GameTimerTests.cpp" />
     <ClCompile Include="PuzzleTests.cpp" />
     <ClCompile Include="SaveGameStoreTests.cpp" />
+    <ClCompile Include="SavedGameMapperTests.cpp" />
     <ClCompile Include="UndoManagerTests.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

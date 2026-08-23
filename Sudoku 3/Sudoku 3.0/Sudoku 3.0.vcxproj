@@ -121,6 +121,7 @@
     <ClInclude Include="Puzzle.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SavedGame.h" />
+    <ClInclude Include="SavedGameMapper.h" />
     <ClInclude Include="SaveGameStore.h" />
     <ClInclude Include="UnsupportedSaveVersionException.h" />
     <ClInclude Include="Strings.h" />

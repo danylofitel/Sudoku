@@ -10,6 +10,7 @@
 #include "Numbers.h"
 #include "PlayerStats.h"
 #include "SavedGame.h"
+#include "SavedGameMapper.h"
 #include "SaveGameStore.h"
 #include "Settings.h"
 #include "Strings.h"
@@ -4355,29 +4356,10 @@ namespace Sudoku_3_0
            // Returns true on success, false on any failure - reporting is up to the caller.
     private: bool saveGameToFile(System::String^ path)
     {
-        SavedGame^ game = gcnew SavedGame();
-        game->difficulty = this->session->difficulty;
-        game->numberOfRestarts = this->session->numberOfRestarts;
-        game->numberOfHints = this->session->numberOfHints;
-        game->numberOfFixes = this->session->numberOfFixes;
-        game->numberOfGiveUps = this->session->numberOfGiveUps;
-        game->candidateAssist = this->session->maxCandidateAssist;
-        game->mode = this->session->mode;
-        game->gameFinished = this->isGameFinished();
-        game->elapsedSeconds = (unsigned int)this->gameTimer->Elapsed.TotalSeconds;
-
-        // The board model serializes directly (value + kind-as-state-code + pencil marks).
-        game->values = this->session->board->copyValues();
-        game->states = this->session->board->copyStates();
-        game->pencilMarks = this->session->board->copyPencilMarks();
-
-        // The puzzle snapshot may not exist yet (a custom puzzle still being entered in Solver
-        // mode). In that case we persist empty clues/solution; the board is fully recoverable
-        // from the per-cell values and states alone.
-        game->clues = this->session->puzzle != nullptr
-            ? this->session->puzzle->clues : gcnew array<unsigned char>(0);
-        game->solution = this->session->puzzle != nullptr
-            ? this->session->puzzle->solution : gcnew array<unsigned char>(0);
+        // gameFinished (from the controls) and elapsedSeconds (from the timer) are the only two
+        // pieces the session does not own; the mapper builds the rest of the snapshot.
+        SavedGame^ game = SavedGameMapper::Capture(
+            this->session, this->isGameFinished(), (unsigned int)this->gameTimer->Elapsed.TotalSeconds);
 
         try
         {
@@ -4445,15 +4427,11 @@ namespace Sudoku_3_0
         this->clearActiveModes();
         this->undoManager->clear();
 
-        // Session metadata
-        this->session->difficulty = save->difficulty;
+        // Restore all session and board data from the save (pure data mapping).
+        SavedGameMapper::Restore(save, this->session);
+
+        // Everything below is UI that follows from the restored state.
         this->difficultyComboBox->SelectedIndex = save->difficulty;
-        this->session->numberOfRestarts = save->numberOfRestarts;
-        this->session->numberOfHints = save->numberOfHints;
-        this->session->numberOfFixes = save->numberOfFixes;
-        this->session->numberOfGiveUps = save->numberOfGiveUps;
-        this->session->maxCandidateAssist = save->candidateAssist;
-        this->session->mode = save->mode;
         this->setGameControls(
             this->session->mode == GameMode::Game && !save->gameFinished,
             this->session->mode == GameMode::Game,
@@ -4463,22 +4441,13 @@ namespace Sudoku_3_0
         // so that level counts too (recordCandidateLevel is a no-op once the game is finished).
         this->recordCandidateLevel(this->candidateDisplay);
 
-        // Restore the immutable puzzle snapshot if the save has one. A Solver session saved
-        // mid-entry has no solution yet, so the puzzle stays nullptr until the user solves it.
-        // (Puzzle defensively copies the arrays, so passing the save's arrays directly is safe.)
-        this->session->puzzle = save->clues->Length > 0
-            ? gcnew Puzzle(save->clues, save->solution)
-            : nullptr;
-
-        // Rebuild the board model from the saved arrays, then render it.
-        this->session->board->restoreFrom(save->values, save->states, save->pencilMarks);
         this->renderAll();
 
         // Clipboard controls follow from the restored session state: a solved custom puzzle
         // (puzzle snapshot present) offers Copy Solution, an in-progress one offers Paste.
         this->updateClipboardControls();
 
-        // Restore the play time; it only keeps ticking while the game is still playable
+        // Restore the play time; it only keeps ticking while the game is still playable.
         this->gameTimer->restore(System::TimeSpan::FromSeconds((double)save->elapsedSeconds));
         if (!save->gameFinished)
             this->gameTimer->resume();

@@ -43,6 +43,9 @@
     <ClInclude Include="SavedGame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SavedGameMapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="SudokuEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
