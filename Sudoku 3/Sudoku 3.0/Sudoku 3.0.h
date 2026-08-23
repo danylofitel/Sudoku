@@ -4,6 +4,7 @@
 
 #include "ClipboardPuzzleFormatter.h"
 #include "ConflictDetector.h"
+#include "Difficulty.h"
 #include "GameMode.h"
 #include "GameSession.h"
 #include "GameTimer.h"
@@ -2569,15 +2570,7 @@ namespace Sudoku_3_0
 
     private: System::String^ difficultyName(unsigned int d)
     {
-        switch (d)
-        {
-        case 0: return Strings::Get(StringId::DifficultyVeryEasy, this->currentLanguage);
-        case 1: return Strings::Get(StringId::DifficultyEasy, this->currentLanguage);
-        case 2: return Strings::Get(StringId::DifficultyMedium, this->currentLanguage);
-        case 3: return Strings::Get(StringId::DifficultyHard, this->currentLanguage);
-        case 4: return Strings::Get(StringId::DifficultyVeryHard, this->currentLanguage);
-        default: return Strings::Get(StringId::DifficultyMedium, this->currentLanguage);
-        }
+        return Strings::Get(Difficulty::nameStringId(d), this->currentLanguage);
     }
 
            // Initialize sudoku engine
@@ -3067,16 +3060,7 @@ namespace Sudoku_3_0
         }
 
         // Map difficulty enum to index and reset all per-game session state atomically
-        unsigned int difficultyIndex = 0;
-        switch (difficulty)
-        {
-        case SudokuGameEngine::DifficultyLevel::VeryEasy: difficultyIndex = 0; break;
-        case SudokuGameEngine::DifficultyLevel::Easy:     difficultyIndex = 1; break;
-        case SudokuGameEngine::DifficultyLevel::Medium:   difficultyIndex = 2; break;
-        case SudokuGameEngine::DifficultyLevel::Hard:     difficultyIndex = 3; break;
-        case SudokuGameEngine::DifficultyLevel::VeryHard: difficultyIndex = 4; break;
-        }
-        this->session->startNewGame(difficultyIndex);
+        this->session->startNewGame(Difficulty::toIndex(difficulty));
         this->session->puzzle = gcnew Puzzle(clues, solution);
 
         // Prepare the board (resetBoardToClues re-renders and highlights conflicts)
@@ -3634,15 +3618,7 @@ namespace Sudoku_3_0
            // Maps a 0-based difficulty index (combo box / settings) to the engine's enum
     private: SudokuGameEngine::DifficultyLevel difficultyLevelFromIndex(unsigned int index)
     {
-        switch (index)
-        {
-        case 0:  return SudokuGameEngine::DifficultyLevel::VeryEasy;
-        case 1:  return SudokuGameEngine::DifficultyLevel::Easy;
-        case 2:  return SudokuGameEngine::DifficultyLevel::Medium;
-        case 3:  return SudokuGameEngine::DifficultyLevel::Hard;
-        case 4:  return SudokuGameEngine::DifficultyLevel::VeryHard;
-        default: return SudokuGameEngine::DifficultyLevel::Medium;
-        }
+        return Difficulty::toEngineLevel(index);
     }
 
     private: void newGameButton_Click(System::Object^ sender, System::EventArgs^ e)
