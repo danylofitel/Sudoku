@@ -218,19 +218,66 @@ namespace Sudoku_3_0_Tests
             NewBoard()->lockAsCorrect(0);
         }
 
-        // ---- Undo restore ----
+        // ---- Undo/redo restore ----
 
         [TestMethod]
-        void RestoreUserCell_RestoresValueAndMarks()
+        void RestoreCell_RestoresUserFilledValue()
         {
             Board^ b = NewBoard();
-            b->restoreUserCell(0, 3, 1 << 5);
+            b->restoreCell(0, 3, CellKind::UserFilled, 0);
             Assert::AreEqual(3, (int)b->valueAt(0));
             Assert::IsTrue(b->kindAt(0) == CellKind::UserFilled);
-            // Restoring an empty cell yields UserEmpty and preserves marks
-            b->restoreUserCell(1, 0, 1 << 2);
+            Assert::AreEqual((unsigned int)1, b->FilledCount);
+        }
+
+        [TestMethod]
+        void RestoreCell_RestoresEmptyCellWithMarks()
+        {
+            Board^ b = NewBoard();
+            b->setUserValue(1, 4);
+            b->restoreCell(1, 0, CellKind::UserEmpty, 1 << 2);
             Assert::IsTrue(b->kindAt(1) == CellKind::UserEmpty);
             Assert::AreEqual(1 << 2, b->pencilMarksAt(1));
+            Assert::AreEqual((unsigned int)0, b->FilledCount);
+        }
+
+        [TestMethod]
+        void RestoreCell_RestoresLockedHintKind()
+        {
+            Board^ b = NewBoard();
+            b->restoreCell(2, 7, CellKind::Hint, 0);
+            Assert::IsTrue(b->kindAt(2) == CellKind::Hint);
+            Assert::IsFalse(b->isEditable(2));
+            Assert::AreEqual((unsigned int)1, b->countOfKind(CellKind::Hint));
+        }
+
+        [TestMethod]
+        void RestoreCell_DropsMarksOnFilledCell()
+        {
+            Board^ b = NewBoard();
+            b->restoreCell(0, 3, CellKind::UserFilled, 1 << 5);
+            Assert::AreEqual(0, b->pencilMarksAt(0));
+        }
+
+        [TestMethod]
+        [ExpectedException(ArgumentException::typeid)]
+        void RestoreCell_Throws_OnEmptyValueWithFilledKind()
+        {
+            NewBoard()->restoreCell(0, 0, CellKind::UserFilled, 0);
+        }
+
+        [TestMethod]
+        [ExpectedException(ArgumentException::typeid)]
+        void RestoreCell_Throws_OnValueWithEmptyKind()
+        {
+            NewBoard()->restoreCell(0, 5, CellKind::UserEmpty, 0);
+        }
+
+        [TestMethod]
+        [ExpectedException(ArgumentOutOfRangeException::typeid)]
+        void RestoreCell_Throws_OnValueOutOfRange()
+        {
+            NewBoard()->restoreCell(0, 10, CellKind::UserFilled, 0);
         }
 
         // ---- Bulk operations ----

@@ -191,6 +191,7 @@ namespace Sudoku_3_0
     private: System::Windows::Forms::Button^ customPuzzleButton;
     private: System::Windows::Forms::Button^ solveButton;
     private: System::Windows::Forms::Button^ undoButton;
+    private: System::Windows::Forms::Button^ redoButton;
     private: System::Windows::Forms::Button^ pencilButton;
     private: System::Windows::Forms::Button^ clipboardButton;
     private: System::Windows::Forms::Button^ buttonMinimize;
@@ -207,6 +208,7 @@ namespace Sudoku_3_0
 
     private: System::Windows::Forms::ToolStripMenuItem^ newGameToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ undoToolStripMenuItem;
+    private: System::Windows::Forms::ToolStripMenuItem^ redoToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ restartToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ hintToolStripMenuItem;
     private: System::Windows::Forms::ToolStripMenuItem^ fixToolStripMenuItem;
@@ -395,6 +397,7 @@ namespace Sudoku_3_0
                this->customPuzzleButton = (gcnew System::Windows::Forms::Button());
                this->solveButton = (gcnew System::Windows::Forms::Button());
                this->undoButton = (gcnew System::Windows::Forms::Button());
+               this->redoButton = (gcnew System::Windows::Forms::Button());
                this->pencilButton = (gcnew System::Windows::Forms::Button());
                this->saveGameDialog = (gcnew System::Windows::Forms::SaveFileDialog());
                this->openGameDialog = (gcnew System::Windows::Forms::OpenFileDialog());
@@ -413,6 +416,7 @@ namespace Sudoku_3_0
                this->fixToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->giveUpToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->undoToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+               this->redoToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->customPuzzleToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->solveToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
                this->toolStripSeparator2 = (gcnew System::Windows::Forms::ToolStripSeparator());
@@ -1985,7 +1989,7 @@ namespace Sudoku_3_0
                this->customPuzzleButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->customPuzzleButton->Name = L"customPuzzleButton";
                this->customPuzzleButton->Size = System::Drawing::Size(240, 43);
-               this->customPuzzleButton->TabIndex = 94;
+               this->customPuzzleButton->TabIndex = 95;
                this->customPuzzleButton->Text = L"Enter Puzzle";
                this->customPuzzleButton->UseVisualStyleBackColor = false;
                this->customPuzzleButton->Click += gcnew System::EventHandler(this, &SudokuForm::customPuzzleButton_Click);
@@ -2001,7 +2005,7 @@ namespace Sudoku_3_0
                this->solveButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->solveButton->Name = L"solveButton";
                this->solveButton->Size = System::Drawing::Size(240, 43);
-               this->solveButton->TabIndex = 95;
+               this->solveButton->TabIndex = 96;
                this->solveButton->Text = L"Solve Puzzle";
                this->solveButton->UseVisualStyleBackColor = false;
                this->solveButton->Click += gcnew System::EventHandler(this, &SudokuForm::solveButton_Click);
@@ -2016,11 +2020,27 @@ namespace Sudoku_3_0
                this->undoButton->Location = System::Drawing::Point(701, 468);
                this->undoButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->undoButton->Name = L"undoButton";
-               this->undoButton->Size = System::Drawing::Size(240, 43);
+               this->undoButton->Size = System::Drawing::Size(116, 43);
                this->undoButton->TabIndex = 93;
                this->undoButton->Text = L"Undo";
                this->undoButton->UseVisualStyleBackColor = false;
                this->undoButton->Click += gcnew System::EventHandler(this, &SudokuForm::undoButton_Click);
+               // 
+               // redoButton
+               // 
+               this->redoButton->BackColor = System::Drawing::SystemColors::Menu;
+               this->redoButton->FlatAppearance->BorderSize = 0;
+               this->redoButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
+               this->redoButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                   static_cast<System::Byte>(0)));
+               this->redoButton->Location = System::Drawing::Point(825, 468);
+               this->redoButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
+               this->redoButton->Name = L"redoButton";
+               this->redoButton->Size = System::Drawing::Size(116, 43);
+               this->redoButton->TabIndex = 94;
+               this->redoButton->Text = L"Redo";
+               this->redoButton->UseVisualStyleBackColor = false;
+               this->redoButton->Click += gcnew System::EventHandler(this, &SudokuForm::redoButton_Click);
                // 
                // pencilButton
                // 
@@ -2118,10 +2138,10 @@ namespace Sudoku_3_0
                // 
                // gameToolStripMenuItem
                // 
-               this->gameToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(13) {
+               this->gameToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(14) {
                    this->newGameToolStripMenuItem,
                        this->restartToolStripMenuItem, this->pencilToolStripMenuItem, this->hintToolStripMenuItem, this->fixToolStripMenuItem, this->giveUpToolStripMenuItem,
-                       this->undoToolStripMenuItem, this->customPuzzleToolStripMenuItem, this->solveToolStripMenuItem, this->toolStripSeparator2, this->copyPuzzleToolStripMenuItem,
+                       this->undoToolStripMenuItem, this->redoToolStripMenuItem, this->customPuzzleToolStripMenuItem, this->solveToolStripMenuItem, this->toolStripSeparator2, this->copyPuzzleToolStripMenuItem,
                        this->pastePuzzleToolStripMenuItem, this->copySolutionToolStripMenuItem
                });
                this->gameToolStripMenuItem->Name = L"gameToolStripMenuItem";
@@ -2183,6 +2203,14 @@ namespace Sudoku_3_0
                this->undoToolStripMenuItem->Size = System::Drawing::Size(337, 34);
                this->undoToolStripMenuItem->Text = L"Undo";
                this->undoToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::undoToolStripMenuItem_Click);
+               // 
+               // redoToolStripMenuItem
+               // 
+               this->redoToolStripMenuItem->Name = L"redoToolStripMenuItem";
+               this->redoToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Y));
+               this->redoToolStripMenuItem->Size = System::Drawing::Size(337, 34);
+               this->redoToolStripMenuItem->Text = L"Redo";
+               this->redoToolStripMenuItem->Click += gcnew System::EventHandler(this, &SudokuForm::redoToolStripMenuItem_Click);
                // 
                // customPuzzleToolStripMenuItem
                // 
@@ -2410,7 +2438,7 @@ namespace Sudoku_3_0
                this->clipboardButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->clipboardButton->Name = L"clipboardButton";
                this->clipboardButton->Size = System::Drawing::Size(240, 43);
-               this->clipboardButton->TabIndex = 96;
+               this->clipboardButton->TabIndex = 97;
                this->clipboardButton->Text = L"Copy Puzzle";
                this->clipboardButton->UseVisualStyleBackColor = false;
                this->clipboardButton->Click += gcnew System::EventHandler(this, &SudokuForm::clipboardButton_Click);
@@ -2425,6 +2453,7 @@ namespace Sudoku_3_0
                this->Controls->Add(this->clipboardButton);
                this->Controls->Add(this->pencilButton);
                this->Controls->Add(this->undoButton);
+               this->Controls->Add(this->redoButton);
                this->Controls->Add(this->solveButton);
                this->Controls->Add(this->customPuzzleButton);
                this->Controls->Add(this->giveUpButton);
@@ -2698,6 +2727,7 @@ namespace Sudoku_3_0
         this->customPuzzleButton->Text = Strings::Get(StringId::ButtonEnterPuzzle, lang);
         this->solveButton->Text = Strings::Get(StringId::ButtonSolve, lang);
         this->undoButton->Text = Strings::Get(StringId::ButtonUndo, lang);
+        this->redoButton->Text = Strings::Get(StringId::ButtonRedo, lang);
         this->pencilButton->Text = Strings::Get(StringId::ButtonPencil, lang);
 
         // Keep the timer and the difficulty dropdown self-describing
@@ -2732,6 +2762,7 @@ namespace Sudoku_3_0
         this->fixToolStripMenuItem->Text = Strings::Get(StringId::MenuFix, lang);
         this->giveUpToolStripMenuItem->Text = Strings::Get(StringId::MenuGiveUp, lang);
         this->undoToolStripMenuItem->Text = Strings::Get(StringId::MenuUndo, lang);
+        this->redoToolStripMenuItem->Text = Strings::Get(StringId::MenuRedo, lang);
         this->customPuzzleToolStripMenuItem->Text = Strings::Get(StringId::MenuEnterPuzzle, lang);
         this->solveToolStripMenuItem->Text = Strings::Get(StringId::MenuSolve, lang);
 
@@ -3237,7 +3268,7 @@ namespace Sudoku_3_0
         // If this is a hint option, reveal the cell's solution value
         if (this->hintMode)
         {
-            this->undoManager->push(index, this->session->board->valueAt(index), this->session->board->pencilMarksAt(index));
+            this->undoManager->record(this->session->board, index);
             this->session->board->reveal(index, this->session->puzzle->solution[index], CellKind::Hint);
             ++(this->session->numberOfHints);
             this->renderCell(index);
@@ -3280,12 +3311,14 @@ namespace Sudoku_3_0
         unsigned int index = cellNumber - 1;
         Board^ board = this->session->board;
 
-        // Pencil mode: toggle a mark bit only, never touch the cell value
+        // Pencil mode: toggle a mark bit only, never touch the cell value. Marks only exist on
+        // empty cells; on a filled one the toggle would be a no-op, so record nothing (an empty
+        // undo step would also needlessly discard the redo history).
         if (this->pencilMode && board->isEditable(index))
         {
-            if (choice >= 1 && choice <= 9)
+            if (choice >= 1 && choice <= 9 && board->isEmpty(index))
             {
-                this->undoManager->push(index, this->session->board->valueAt(index), board->pencilMarksAt(index));
+                this->undoManager->record(board, index);
                 board->togglePencilMark(index, (int)choice);
                 this->renderCell(index);
             }
@@ -3297,52 +3330,87 @@ namespace Sudoku_3_0
         if ((unsigned char)choice == board->valueAt(index))
             return;
 
-        this->undoManager->push(index, this->session->board->valueAt(index), board->pencilMarksAt(index));
+        this->undoManager->record(board, index);
         board->setUserValue(index, (unsigned char)choice);
         this->renderCell(index);
         this->checkGameState();
     }
 
-    private: void restoreCell(unsigned int index, unsigned char previousValue, int previousMarks)
-    {
-        // Undo always restores an editable user cell (value + pencil marks); Board derives the kind.
-        this->session->board->restoreUserCell(index, previousValue, previousMarks);
-        this->renderCell(index);
-    }
-
-           // Keeps the Undo button and menu item in sync with the undo stack. Wired as the
-           // UndoManager's change callback, so it fires on every push/batch/pop/clear.
+           // Keeps the Undo/Redo buttons and menu items in sync with the histories. Wired as the
+           // UndoManager's change callback, so it fires on every record/batch/undo/redo/clear.
+           // Every transition that ends play or swaps the puzzle (win, give up, restart, new game,
+           // Enter Puzzle, paste, solve, load) clears the histories, so both are disabled there.
     private: void syncUndoControls()
     {
         this->undoButton->Enabled = this->undoManager->canUndo;
         this->undoToolStripMenuItem->Enabled = this->undoManager->canUndo;
+        this->redoButton->Enabled = this->undoManager->canRedo;
+        this->redoToolStripMenuItem->Enabled = this->undoManager->canRedo;
     }
 
     private: void performUndo()
     {
-        auto entries = this->undoManager->popOperation();
-        if (entries->Count == 0) return;
+        this->closeHelperForms();
+        this->showHistoryStep(this->undoManager->undo(this->session->board));
+    }
 
-        System::Windows::Forms::Button^ lastCell = nullptr;
-        for each (auto entry in entries)
-        {
-            this->restoreCell(entry->cellIndex, entry->previousValue, entry->previousPencilMarks);
-            lastCell = this->cells[entry->cellIndex];
-        }
-        if (lastCell != nullptr)
-        {
+    private: void performRedo()
+    {
+        this->closeHelperForms();
+        this->showHistoryStep(this->undoManager->redo(this->session->board));
+    }
+
+           // Re-renders the cells an undo/redo restored and moves focus to the last one (if it is
+           // still focusable - a redone hint is a locked cell). The win check is defensive: every
+           // state in either history was reached during play without winning (a win clears both),
+           // so a step should never complete the puzzle - but if it ever does, it must count.
+    private: void showHistoryStep(System::Collections::Generic::List<unsigned int>^ touched)
+    {
+        if (touched->Count == 0) return;
+
+        for each (unsigned int index in touched)
+            this->renderCell(index);
+
+        Button^ lastCell = this->cells[touched[touched->Count - 1]];
+        if (lastCell->Enabled)
             lastCell->Focus();
-        }
+
+        this->checkGameState();
     }
 
     private: void undoToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        this->performUndo();
+        if (this->undoToolStripMenuItem->Enabled)
+            this->performUndo();
     }
 
     private: void undoButton_Click(System::Object^ sender, System::EventArgs^ e)
     {
         this->performUndo();
+    }
+
+    private: void redoToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
+    {
+        if (this->redoToolStripMenuItem->Enabled)
+            this->performRedo();
+    }
+
+    private: void redoButton_Click(System::Object^ sender, System::EventArgs^ e)
+    {
+        this->performRedo();
+    }
+
+           // Ctrl+Y is Redo's menu shortcut; Ctrl+Shift+Z is the other common Redo convention,
+           // and a menu item takes only one ShortcutKeys value, so it is routed here. Gated on the
+           // menu item so it is inert exactly when Redo is unavailable.
+    protected: virtual bool ProcessCmdKey(System::Windows::Forms::Message% msg, Keys keyData) override
+    {
+        if (keyData == (Keys::Control | Keys::Shift | Keys::Z) && this->redoToolStripMenuItem->Enabled)
+        {
+            this->performRedo();
+            return true;
+        }
+        return Form::ProcessCmdKey(msg, keyData);
     }
 
     private: void pencilToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
@@ -3582,7 +3650,7 @@ namespace Sudoku_3_0
         int digit = row3 * 3 + col3 + 1;
         if (digit < 1 || digit > 9) return;
 
-        this->undoManager->push(idx, this->session->board->valueAt(idx), this->session->board->pencilMarksAt(idx));
+        this->undoManager->record(this->session->board, idx);
         this->session->board->togglePencilMark(idx, digit);
         this->renderCell(idx);
     }
@@ -3688,30 +3756,21 @@ namespace Sudoku_3_0
         ++this->session->numberOfFixes;
 
         Board^ board = this->session->board;
-        bool anyFixed = false;
 
+        // One undo step for the whole fix; if nothing was wrong, endBatch records nothing.
+        this->undoManager->beginBatch();
         for (unsigned int index = 0; index < this->numberOfCells; ++index)
         {
             // A user-filled cell whose value contradicts the solution
             if (board->isEditable(index) && board->valueAt(index) != 0 &&
                 board->valueAt(index) != this->session->puzzle->solution[index])
             {
-                if (!anyFixed)
-                {
-                    this->undoManager->beginBatch();
-                    anyFixed = true;
-                }
-
-                this->undoManager->push(index, this->session->board->valueAt(index), board->pencilMarksAt(index));
+                this->undoManager->record(board, index);
                 board->setUserValue(index, 0);
                 this->renderCell(index);
             }
         }
-
-        if (anyFixed)
-        {
-            this->undoManager->endBatch();
-        }
+        this->undoManager->endBatch();
     }
 
     private: void giveUpButton_Click(System::Object^ sender, System::EventArgs^ e)
@@ -3767,6 +3826,7 @@ namespace Sudoku_3_0
         this->buttonToolTips->SetToolTip(this->fixButton, Strings::Get(StringId::FeatureFix, this->currentLanguage));
         this->buttonToolTips->SetToolTip(this->giveUpButton, Strings::Get(StringId::FeatureGiveUp, this->currentLanguage));
         this->buttonToolTips->SetToolTip(this->undoButton, Strings::Get(StringId::FeatureUndo, this->currentLanguage));
+        this->buttonToolTips->SetToolTip(this->redoButton, Strings::Get(StringId::FeatureRedo, this->currentLanguage));
         this->buttonToolTips->SetToolTip(this->customPuzzleButton, Strings::Get(StringId::FeatureEnterPuzzle, this->currentLanguage));
         this->buttonToolTips->SetToolTip(this->solveButton, Strings::Get(StringId::FeatureSolve, this->currentLanguage));
     }

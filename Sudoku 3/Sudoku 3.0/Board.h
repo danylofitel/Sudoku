@@ -105,13 +105,15 @@ namespace Sudoku_3_0
             this->assign(index, this->values[index], CellKind::Correct, 0);
         }
 
-        // Restores an editable cell to a previous value and pencil marks (for undo). The kind
-        // follows from the value: UserFilled if non-empty, otherwise UserEmpty.
-        void restoreUserCell(unsigned int index, unsigned char value, int pencilMarks)
+        // Restores a cell to an exact previously captured state (for undo/redo), so a reverted
+        // or re-applied hint keeps its Hint kind. Rejects states that break the empty <=> UserEmpty
+        // invariant; pencil marks are kept only on an empty cell, as everywhere else.
+        void restoreCell(unsigned int index, unsigned char value, CellKind kind, int pencilMarks)
         {
             RequireValue(value, true);
-            CellKind kind = value == 0 ? CellKind::UserEmpty : CellKind::UserFilled;
-            this->assign(index, value, kind, pencilMarks);
+            if ((value == 0) != (kind == CellKind::UserEmpty))
+                throw gcnew System::ArgumentException("A cell is empty if and only if its kind is UserEmpty.");
+            this->assign(index, value, kind, value == 0 ? pencilMarks : 0);
         }
 
         // ---- Bulk operations ----

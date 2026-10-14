@@ -24,6 +24,7 @@ namespace Sudoku_3_0
         ButtonEnterPuzzle,
         ButtonSolve,
         ButtonUndo,
+        ButtonRedo,
         ButtonPencil,
 
         // ---- Difficulty label & combo items ----
@@ -53,6 +54,7 @@ namespace Sudoku_3_0
         MenuEnterPuzzle,
         MenuSolve,
         MenuUndo,
+        MenuRedo,
 
         // ---- Menu: Options ----
         MenuOptions,
@@ -150,6 +152,7 @@ namespace Sudoku_3_0
         FeatureFix,
         FeatureGiveUp,
         FeatureUndo,
+        FeatureRedo,
         FeatureEnterPuzzle,
         FeatureSolve,
         FeatureCopyPuzzle,
@@ -209,8 +212,13 @@ namespace Sudoku_3_0
                 }
             case StringId::ButtonUndo:
                 switch (lang) {
-                case Language::Ukrainian: return L"Відмінити";
+                case Language::Ukrainian: return L"Відм.";
                 default:                 return L"Undo";
+                }
+            case StringId::ButtonRedo:
+                switch (lang) {
+                case Language::Ukrainian: return L"Повтор.";
+                default:                 return L"Redo";
                 }
             case StringId::ButtonPencil:
                 switch (lang) {
@@ -332,6 +340,11 @@ namespace Sudoku_3_0
                 switch (lang) {
                 case Language::Ukrainian: return L"Відмінити";
                 default:                 return L"Undo";
+                }
+            case StringId::MenuRedo:
+                switch (lang) {
+                case Language::Ukrainian: return L"Повторити";
+                default:                 return L"Redo";
                 }
 
                 // ---- Menu: Options ----
@@ -525,6 +538,7 @@ namespace Sudoku_3_0
                     + Get(StringId::FeatureFix, lang) + L"\n"
                     + Get(StringId::FeatureGiveUp, lang) + L"\n"
                     + Get(StringId::FeatureUndo, lang) + L"\n"
+                    + Get(StringId::FeatureRedo, lang) + L"\n"
                     + Get(StringId::FeatureEnterPuzzle, lang) + L"\n"
                     + Get(StringId::FeatureSolve, lang) + L"\n"
                     + Get(StringId::FeatureCopyPuzzle, lang) + L"\n"
@@ -769,6 +783,11 @@ namespace Sudoku_3_0
                 switch (lang) {
                 case Language::Ukrainian: return L"Відмінити — скасувати останній хід або групу ходів";
                 default:                 return L"Undo - undo the last move or batch of moves";
+                }
+            case StringId::FeatureRedo:
+                switch (lang) {
+                case Language::Ukrainian: return L"Повторити — повернути останній відмінений хід або групу ходів";
+                default:                 return L"Redo - redo the last undone move or batch of moves";
                 }
             case StringId::FeatureEnterPuzzle:
                 switch (lang) {
