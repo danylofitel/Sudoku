@@ -81,7 +81,7 @@ namespace Sudoku_3_0_Tests
         void Capture_CopiesSessionScalarsAndViewValues()
         {
             GameSession^ s = MakePopulatedSession();
-            SavedGame^ g = SavedGameMapper::Capture(s, true, 125);
+            SavedGame^ g = SavedGameMapper::Capture(s, nullptr, true, 125);
 
             Assert::AreEqual((int)s->difficulty, (int)g->difficulty);
             Assert::AreEqual((int)s->numberOfHints, (int)g->numberOfHints);
@@ -97,10 +97,10 @@ namespace Sudoku_3_0_Tests
         void CaptureThenRestore_PreservesAllGameData()
         {
             GameSession^ src = MakePopulatedSession();
-            SavedGame^ g = SavedGameMapper::Capture(src, false, 60);
+            SavedGame^ g = SavedGameMapper::Capture(src, nullptr, false, 60);
 
             GameSession^ dst = gcnew GameSession(Cells);
-            SavedGameMapper::Restore(g, dst);
+            SavedGameMapper::Restore(g, dst, nullptr);
 
             AssertSameGameData(src, dst);
         }
@@ -109,7 +109,7 @@ namespace Sudoku_3_0_Tests
         void RoundTrip_ThroughStore_PreservesAllGameData()
         {
             GameSession^ src = MakePopulatedSession();
-            SavedGame^ g = SavedGameMapper::Capture(src, true, 300);
+            SavedGame^ g = SavedGameMapper::Capture(src, nullptr, true, 300);
 
             String^ path = Path::GetTempFileName();
             try
@@ -118,7 +118,7 @@ namespace Sudoku_3_0_Tests
                 SavedGame^ loaded = SaveGameStore::Load(path, Cells);
 
                 GameSession^ dst = gcnew GameSession(Cells);
-                SavedGameMapper::Restore(loaded, dst);
+                SavedGameMapper::Restore(loaded, dst, nullptr);
 
                 AssertSameGameData(src, dst);
             }
@@ -126,6 +126,90 @@ namespace Sudoku_3_0_Tests
             {
                 File::Delete(path);
             }
+        }
+
+        [TestMethod]
+        void Capture_WithoutHistory_WritesEmptyHistory()
+        {
+            SavedGame^ g = SavedGameMapper::Capture(MakePopulatedSession(), nullptr, false, 0);
+            Assert::AreEqual(0, g->undoHistory->Length);
+            Assert::AreEqual(0, g->redoHistory->Length);
+        }
+
+        [TestMethod]
+        void RoundTrip_ThroughStore_PreservesWorkingUndoRedo()
+        {
+            // Play a little - an edit, a hint, a Fix batch - and undo the Fix so both histories
+            // are non-empty. After save -> load -> restore, every undo and redo on the restored
+            // session must produce exactly the same board as on the original.
+            GameSession^ src = MakePopulatedSession();
+            UndoManager^ srcHistory = gcnew UndoManager(nullptr);
+            Board^ board = src->board;
+
+            srcHistory->record(board, 4);
+            board->setUserValue(4, 7);                                  // wrong (solution is 5)
+            srcHistory->record(board, 5);
+            board->reveal(5, src->puzzle->solution[5], CellKind::Hint); // hint
+            srcHistory->beginBatch();                                   // Fix: clear wrong cells 1 and 4
+            srcHistory->record(board, 1);
+            board->setUserValue(1, 0);
+            srcHistory->record(board, 4);
+            board->setUserValue(4, 0);
+            srcHistory->endBatch();
+            srcHistory->undo(board);                                    // Fix becomes redoable
+
+            String^ path = Path::GetTempFileName();
+            try
+            {
+                SaveGameStore::Save(path, SavedGameMapper::Capture(src, srcHistory, false, 42));
+                SavedGame^ loaded = SaveGameStore::Load(path, Cells);
+
+                GameSession^ dst = gcnew GameSession(Cells);
+                UndoManager^ dstHistory = gcnew UndoManager(nullptr);
+                SavedGameMapper::Restore(loaded, dst, dstHistory);
+
+                AssertSameGameData(src, dst);
+                Assert::IsTrue(dstHistory->canUndo);
+                Assert::IsTrue(dstHistory->canRedo);
+
+                while (srcHistory->canRedo)
+                {
+                    srcHistory->redo(src->board);
+                    dstHistory->redo(dst->board);
+                    AssertSameGameData(src, dst);
+                }
+                Assert::IsFalse(dstHistory->canRedo);
+
+                while (srcHistory->canUndo)
+                {
+                    srcHistory->undo(src->board);
+                    dstHistory->undo(dst->board);
+                    AssertSameGameData(src, dst);
+                }
+                Assert::IsFalse(dstHistory->canUndo);
+            }
+            finally
+            {
+                File::Delete(path);
+            }
+        }
+
+        [TestMethod]
+        void Restore_ReplacesExistingHistory()
+        {
+            // Loading a save must not leave the previous game's history behind.
+            GameSession^ src = MakePopulatedSession();
+            SavedGame^ g = SavedGameMapper::Capture(src, nullptr, false, 0);
+
+            GameSession^ dst = gcnew GameSession(Cells);
+            UndoManager^ dstHistory = gcnew UndoManager(nullptr);
+            dstHistory->record(dst->board, 0);
+            dst->board->setUserValue(0, 1);
+
+            SavedGameMapper::Restore(g, dst, dstHistory);
+
+            Assert::IsFalse(dstHistory->canUndo);
+            Assert::IsFalse(dstHistory->canRedo);
         }
     };
 }

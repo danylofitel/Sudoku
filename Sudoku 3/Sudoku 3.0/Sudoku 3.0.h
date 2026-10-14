@@ -4376,10 +4376,10 @@ namespace Sudoku_3_0
            // Returns true on success, false on any failure - reporting is up to the caller.
     private: bool saveGameToFile(System::String^ path)
     {
-        // gameFinished (from the controls) and elapsedSeconds (from the timer) are the only two
-        // pieces the session does not own; the mapper builds the rest of the snapshot.
+        // Besides the session, the snapshot takes the undo/redo history, gameFinished (from the
+        // controls), and elapsedSeconds (from the timer); the mapper builds the rest.
         SavedGame^ game = SavedGameMapper::Capture(
-            this->session, this->isGameFinished(), (unsigned int)this->gameTimer->Elapsed.TotalSeconds);
+            this->session, this->undoManager, this->isGameFinished(), (unsigned int)this->gameTimer->Elapsed.TotalSeconds);
 
         try
         {
@@ -4447,8 +4447,8 @@ namespace Sudoku_3_0
         this->clearActiveModes();
         this->undoManager->clear();
 
-        // Restore all session and board data from the save (pure data mapping).
-        SavedGameMapper::Restore(save, this->session);
+        // Restore all session, board, and undo/redo data from the save (pure data mapping).
+        SavedGameMapper::Restore(save, this->session, this->undoManager);
 
         // Everything below is UI that follows from the restored state.
         this->difficultyComboBox->SelectedIndex = save->difficulty;

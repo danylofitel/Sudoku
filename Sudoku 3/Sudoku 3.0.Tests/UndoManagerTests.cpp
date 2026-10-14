@@ -57,6 +57,16 @@ namespace Sudoku_3_0_Tests
             b->reveal(index, value, CellKind::Hint);
         }
 
+        static void AssertSameBoard(Board^ a, Board^ b)
+        {
+            for (unsigned int i = 0; i < (unsigned int)Cells; ++i)
+            {
+                Assert::AreEqual((int)a->valueAt(i), (int)b->valueAt(i));
+                Assert::IsTrue(a->kindAt(i) == b->kindAt(i));
+                Assert::AreEqual(a->pencilMarksAt(i), b->pencilMarksAt(i));
+            }
+        }
+
     public:
         // ---- Initial state ----
 
@@ -504,6 +514,160 @@ namespace Sudoku_3_0_Tests
             Assert::AreEqual(3, this->changeCount);
             Assert::IsTrue(this->canUndoSeenInCallback);
             Assert::IsFalse(this->canRedoSeenInCallback);
+        }
+
+        // ---- Export / import (save and load) ----
+
+        [TestMethod]
+        void Export_OnEmpty_ReturnsEmptyArrays()
+        {
+            UndoManager^ u = this->NewManager();
+            Assert::AreEqual(0, u->exportUndo()->Length);
+            Assert::AreEqual(0, u->exportRedo()->Length);
+        }
+
+        [TestMethod]
+        void Export_OrdersOperationsOldestFirst_AndKeepsBatches()
+        {
+            UndoManager^ u = this->NewManager();
+            Board^ b = NewBoard();
+            SetValue(u, b, 0, 1);
+            u->beginBatch();
+            SetValue(u, b, 3, 4);
+            SetValue(u, b, 8, 5);
+            u->endBatch();
+            SetValue(u, b, 20, 6);
+
+            array<array<UndoManager::CellState^>^>^ undo = u->exportUndo();
+            Assert::AreEqual(3, undo->Length);
+            Assert::AreEqual((unsigned int)0, undo[0][0]->cellIndex);
+            Assert::AreEqual(2, undo[1]->Length);              // the batch stays one operation
+            Assert::AreEqual((unsigned int)3, undo[1][0]->cellIndex); // in recording order
+            Assert::AreEqual((unsigned int)8, undo[1][1]->cellIndex);
+            Assert::AreEqual((unsigned int)20, undo[2][0]->cellIndex); // newest last
+            Assert::IsTrue(undo[2][0]->kind == CellKind::UserEmpty);
+        }
+
+        [TestMethod]
+        void ExportRedo_LastOperationIsNextToRedo()
+        {
+            UndoManager^ u = this->NewManager();
+            Board^ b = NewBoard();
+            SetValue(u, b, 0, 1);
+            SetValue(u, b, 1, 2);
+            u->undo(b); // cell 1 undone first
+            u->undo(b); // then cell 0 - so cell 0 is the next to redo
+
+            array<array<UndoManager::CellState^>^>^ redo = u->exportRedo();
+            Assert::AreEqual(2, redo->Length);
+            Assert::AreEqual((unsigned int)1, redo[0][0]->cellIndex);
+            Assert::AreEqual((unsigned int)0, redo[1][0]->cellIndex);
+            Assert::AreEqual(1, (int)redo[1][0]->value); // the state redo will restore
+        }
+
+        [TestMethod]
+        void Export_IsASnapshot_NotAffectedByLaterChanges()
+        {
+            UndoManager^ u = this->NewManager();
+            Board^ b = NewBoard();
+            SetValue(u, b, 0, 1);
+            array<array<UndoManager::CellState^>^>^ undo = u->exportUndo();
+
+            SetValue(u, b, 1, 2);
+            u->clear();
+
+            Assert::AreEqual(1, undo->Length);
+        }
+
+        [TestMethod]
+        void ExportThenImport_BehavesIdentically()
+        {
+            // Two boards in the same state, one with the original history and one with a manager
+            // that imported it: every undo and redo must produce the same board.
+            UndoManager^ original = gcnew UndoManager(nullptr);
+            Board^ a = NewBoard();
+            SetValue(original, a, 0, 1);
+            TogglePencil(original, a, 5, 3);
+            RevealHint(original, a, 9, 7);
+            original->beginBatch();
+            SetValue(original, a, 0, 0);
+            SetValue(original, a, 12, 0);
+            original->endBatch();
+            SetValue(original, a, 12, 8);
+            original->undo(a); // leave something to redo as well
+
+            Board^ b = NewBoard();
+            for (unsigned int i = 0; i < (unsigned int)Cells; ++i)
+                b->restoreCell(i, a->valueAt(i), a->kindAt(i), a->pencilMarksAt(i));
+            UndoManager^ imported = gcnew UndoManager(nullptr);
+            imported->importHistory(original->exportUndo(), original->exportRedo());
+
+            Assert::IsTrue(imported->canUndo);
+            Assert::IsTrue(imported->canRedo);
+            while (original->canUndo)
+            {
+                original->undo(a);
+                imported->undo(b);
+                AssertSameBoard(a, b);
+            }
+            Assert::IsFalse(imported->canUndo);
+            while (original->canRedo)
+            {
+                original->redo(a);
+                imported->redo(b);
+                AssertSameBoard(a, b);
+            }
+            Assert::IsFalse(imported->canRedo);
+        }
+
+        [TestMethod]
+        void Import_ReplacesHistory_AndNotifies()
+        {
+            UndoManager^ u = this->NewManager();
+            Board^ b = NewBoard();
+            SetValue(u, b, 0, 1);
+            SetValue(u, b, 1, 2);
+            u->undo(b);
+            int before = this->changeCount;
+
+            array<array<UndoManager::CellState^>^>^ undo = gcnew array<array<UndoManager::CellState^>^>(1);
+            undo[0] = gcnew array<UndoManager::CellState^>(1);
+            undo[0][0] = gcnew UndoManager::CellState(40, 0, CellKind::UserEmpty, 0);
+            u->importHistory(undo, nullptr);
+
+            Assert::IsTrue(this->changeCount > before);
+            Assert::IsTrue(this->canUndoSeenInCallback);
+            Assert::IsFalse(this->canRedoSeenInCallback);
+            Assert::AreEqual((unsigned int)40, u->undo(b)[0]);
+            Assert::IsFalse(u->canUndo);
+        }
+
+        [TestMethod]
+        void Import_Nulls_ClearsBothHistories()
+        {
+            UndoManager^ u = this->NewManager();
+            Board^ b = NewBoard();
+            SetValue(u, b, 0, 1);
+            SetValue(u, b, 1, 2);
+            u->undo(b);
+
+            u->importHistory(nullptr, nullptr);
+
+            Assert::IsFalse(u->canUndo);
+            Assert::IsFalse(u->canRedo);
+        }
+
+        [TestMethod]
+        void Import_DiscardsOpenBatch()
+        {
+            UndoManager^ u = this->NewManager();
+            Board^ b = NewBoard();
+            u->beginBatch();
+            SetValue(u, b, 0, 1);
+            u->importHistory(nullptr, nullptr);
+            u->endBatch();
+
+            Assert::IsFalse(u->canUndo);
         }
 
         [TestMethod]

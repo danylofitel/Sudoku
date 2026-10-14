@@ -4,6 +4,7 @@
 
 #include "GameMode.h"
 #include "CandidateDisplay.h"
+#include "UndoManager.h"
 
 namespace Sudoku_3_0
 {
@@ -51,5 +52,12 @@ namespace Sudoku_3_0
         array<unsigned char>^ values;
         array<unsigned char>^ states;
         array<int>^ pencilMarks;
+
+        // Undo and redo histories (see UndoManager::exportUndo for the ordering); empty means no
+        // history (nullptr is accepted when saving). Non-essential: a history that cannot be
+        // read is dropped on load rather than failing it, and one that loads has been validated
+        // against the board above, so the UndoManager can apply its snapshots verbatim.
+        array<array<UndoManager::CellState^>^>^ undoHistory;
+        array<array<UndoManager::CellState^>^>^ redoHistory;
     };
 }

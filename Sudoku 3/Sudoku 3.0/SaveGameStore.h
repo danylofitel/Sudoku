@@ -21,7 +21,10 @@ namespace Sudoku_3_0
     //   elapsedSeconds                       (total play time in whole seconds)
     //   clues, solution, value, state        (digit strings, one char per cell)
     //   pencilMarks                          (space-separated bitmasks, one per cell)
-    // The order of lines is not significant; unknown keys are ignored.
+    //   undo, redo                           (non-essential history, ignored if unreadable;
+    //                                         see EncodeHistory)
+    // The order of lines is not significant; unknown keys are ignored. Older builds therefore
+    // open files with history too - they just start without it.
     ref class SaveGameStore abstract sealed
     {
     public:
@@ -48,6 +51,8 @@ namespace Sudoku_3_0
                 writer->WriteLine("value=" + EncodeDigits(game->values));
                 writer->WriteLine("state=" + EncodeDigits(game->states));
                 writer->WriteLine("pencilMarks=" + EncodePencilMarks(game->pencilMarks));
+                writer->WriteLine("undo=" + EncodeHistory(game->undoHistory));
+                writer->WriteLine("redo=" + EncodeHistory(game->redoHistory));
             }
             finally
             {
@@ -160,6 +165,27 @@ namespace Sudoku_3_0
 
             game->pencilMarks = DecodePencilMarks(RequireStr(fields, "pencilMarks"), expectedNumberOfCells);
 
+            // The undo/redo history is always written, but it is non-essential: the game is fully
+            // playable without it. So unlike every field above, a history that cannot be used -
+            // missing (e.g. a file from before history was saved), malformed, or inconsistent
+            // with the board - never fails the load. Both histories are dropped together (they
+            // only make sense as a pair) and the game loads without them.
+            try
+            {
+                game->undoHistory = DecodeHistory(RequireStr(fields, "undo"), expectedNumberOfCells);
+                game->redoHistory = DecodeHistory(RequireStr(fields, "redo"), expectedNumberOfCells);
+                bool hasHistory = game->undoHistory->Length > 0 || game->redoHistory->Length > 0;
+                if (hasHistory && game->gameFinished)
+                    throw gcnew System::Exception("A finished game has no undo history.");
+                ValidateHistory(game->undoHistory, game);
+                ValidateHistory(game->redoHistory, game);
+            }
+            catch (System::Exception^)
+            {
+                game->undoHistory = gcnew array<array<UndoManager::CellState^>^>(0);
+                game->redoHistory = gcnew array<array<UndoManager::CellState^>^>(0);
+            }
+
             return game;
         }
 
@@ -231,6 +257,111 @@ namespace Sudoku_3_0
                 marks[i] = m;
             }
             return marks;
+        }
+
+        // Encodes a history as operations separated by ';', each a ','-separated list of cell
+        // snapshots "index:value:kind:pencilMarks" (kind as its state code). Operations are
+        // oldest first, snapshots in recording order. No history encodes as an empty string.
+        // Example - a single edit, then a two-cell Fix:  "12:0:1:0;3:5:2:0,40:7:2:0"
+        static System::String^ EncodeHistory(array<array<UndoManager::CellState^>^>^ history)
+        {
+            System::Text::StringBuilder^ sb = gcnew System::Text::StringBuilder();
+            if (history == nullptr) return sb->ToString();
+
+            for (int op = 0; op < history->Length; ++op)
+            {
+                if (op > 0) sb->Append(L';');
+                for (int i = 0; i < history[op]->Length; ++i)
+                {
+                    UndoManager::CellState^ cell = history[op][i];
+                    if (i > 0) sb->Append(L',');
+                    sb->Append(cell->cellIndex)->Append(L':')
+                        ->Append((unsigned int)cell->value)->Append(L':')
+                        ->Append((unsigned int)static_cast<unsigned char>(cell->kind))->Append(L':')
+                        ->Append(cell->pencilMarks);
+                }
+            }
+            return sb->ToString();
+        }
+
+        // Parses the EncodeHistory format, checking only its shape and that every cell index is
+        // on the board; ValidateHistory checks the snapshots against the game.
+        static array<array<UndoManager::CellState^>^>^ DecodeHistory(System::String^ text, unsigned int numberOfCells)
+        {
+            if (text->Length == 0)
+                return gcnew array<array<UndoManager::CellState^>^>(0);
+
+            array<System::String^>^ operations = text->Split(L';');
+            array<array<UndoManager::CellState^>^>^ history = gcnew array<array<UndoManager::CellState^>^>(operations->Length);
+            for (int op = 0; op < operations->Length; ++op)
+            {
+                array<System::String^>^ cells = operations[op]->Split(L',');
+                history[op] = gcnew array<UndoManager::CellState^>(cells->Length);
+                for (int i = 0; i < cells->Length; ++i)
+                {
+                    array<System::String^>^ parts = cells[i]->Split(L':');
+                    if (parts->Length != 4)
+                        throw gcnew System::Exception("Malformed history entry '" + cells[i] + "'");
+
+                    unsigned int index = ParseHistoryNumber(parts[0]);
+                    unsigned int value = ParseHistoryNumber(parts[1]);
+                    unsigned int kind = ParseHistoryNumber(parts[2]);
+                    unsigned int marks = ParseHistoryNumber(parts[3]);
+                    if (index >= numberOfCells || value > 9 || kind > 6 || marks > 0x3FE)
+                        throw gcnew System::Exception("Out-of-range history entry '" + cells[i] + "'");
+
+                    history[op][i] = gcnew UndoManager::CellState(
+                        index, (unsigned char)value, static_cast<CellKind>(kind), (int)marks);
+                }
+            }
+            return history;
+        }
+
+        // Checks that every snapshot is one the game could really have recorded, so restoring it
+        // can never produce an impossible board - e.g. turn a clue editable or lock in a wrong
+        // digit as a hint. A history only ever touches playable cells (never a clue), and holds
+        // them as empty, user-filled, or a correct hint.
+        static void ValidateHistory(array<array<UndoManager::CellState^>^>^ history, SavedGame^ game)
+        {
+            const int validBits = 0x3FE; // bits 1..9
+            const unsigned char emptyState = 1, userFilledState = 2, hintState = 4;
+
+            for each (array<UndoManager::CellState^>^ operation in history)
+            {
+                if (operation->Length == 0)
+                    throw gcnew System::Exception("Empty history operation.");
+
+                for each (UndoManager::CellState^ cell in operation)
+                {
+                    unsigned char boardState = game->states[cell->cellIndex];
+                    if (boardState != emptyState && boardState != userFilledState && boardState != hintState)
+                        throw gcnew System::Exception("History touches a locked cell at index " + cell->cellIndex.ToString());
+
+                    unsigned char kind = static_cast<unsigned char>(cell->kind);
+                    if (kind != emptyState && kind != userFilledState && kind != hintState)
+                        throw gcnew System::Exception("Invalid history kind at index " + cell->cellIndex.ToString());
+
+                    if ((cell->value == 0) != (kind == emptyState))
+                        throw gcnew System::Exception("Mismatched history value and kind at index " + cell->cellIndex.ToString());
+
+                    if (kind == hintState && (game->mode != GameMode::Game || game->solution->Length == 0
+                        || cell->value != game->solution[cell->cellIndex]))
+                        throw gcnew System::Exception("Invalid history hint at index " + cell->cellIndex.ToString());
+
+                    if ((cell->pencilMarks & ~validBits) != 0 || (cell->value != 0 && cell->pencilMarks != 0))
+                        throw gcnew System::Exception("Invalid history pencil marks at index " + cell->cellIndex.ToString());
+                }
+            }
+        }
+
+        // Plain decimal digits only (no sign, spaces, or separators).
+        static unsigned int ParseHistoryNumber(System::String^ text)
+        {
+            unsigned int result = 0;
+            if (!System::UInt32::TryParse(text, System::Globalization::NumberStyles::None,
+                System::Globalization::CultureInfo::InvariantCulture, result))
+                throw gcnew System::Exception("Invalid number in history: '" + text + "'");
+            return result;
         }
 
         static unsigned int RequireUInt(Dictionary<System::String^, System::String^>^ fields, System::String^ key)

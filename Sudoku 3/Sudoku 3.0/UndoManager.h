@@ -127,6 +127,24 @@ namespace Sudoku_3_0
             this->notifyChanged();
         }
 
+        // The histories as plain data, for saving. Operations are ordered oldest to newest (so
+        // the last undo operation is the next to undo, and the last redo operation the next to
+        // redo); each lists its cell snapshots in recording order. Snapshots are shared rather
+        // than copied, which is safe because the manager never mutates one after creating it.
+        array<array<CellState^>^>^ exportUndo() { return Export(this->undoStack); }
+        array<array<CellState^>^>^ exportRedo() { return Export(this->redoStack); }
+
+        // Replaces both histories with previously exported ones (nullptr = empty) and discards
+        // any open batch. The manager applies snapshots verbatim, so the caller must only pass
+        // histories already validated against the current board (SaveGameStore::Load does this).
+        void importHistory(array<array<CellState^>^>^ undo, array<array<CellState^>^>^ redo)
+        {
+            Import(this->undoStack, undo);
+            Import(this->redoStack, redo);
+            this->pendingBatch = nullptr;
+            this->notifyChanged();
+        }
+
     private:
         typedef System::Collections::Generic::List<CellState^> Operation;
 
@@ -167,6 +185,23 @@ namespace Sudoku_3_0
 
             this->notifyChanged();
             return touched;
+        }
+
+        static array<array<CellState^>^>^ Export(System::Collections::Generic::Stack<Operation^>^ stack)
+        {
+            array<Operation^>^ newestFirst = stack->ToArray();
+            array<array<CellState^>^>^ result = gcnew array<array<CellState^>^>(newestFirst->Length);
+            for (int i = 0; i < newestFirst->Length; ++i)
+                result[newestFirst->Length - 1 - i] = newestFirst[i]->ToArray();
+            return result;
+        }
+
+        static void Import(System::Collections::Generic::Stack<Operation^>^ stack, array<array<CellState^>^>^ operations)
+        {
+            stack->Clear();
+            if (operations == nullptr) return;
+            for each (array<CellState^>^ operation in operations)
+                stack->Push(gcnew Operation(operation));
         }
 
         void notifyChanged()

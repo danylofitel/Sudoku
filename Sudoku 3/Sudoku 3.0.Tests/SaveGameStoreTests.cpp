@@ -163,6 +163,64 @@ namespace Sudoku_3_0_Tests
             }
         }
 
+        static array<array<UndoManager::CellState^>^>^ MakeHistory(... array<array<UndoManager::CellState^>^>^ operations)
+        {
+            return operations;
+        }
+
+        static array<UndoManager::CellState^>^ Op(... array<UndoManager::CellState^>^ cells)
+        {
+            return cells;
+        }
+
+        static UndoManager::CellState^ Cell(unsigned int index, unsigned char value, CellKind kind, int marks)
+        {
+            return gcnew UndoManager::CellState(index, value, kind, marks);
+        }
+
+        // Saves g, then overwrites its undo/redo lines with hand-written text and loads it back.
+        static SavedGame^ LoadWithHistoryText(SavedGame^ g, String^ undoText, String^ redoText)
+        {
+            String^ path = Path::GetTempFileName();
+            try
+            {
+                SaveGameStore::Save(path, g);
+
+                System::Collections::Generic::List<String^>^ lines =
+                    gcnew System::Collections::Generic::List<String^>();
+                for each (String ^ line in File::ReadAllLines(path))
+                {
+                    if (line->StartsWith("undo=")) lines->Add("undo=" + undoText);
+                    else if (line->StartsWith("redo=")) lines->Add("redo=" + redoText);
+                    else lines->Add(line);
+                }
+                File::WriteAllLines(path, lines->ToArray());
+
+                return SaveGameStore::Load(path, Cells);
+            }
+            finally
+            {
+                File::Delete(path);
+            }
+        }
+
+        // A bad history must be dropped (both halves), while the game itself still loads.
+        static void AssertHistoryDropped(SavedGame^ g, String^ undoText, String^ redoText)
+        {
+            SavedGame^ back = LoadWithHistoryText(g, undoText, redoText);
+            String^ input = "undo=" + undoText + " redo=" + redoText;
+            Assert::AreEqual(Cells, back->values->Length, "game not loaded for " + input);
+            Assert::AreEqual(0, back->undoHistory->Length, "undo kept for " + input);
+            Assert::AreEqual(0, back->redoHistory->Length, "redo kept for " + input);
+        }
+
+        // In MakeGameSave, cells 0, 3, 6, ... are clues and the rest are empty; cell 1's solution
+        // is 2. Each caller passes a single-cell undo history that breaks one rule.
+        static void AssertGameHistoryDropped(String^ undoText)
+        {
+            AssertHistoryDropped(MakeGameSave(), undoText, "");
+        }
+
     public:
         [TestMethod]
             void RoundTrip_PreservesScalarFields()
@@ -447,6 +505,193 @@ namespace Sudoku_3_0_Tests
             {
                 File::Delete(path);
             }
+        }
+        // ---- Undo/redo history ----
+
+        [TestMethod]
+        void RoundTrip_PreservesHistory()
+        {
+            SavedGame^ g = MakeGameSave();
+            g->undoHistory = MakeHistory(
+                Op(Cell(1, 0, CellKind::UserEmpty, 1 << 2)),
+                Op(Cell(2, 0, CellKind::UserEmpty, 0), Cell(4, 7, CellKind::UserFilled, 0)));
+            g->redoHistory = MakeHistory(
+                Op(Cell(1, 2, CellKind::Hint, 0)));
+
+            SavedGame^ back = SaveAndReload(g);
+
+            Assert::AreEqual(2, back->undoHistory->Length);
+            Assert::AreEqual(1, back->undoHistory[0]->Length);
+            Assert::AreEqual((unsigned int)1, back->undoHistory[0][0]->cellIndex);
+            Assert::AreEqual(1 << 2, back->undoHistory[0][0]->pencilMarks);
+            Assert::AreEqual(2, back->undoHistory[1]->Length);
+            Assert::AreEqual((unsigned int)4, back->undoHistory[1][1]->cellIndex);
+            Assert::AreEqual(7, (int)back->undoHistory[1][1]->value);
+            Assert::IsTrue(back->undoHistory[1][1]->kind == CellKind::UserFilled);
+
+            Assert::AreEqual(1, back->redoHistory->Length);
+            Assert::AreEqual(2, (int)back->redoHistory[0][0]->value);
+            Assert::IsTrue(back->redoHistory[0][0]->kind == CellKind::Hint);
+        }
+
+        [TestMethod]
+        void RoundTrip_WithoutHistory_LoadsEmptyHistory()
+        {
+            SavedGame^ back = SaveAndReload(MakeGameSave()); // history fields left null
+            Assert::AreEqual(0, back->undoHistory->Length);
+            Assert::AreEqual(0, back->redoHistory->Length);
+        }
+
+        [TestMethod]
+        void Load_OldSaveWithoutHistoryKeys_LoadsWithEmptyHistory()
+        {
+            SavedGame^ g = MakeGameSave();
+            g->undoHistory = MakeHistory(Op(Cell(1, 0, CellKind::UserEmpty, 0)));
+            String^ path = Path::GetTempFileName();
+            try
+            {
+                SaveGameStore::Save(path, g);
+
+                System::Collections::Generic::List<String^>^ kept =
+                    gcnew System::Collections::Generic::List<String^>();
+                for each (String ^ line in File::ReadAllLines(path))
+                    if (!line->StartsWith("undo=") && !line->StartsWith("redo=")) kept->Add(line);
+                File::WriteAllLines(path, kept->ToArray());
+
+                SavedGame^ back = SaveGameStore::Load(path, Cells);
+                Assert::AreEqual(0, back->undoHistory->Length);
+                Assert::AreEqual(0, back->redoHistory->Length);
+            }
+            finally
+            {
+                File::Delete(path);
+            }
+        }
+
+        [TestMethod]
+        void Load_MissingRedoKey_DropsUndoToo()
+        {
+            // Half a history is unreadable as a whole: the valid undo line is dropped with it.
+            SavedGame^ g = MakeGameSave();
+            g->undoHistory = MakeHistory(Op(Cell(1, 0, CellKind::UserEmpty, 0)));
+            String^ path = Path::GetTempFileName();
+            try
+            {
+                SaveGameStore::Save(path, g);
+
+                System::Collections::Generic::List<String^>^ kept =
+                    gcnew System::Collections::Generic::List<String^>();
+                for each (String ^ line in File::ReadAllLines(path))
+                    if (!line->StartsWith("redo=")) kept->Add(line);
+                File::WriteAllLines(path, kept->ToArray());
+
+                SavedGame^ back = SaveGameStore::Load(path, Cells);
+                Assert::AreEqual(Cells, back->values->Length);
+                Assert::AreEqual(0, back->undoHistory->Length);
+                Assert::AreEqual(0, back->redoHistory->Length);
+            }
+            finally
+            {
+                File::Delete(path);
+            }
+        }
+
+        [TestMethod]
+        void Load_HandWrittenValidHistory_IsKept()
+        {
+            // Pins the wire format: a single-cell step, then a two-cell batch; redo holds a hint.
+            SavedGame^ back = LoadWithHistoryText(MakeGameSave(), "1:0:1:4;2:0:1:0,4:7:2:0", "1:2:4:0");
+            Assert::AreEqual(2, back->undoHistory->Length);
+            Assert::AreEqual(2, back->undoHistory[1]->Length);
+            Assert::AreEqual(1, back->redoHistory->Length);
+        }
+
+        [TestMethod]
+        void Load_SolverInProgress_KeepsHistoryOfUserCells()
+        {
+            // Solver mode has no clues yet: user-entered cell 0 may appear in the history.
+            SavedGame^ back = LoadWithHistoryText(MakeSolverInProgressSave(), "10:0:1:0;0:0:1:0", "");
+            Assert::AreEqual(2, back->undoHistory->Length);
+        }
+
+        [TestMethod]
+        void Load_MalformedHistory_IsDropped()
+        {
+            AssertGameHistoryDropped("garbage");
+            AssertGameHistoryDropped("1:0:1");            // too few parts
+            AssertGameHistoryDropped("1:0:1:0:0");        // too many parts
+            AssertGameHistoryDropped("1:+0:1:0");         // sign
+            AssertGameHistoryDropped(" 1:0:1:0");         // whitespace
+            AssertGameHistoryDropped("1:0:1:0,");         // empty cell entry
+            AssertGameHistoryDropped("1:0:1:0;;2:0:1:0"); // empty operation
+            AssertGameHistoryDropped("1:0:1:-4");         // negative marks
+            AssertGameHistoryDropped("1:10:2:0");         // value out of range
+            AssertGameHistoryDropped("1:0:7:0");          // kind out of range
+        }
+
+        [TestMethod]
+        void Load_HistoryIndexOffBoard_IsDropped()
+        {
+            AssertGameHistoryDropped("81:0:1:0");
+            AssertGameHistoryDropped("4294967296:0:1:0"); // overflows a 32-bit index
+        }
+
+        [TestMethod]
+        void Load_HistoryTouchingClue_IsDropped()
+        {
+            // Restoring it would turn the clue in cell 0 into an editable cell.
+            AssertGameHistoryDropped("0:0:1:0");
+        }
+
+        [TestMethod]
+        void Load_HistoryWithLockedKind_IsDropped()
+        {
+            AssertGameHistoryDropped("1:2:0:0"); // clue
+            AssertGameHistoryDropped("1:2:3:0"); // correct
+            AssertGameHistoryDropped("1:2:5:0"); // given up
+            AssertGameHistoryDropped("1:2:6:0"); // solved
+        }
+
+        [TestMethod]
+        void Load_HistoryValueKindMismatch_IsDropped()
+        {
+            AssertGameHistoryDropped("1:0:2:0"); // user-filled but empty
+            AssertGameHistoryDropped("1:5:1:0"); // empty but has a value
+            AssertGameHistoryDropped("1:0:4:0"); // hint but empty
+        }
+
+        [TestMethod]
+        void Load_HistoryHintWithWrongDigit_IsDropped()
+        {
+            // Cell 1's solution is 2; a "hint" of 9 would lock a wrong digit into the board.
+            AssertGameHistoryDropped("1:9:4:0");
+        }
+
+        [TestMethod]
+        void Load_HistoryHintInSolverMode_IsDropped()
+        {
+            AssertHistoryDropped(MakeSolverInProgressSave(), "10:5:4:0", "");
+        }
+
+        [TestMethod]
+        void Load_HistoryWithInvalidPencilMarks_IsDropped()
+        {
+            AssertGameHistoryDropped("1:0:1:1");    // bit 0 is not a digit
+            AssertGameHistoryDropped("1:0:1:1024"); // bit 10 is not a digit
+            AssertGameHistoryDropped("1:5:2:4");    // marks on a filled cell
+        }
+
+        [TestMethod]
+        void Load_InvalidRedo_DropsValidUndoToo()
+        {
+            AssertHistoryDropped(MakeGameSave(), "1:0:1:0", "0:0:1:0");
+        }
+
+        [TestMethod]
+        void Load_FinishedGameWithHistory_IsDropped()
+        {
+            // Cell 1 of the finished save is user-filled, so the entry is otherwise valid.
+            AssertHistoryDropped(MakeFinishedGameSave(), "1:0:1:0", "");
         }
     };
 }

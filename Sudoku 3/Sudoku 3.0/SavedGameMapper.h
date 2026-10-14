@@ -5,6 +5,7 @@
 #include "GameSession.h"
 #include "SavedGame.h"
 #include "Puzzle.h"
+#include "UndoManager.h"
 
 namespace Sudoku_3_0
 {
@@ -16,9 +17,9 @@ namespace Sudoku_3_0
     ref class SavedGameMapper abstract sealed
     {
     public:
-        // Builds a SavedGame snapshot from the current session state plus the two view-derived
-        // values the session does not own.
-        static SavedGame^ Capture(GameSession^ session, bool gameFinished, unsigned int elapsedSeconds)
+        // Builds a SavedGame snapshot from the current session state, its undo/redo history
+        // (nullptr = none), and the two view-derived values the session does not own.
+        static SavedGame^ Capture(GameSession^ session, UndoManager^ history, bool gameFinished, unsigned int elapsedSeconds)
         {
             SavedGame^ game = gcnew SavedGame();
             game->difficulty = session->difficulty;
@@ -43,12 +44,18 @@ namespace Sudoku_3_0
                 ? session->puzzle->clues : gcnew array<unsigned char>(0);
             game->solution = session->puzzle != nullptr
                 ? session->puzzle->solution : gcnew array<unsigned char>(0);
+
+            game->undoHistory = history != nullptr
+                ? history->exportUndo() : gcnew array<array<UndoManager::CellState^>^>(0);
+            game->redoHistory = history != nullptr
+                ? history->exportRedo() : gcnew array<array<UndoManager::CellState^>^>(0);
             return game;
         }
 
-        // Restores a validated SavedGame into the session and its board. Does not touch controls,
-        // the timer, or rendering - those are the caller's responsibility.
-        static void Restore(SavedGame^ save, GameSession^ session)
+        // Restores a validated SavedGame into the session, its board, and the undo/redo history
+        // (history may be nullptr to skip it). Does not touch controls, the timer, or rendering -
+        // those are the caller's responsibility.
+        static void Restore(SavedGame^ save, GameSession^ session, UndoManager^ history)
         {
             session->difficulty = save->difficulty;
             session->numberOfRestarts = save->numberOfRestarts;
@@ -65,6 +72,9 @@ namespace Sudoku_3_0
                 : nullptr;
 
             session->board->restoreFrom(save->values, save->states, save->pencilMarks);
+
+            if (history != nullptr)
+                history->importHistory(save->undoHistory, save->redoHistory);
         }
     };
 }
