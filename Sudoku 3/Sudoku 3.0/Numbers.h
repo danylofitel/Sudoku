@@ -30,7 +30,11 @@ namespace Sudoku_3_0
 
     protected:
         ~Numbers()
-        {}
+        {
+            // The Clear/Cancel font is ours (setLanguage creates it), so nothing else disposes it.
+            delete this->labelFont;
+            this->labelFont = nullptr;
+        }
     private: System::Windows::Forms::Button^ button1;
     private: System::Windows::Forms::Button^ button2;
     private: System::Windows::Forms::Button^ button3;
@@ -49,8 +53,12 @@ namespace Sudoku_3_0
            // Last column active in the 3x3 grid, used to restore position when leaving the bottom row
     private: int lastGridCol;
 
-           // Whether the form is in pencil mode (hides Clear, Cancel-only bottom row)
+           // Whether the form is in pencil mode (hides Clear, Cancel-only bottom row). Pencil marks
+           // are toggled by digit, so there is nothing to clear: Clear and its keys are inactive.
     private: bool isPencilMode;
+
+           // Font for the Clear and Cancel labels, sized per language by setLanguage
+    private: System::Drawing::Font^ labelFont;
 
            // Action delegate from the father form
     private: choiceAction^ choiceDelegate;
@@ -362,17 +370,25 @@ namespace Sudoku_3_0
         int row = idx / cols;
         int col = idx % cols;
 
+        // Leaving Cancel back into the grid returns to the column we came from. Normally Cancel
+        // only stands for columns 1-2 (Clear is column 0); in pencil mode it spans all three.
+        bool restoreColumn = current == buttonCancel && (this->lastGridCol > 0 || this->isPencilMode);
+
         switch (e->KeyCode)
         {
+        case Keys::Delete:
+            // Clears the cell, like Delete on the board (Backspace and 0 arrive as KeyPress)
+            if (!this->isPencilMode)
+                this->commitChoice(0);
+            e->Handled = true;
+            return;
         case Keys::Up:
             row = (row + 3) % 4;
-            // Restore saved column only when leaving Cancel (col 1) back into the grid for cols 1 or 2
-            if (row < 3 && current == buttonCancel && this->lastGridCol > 0) col = this->lastGridCol;
+            if (row < 3 && restoreColumn) col = this->lastGridCol;
             break;
         case Keys::Down:
             row = (row + 1) % 4;
-            // Restore saved column only when leaving Cancel (col 1) back into the grid for cols 1 or 2
-            if (row < 3 && current == buttonCancel && this->lastGridCol > 0) col = this->lastGridCol;
+            if (row < 3 && restoreColumn) col = this->lastGridCol;
             break;
         case Keys::Left:
             col = (col + cols - 1) % cols;
@@ -393,6 +409,10 @@ namespace Sudoku_3_0
             else
                 newIdx = btns->Length - 1; // Left / arriving from above → Cancel
         }
+
+        // In pencil mode Clear is hidden and cannot take focus; Cancel fills the whole bottom row
+        if (!btns[newIdx]->Visible)
+            newIdx = btns->Length - 1;
 
         // Save the column whenever we are in the 3x3 grid
         if (row < 3) this->lastGridCol = col;
@@ -429,13 +449,17 @@ namespace Sudoku_3_0
 
         // Ukrainian labels are longer - use a smaller font so they fit the fixed-size buttons
         float fontSize = (lang == Language::Ukrainian) ? 12.0F : 14.25F;
-        System::Drawing::Font^ font = gcnew System::Drawing::Font(
+        System::Drawing::Font^ previous = this->labelFont;
+        this->labelFont = gcnew System::Drawing::Font(
             L"Arial Narrow", fontSize,
             System::Drawing::FontStyle::Bold,
             System::Drawing::GraphicsUnit::Point,
             static_cast<System::Byte>(0));
-        this->buttonClear->Font = font;
-        this->buttonCancel->Font = font;
+        this->buttonClear->Font = this->labelFont;
+        this->buttonCancel->Font = this->labelFont;
+
+        // Release the replaced font's GDI handle now that no button uses it
+        delete previous;
     }
 
           // Switch between normal mode (Clear + Cancel) and pencil mode (Cancel only)
@@ -462,10 +486,9 @@ namespace Sudoku_3_0
         }
     }
 
-          // Set the number of current cell
+          // Set the number of current cell (the caller then shows and activates the pad)
     public: void setCellNumber(const unsigned int cellNumber)
     {
-        this->Activate();
         this->currentCellNumber = cellNumber;
     }
 
@@ -490,7 +513,20 @@ namespace Sudoku_3_0
             if (this->Visible)
             {
                 this->ActiveControl = this->buttonCancel;
+                // Fresh start each time: Up/Down from Cancel lands in the middle column, rather
+                // than wherever the previous popup was left.
+                this->lastGridCol = 1;
             }
+        }
+
+        // Behave like a popup: close as soon as anything else gets focus - the main form, another
+        // app, or the main form being minimized from the taskbar - so the pad can never be left
+        // floating on its own. Clicking another cell still works: the pad closes here, and the
+        // click then reopens it over the new cell.
+        virtual void OnDeactivate(System::EventArgs^ e) override
+        {
+            Form::OnDeactivate(e);
+            this->Visible = false;
         }
 
         // Commit the chosen number (0 = Clear) to the main form and hide the pad. Cancel does
@@ -556,12 +592,19 @@ namespace Sudoku_3_0
         this->Visible = false;
     }
 
-           // Typing a digit 1-9 commits that number, no matter which control has focus. Wired to the
-           // form and to every button, so a keypress works even while a button is focused.
+           // Typing a digit 1-9 commits that number, and 0 or Backspace clears the cell (as on the
+           // board; Delete is handled in button_KeyDown), no matter which control has focus. Wired
+           // to the form and to every button, so a keypress works even while a button is focused.
     private: System::Void Numbers_KeyPress(System::Object^ sender, System::Windows::Forms::KeyPressEventArgs^ e)
     {
+        // Ctrl+key combinations also produce characters (Ctrl+H is '\b'); they are not input
+        if ((Control::ModifierKeys & Keys::Control) == Keys::Control)
+            return;
+
         if (e->KeyChar >= L'1' && e->KeyChar <= L'9')
             this->commitChoice(e->KeyChar - L'0');
+        else if ((e->KeyChar == L'0' || e->KeyChar == L'\b') && !this->isPencilMode)
+            this->commitChoice(0);
     }
     };
 }

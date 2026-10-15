@@ -4267,7 +4267,12 @@ namespace Sudoku_3_0
         if (this->gameTimer == nullptr) return; // may fire during construction
 
         if (this->WindowState == FormWindowState::Minimized)
+        {
             this->gameTimer->stop();
+            // However the window was minimized (button, taskbar, Win+Down), the number pad must
+            // not stay floating on its own. The pad also hides itself when it loses focus.
+            this->closeHelperForms();
+        }
         else if (this->WindowState == FormWindowState::Normal && !this->session->finished)
             this->gameTimer->resume();
     }
