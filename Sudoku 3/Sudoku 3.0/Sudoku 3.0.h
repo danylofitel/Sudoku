@@ -2619,14 +2619,17 @@ namespace Sudoku_3_0
 
         // Initialize numbers form
         this->numbersForm = gcnew Sudoku_3_0::Numbers();
-        this->numbersForm->Left = this->Left;
-        this->numbersForm->Top = this->Top;
         this->numbersForm->setChoiceDelegate(gcnew choiceAction(this, &SudokuForm::choiceMade));
         // Show then immediately hide the form once at startup. This runs its full first
         // layout/show pass so AutoScaleMode applies DPI scaling and Width/Height reflect the
         // final on-screen size. cell_Click relies on those sizes to center the form
         // over a cell, so without this the very first popup would be mispositioned.
         // (CreateControl() alone only makes the handle and is not enough.)
+        // The pass happens far off-screen, so the blank pad and its drop shadow never flash
+        // into view; Manual placement stops the first show from re-centering it on screen.
+        // cell_Click positions the pad over its cell every time it actually opens.
+        this->numbersForm->StartPosition = FormStartPosition::Manual;
+        this->numbersForm->Location = System::Drawing::Point(-32000, -32000);
         this->numbersForm->Visible = true;
         this->numbersForm->Visible = false;
 
