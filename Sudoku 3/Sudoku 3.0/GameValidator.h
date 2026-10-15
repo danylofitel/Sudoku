@@ -3,6 +3,8 @@
 #pragma once
 
 #include "SavedGame.h"
+#include "Board.h"
+#include "DifficultyIndex.h"
 #include "GameMode.h"
 #include "CellKind.h"
 
@@ -22,7 +24,7 @@ namespace Sudoku_3_0
         // is non-essential, so Load drops an unusable one rather than rejecting the game.
         static void Validate(SavedGame^ game, unsigned int expectedNumberOfCells)
         {
-            if (game->difficulty > MaxDifficulty)
+            if (game->difficulty > MaxDifficultyIndex)
                 throw gcnew System::Exception("Invalid difficulty value " + game->difficulty.ToString());
 
             unsigned int candidateAssist = static_cast<unsigned int>(game->candidateAssist);
@@ -65,9 +67,8 @@ namespace Sudoku_3_0
             // Pencil marks: one bitmask per cell, using only bits 1-9 (the digits)
             if (game->pencilMarks == nullptr || (unsigned int)game->pencilMarks->Length != expectedNumberOfCells)
                 throw gcnew System::Exception("Invalid length for field 'pencilMarks'");
-            const int validBits = 0x3FE; // bits 1..9
             for (unsigned int i = 0; i < expectedNumberOfCells; ++i)
-                if ((game->pencilMarks[i] & ~validBits) != 0)
+                if ((game->pencilMarks[i] & ~Board::AllPencilMarks) != 0)
                     throw gcnew System::Exception("Invalid pencilMarks value " + game->pencilMarks[i].ToString() + " at index " + i.ToString());
 
             ValidateBoard(game);
@@ -88,9 +89,6 @@ namespace Sudoku_3_0
         }
 
     private:
-        // Difficulty indices run 0 (VeryEasy) .. 4 (VeryHard), as in Difficulty and Settings.
-        static const unsigned int MaxDifficulty = 4;
-
         // Validate's check for a digit field: exactly expectedLength entries, each within
         // [minDigit, maxDigit].
         static void RequireDigits(array<unsigned char>^ digits, unsigned int expectedLength,
@@ -207,39 +205,54 @@ namespace Sudoku_3_0
             }
         }
 
+        // A history may only hold cells as empty, user-filled, or a hint: the states a playable
+        // cell can be in. (Clues and the end-of-game kinds are never recorded.)
+        static bool IsPlayableKind(CellKind kind)
+        {
+            return kind == CellKind::UserEmpty || kind == CellKind::UserFilled || kind == CellKind::Hint;
+        }
+
         // Checks that every snapshot is one the game could really have recorded, so restoring it
         // can never produce an impossible board - e.g. turn a clue editable or lock in a wrong
-        // digit as a hint. A history only ever touches playable cells (never a clue), and holds
-        // them as empty, user-filled, or a correct hint.
+        // digit as a hint. A history only ever touches playable cells (never a clue) on the
+        // board, and holds them as empty, user-filled, or a correct hint. Self-contained: it
+        // assumes nothing about where the snapshots came from (a parsed file or memory).
         static void ValidateOperations(array<array<UndoManager::CellState^>^>^ history, SavedGame^ game)
         {
-            const int validBits = 0x3FE; // bits 1..9
-            const unsigned char emptyState = 1, userFilledState = 2, hintState = 4;
+            unsigned int numberOfCells = (unsigned int)game->states->Length; // checked by Validate
 
             for each (array<UndoManager::CellState^>^ operation in history)
             {
-                if (operation->Length == 0)
+                if (operation == nullptr || operation->Length == 0)
                     throw gcnew System::Exception("Empty history operation.");
 
                 for each (UndoManager::CellState^ cell in operation)
                 {
-                    unsigned char boardState = game->states[cell->cellIndex];
-                    if (boardState != emptyState && boardState != userFilledState && boardState != hintState)
-                        throw gcnew System::Exception("History touches a locked cell at index " + cell->cellIndex.ToString());
+                    if (cell == nullptr)
+                        throw gcnew System::Exception("Missing history entry.");
 
-                    unsigned char kind = static_cast<unsigned char>(cell->kind);
-                    if (kind != emptyState && kind != userFilledState && kind != hintState)
-                        throw gcnew System::Exception("Invalid history kind at index " + cell->cellIndex.ToString());
+                    System::String^ where = " at index " + cell->cellIndex.ToString();
+                    if (cell->cellIndex >= numberOfCells)
+                        throw gcnew System::Exception("History cell is off the board" + where);
 
-                    if ((cell->value == 0) != (kind == emptyState))
-                        throw gcnew System::Exception("Mismatched history value and kind at index " + cell->cellIndex.ToString());
+                    if (!IsPlayableKind(static_cast<CellKind>(game->states[cell->cellIndex])))
+                        throw gcnew System::Exception("History touches a locked cell" + where);
 
-                    if (kind == hintState && (game->mode != GameMode::Game || game->solution->Length == 0
+                    if (!IsPlayableKind(cell->kind))
+                        throw gcnew System::Exception("Invalid history kind" + where);
+
+                    if (cell->value > 9)
+                        throw gcnew System::Exception("Invalid history value " + cell->value.ToString() + where);
+
+                    if ((cell->value == 0) != (cell->kind == CellKind::UserEmpty))
+                        throw gcnew System::Exception("Mismatched history value and kind" + where);
+
+                    if (cell->kind == CellKind::Hint && (game->mode != GameMode::Game || game->solution->Length == 0
                         || cell->value != game->solution[cell->cellIndex]))
-                        throw gcnew System::Exception("Invalid history hint at index " + cell->cellIndex.ToString());
+                        throw gcnew System::Exception("Invalid history hint" + where);
 
-                    if ((cell->pencilMarks & ~validBits) != 0 || (cell->value != 0 && cell->pencilMarks != 0))
-                        throw gcnew System::Exception("Invalid history pencil marks at index " + cell->cellIndex.ToString());
+                    if ((cell->pencilMarks & ~Board::AllPencilMarks) != 0 || (cell->value != 0 && cell->pencilMarks != 0))
+                        throw gcnew System::Exception("Invalid history pencil marks" + where);
                 }
             }
         }

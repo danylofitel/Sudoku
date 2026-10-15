@@ -2626,9 +2626,8 @@ namespace Sudoku_3_0
         // over a cell, so without this the very first popup would be mispositioned.
         // (CreateControl() alone only makes the handle and is not enough.)
         // The pass happens far off-screen, so the blank pad and its drop shadow never flash
-        // into view; Manual placement stops the first show from re-centering it on screen.
+        // into view (the pad's StartPosition is Manual, so the first show keeps this location).
         // cell_Click positions the pad over its cell every time it actually opens.
-        this->numbersForm->StartPosition = FormStartPosition::Manual;
         this->numbersForm->Location = System::Drawing::Point(-32000, -32000);
         this->numbersForm->Visible = true;
         this->numbersForm->Visible = false;

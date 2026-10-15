@@ -344,7 +344,7 @@ namespace Sudoku_3_0
                this->Name = L"Numbers";
                this->ShowIcon = false;
                this->ShowInTaskbar = false;
-               this->StartPosition = System::Windows::Forms::FormStartPosition::CenterParent;
+               this->StartPosition = System::Windows::Forms::FormStartPosition::Manual;
                this->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &Numbers::Numbers_KeyPress);
                this->ResumeLayout(false);
 

@@ -500,6 +500,33 @@ namespace Sudoku_3_0_Tests
         }
 
         [TestMethod]
+        void History_Rejects_CellOffTheBoard()
+        {
+            AssertInvalidHistory(MakeGameSave(), Cell(Cells, 0, CellKind::UserEmpty, 0), "History cell is off the board");
+        }
+
+        [TestMethod]
+        void History_Rejects_ValueAboveNine()
+        {
+            // Would pass every other check, then make Board::restoreCell throw on Undo
+            AssertInvalidHistory(MakeGameSave(), Cell(1, 12, CellKind::UserFilled, 0), "Invalid history value 12");
+        }
+
+        [TestMethod]
+        void History_Rejects_UnknownKind()
+        {
+            AssertInvalidHistory(MakeGameSave(), Cell(1, 2, static_cast<CellKind>(7), 0), "Invalid history kind");
+        }
+
+        [TestMethod]
+        void History_Rejects_MissingEntry()
+        {
+            SavedGame^ g = MakeGameSave();
+            g->undoHistory = MakeHistory(gcnew array<UndoManager::CellState^>(1)); // one null entry
+            AssertInvalidHistory(g, "Missing history entry");
+        }
+
+        [TestMethod]
         void History_Rejects_HintWithWrongDigit()
         {
             // Cell 1's solution is 2; a "hint" of 9 would lock a wrong digit into the board

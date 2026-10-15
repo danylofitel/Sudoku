@@ -625,15 +625,16 @@ namespace Sudoku_3_0_Tests
             AssertGameHistoryDropped("1:0:1:0,");         // empty cell entry
             AssertGameHistoryDropped("1:0:1:0;;2:0:1:0"); // empty operation
             AssertGameHistoryDropped("1:0:1:-4");         // negative marks
-            AssertGameHistoryDropped("1:10:2:0");         // value out of range
-            AssertGameHistoryDropped("1:0:7:0");          // kind out of range
+            AssertGameHistoryDropped("1:300:2:0");        // value too big for its field (would wrap to 44)
+            AssertGameHistoryDropped("1:0:256:0");        // kind too big for its field
+            AssertGameHistoryDropped("1:0:1:4294967295"); // marks too big for their field
         }
 
         [TestMethod]
         void Load_HistoryIndexOffBoard_IsDropped()
         {
-            AssertGameHistoryDropped("81:0:1:0");
-            AssertGameHistoryDropped("4294967296:0:1:0"); // overflows a 32-bit index
+            AssertGameHistoryDropped("81:0:1:0");         // parses, then GameValidator rejects it
+            AssertGameHistoryDropped("4294967296:0:1:0"); // overflows a 32-bit index while parsing
         }
 
         [TestMethod]
@@ -647,7 +648,7 @@ namespace Sudoku_3_0_Tests
         [TestMethod]
         void Load_HistoryMarksOutOfRange_IsDropped()
         {
-            AssertGameHistoryDropped("1:0:1:1024"); // bit 10 is not a digit; caught while parsing
+            AssertGameHistoryDropped("1:0:1:1024"); // bit 10 is not a digit (GameValidator)
         }
 
         [TestMethod]

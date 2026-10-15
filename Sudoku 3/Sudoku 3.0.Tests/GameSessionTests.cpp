@@ -16,9 +16,8 @@ namespace Sudoku_3_0_Tests
     private:
         literal int Cells = 81;
 
-        // A Game session with `numClues` clue cells filled from the solution and `numHints` of the
-        // remaining cells revealed as hints.
-        static GameSession^ MakeGameWithHints(int numClues, int numHints)
+        // A Game session whose first `numClues` cells are clues filled from the solution.
+        static GameSession^ MakeGameWithClues(int numClues)
         {
             GameSession^ s = gcnew GameSession(Cells);
             s->startNewGame(2);
@@ -34,10 +33,6 @@ namespace Sudoku_3_0_Tests
                 if (isClue) s->board->setClue(i, sol);
             }
             s->puzzle = gcnew Puzzle(clues, solution);
-
-            int revealed = 0;
-            for (int i = numClues; i < Cells && revealed < numHints; ++i, ++revealed)
-                s->board->reveal(i, solution[i], CellKind::Hint);
             return s;
         }
 
@@ -98,7 +93,7 @@ namespace Sudoku_3_0_Tests
         [TestMethod]
         void ClueCount_CountsNonZeroClues()
         {
-            Assert::AreEqual(30, MakeGameWithHints(30, 0)->clueCount());
+            Assert::AreEqual(30, MakeGameWithClues(30)->clueCount());
         }
 
         [TestMethod]

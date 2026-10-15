@@ -13,9 +13,6 @@ namespace Sudoku_3_0
     ref class Difficulty abstract sealed
     {
     public:
-        // Number of difficulty levels (indices 0 .. Count-1).
-        literal unsigned int Count = 5;
-
         // 0-based index -> engine enum. Out-of-range falls back to Medium.
         static SudokuGameEngine::DifficultyLevel toEngineLevel(unsigned int index)
         {

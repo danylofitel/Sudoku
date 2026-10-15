@@ -70,6 +70,9 @@
     <ClInclude Include="ConflictDetector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DifficultyIndex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Difficulty.h">
       <Filter>Header Files</Filter>
     </ClInclude>

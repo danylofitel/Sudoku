@@ -11,6 +11,7 @@
 
 #include "Language.h"
 #include "CandidateDisplay.h"
+#include "DifficultyIndex.h"
 
 namespace Sudoku_3_0
 {
@@ -43,8 +44,15 @@ namespace Sudoku_3_0
                 if (key == nullptr)
                     return false;
 
-                System::Object^ raw = key->GetValue(name);
-                key->Close();
+                System::Object^ raw = nullptr;
+                try
+                {
+                    raw = key->GetValue(name);
+                }
+                finally
+                {
+                    key->Close(); // release the handle even if the read throws
+                }
 
                 if (raw == nullptr)
                     return false;
@@ -67,8 +75,14 @@ namespace Sudoku_3_0
                     Microsoft::Win32::Registry::CurrentUser->CreateSubKey(SubKeyPath);
                 if (key != nullptr)
                 {
-                    key->SetValue(name, value);
-                    key->Close();
+                    try
+                    {
+                        key->SetValue(name, value);
+                    }
+                    finally
+                    {
+                        key->Close(); // release the handle even if the write throws
+                    }
                 }
             }
             catch (System::Exception^)
@@ -101,14 +115,14 @@ namespace Sudoku_3_0
         static unsigned int LoadDifficulty()
         {
             int stored = 0;
-            if (TryReadInt(DifficultyValueName, stored) && stored >= 0 && stored <= 4)
+            if (TryReadInt(DifficultyValueName, stored) && stored >= 0 && (unsigned int)stored <= MaxDifficultyIndex)
                 return static_cast<unsigned int>(stored);
             return DefaultDifficulty;
         }
 
         static void SaveDifficulty(unsigned int difficulty)
         {
-            if (difficulty <= 4)
+            if (difficulty <= MaxDifficultyIndex)
                 WriteInt(DifficultyValueName, static_cast<int>(difficulty));
         }
 

@@ -17,6 +17,9 @@ namespace Sudoku_3_0
     ref class Board
     {
     public:
+        // Pencil marks are a bitmask with bit d set for digit d (1-9); this is every valid bit.
+        literal int AllPencilMarks = 0x3FE;
+
         Board(unsigned int numberOfCells)
         {
             this->values = gcnew array<unsigned char>(numberOfCells);

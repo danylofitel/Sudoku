@@ -174,8 +174,8 @@ namespace Sudoku_3_0
             // only make sense as a pair) and the game loads without them.
             try
             {
-                game->undoHistory = DecodeHistory(RequireStr(fields, "undo"), expectedNumberOfCells);
-                game->redoHistory = DecodeHistory(RequireStr(fields, "redo"), expectedNumberOfCells);
+                game->undoHistory = DecodeHistory(RequireStr(fields, "undo"));
+                game->redoHistory = DecodeHistory(RequireStr(fields, "redo"));
                 GameValidator::ValidateHistory(game);
             }
             catch (System::Exception^)
@@ -260,9 +260,9 @@ namespace Sudoku_3_0
             return sb->ToString();
         }
 
-        // Parses the EncodeHistory format, checking only its shape and that every cell index is
-        // on the board; GameValidator::ValidateHistory checks the snapshots against the game.
-        static array<array<UndoManager::CellState^>^>^ DecodeHistory(System::String^ text, unsigned int numberOfCells)
+        // Parses the EncodeHistory format, checking only its shape (four numbers per entry, each
+        // fitting its field); GameValidator::ValidateHistory checks the snapshots against the game.
+        static array<array<UndoManager::CellState^>^>^ DecodeHistory(System::String^ text)
         {
             if (text->Length == 0)
                 return gcnew array<array<UndoManager::CellState^>^>(0);
@@ -283,7 +283,12 @@ namespace Sudoku_3_0
                     unsigned int value = ParseHistoryNumber(parts[1]);
                     unsigned int kind = ParseHistoryNumber(parts[2]);
                     unsigned int marks = ParseHistoryNumber(parts[3]);
-                    if (index >= numberOfCells || value > 9 || kind > 6 || marks > 0x3FE)
+
+                    // Format only: each number must fit its field without being cut short (a
+                    // value of 300 must not silently become 44). Whether it is a valid cell,
+                    // digit, kind, or set of marks is GameValidator's job.
+                    if (value > System::Byte::MaxValue || kind > System::Byte::MaxValue
+                        || marks > (unsigned int)System::Int32::MaxValue)
                         throw gcnew System::Exception("Out-of-range history entry '" + cells[i] + "'");
 
                     history[op][i] = gcnew UndoManager::CellState(

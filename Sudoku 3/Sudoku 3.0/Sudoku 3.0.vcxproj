@@ -111,6 +111,7 @@
     <ClInclude Include="ClipboardPuzzleFormatter.h" />
     <ClInclude Include="ConflictDetector.h" />
     <ClInclude Include="Difficulty.h" />
+    <ClInclude Include="DifficultyIndex.h" />
     <ClInclude Include="GameMode.h" />
     <ClInclude Include="GameSession.h" />
     <ClInclude Include="GameTimer.h" />
