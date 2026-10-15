@@ -1868,7 +1868,6 @@ namespace Sudoku_3_0
                this->timerLabel->TabIndex = 84;
                this->timerLabel->Text = L"0:00";
                this->timerLabel->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
-               this->timerLabel->Click += gcnew System::EventHandler(this, &SudokuForm::timerLabel_Click);
                this->timerLabel->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &SudokuForm::timerLabel_MouseDown);
                this->timerLabel->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &SudokuForm::timerLabel_MouseMove);
                this->timerLabel->MouseUp += gcnew System::Windows::Forms::MouseEventHandler(this, &SudokuForm::timerLabel_MouseUp);
@@ -3168,18 +3167,19 @@ namespace Sudoku_3_0
             Settings::SaveCleanWinStreak(this->playerStats->cleanWinStreak);
     }
 
-           // A win counts as "mostly hints" - barely better than giving up - once hint reveals
+           // A win counts as "mostly hints" - barely better than giving up - once the hints used
            // reach this share of the cells the player had to fill.
     private: literal int MostlyHintsThresholdPercent = 90;
 
-           // Presentation policy: was this win carried mostly by hint reveals? Reads the session's
-           // factual counts and applies the threshold above (kept here, in the view, rather than in
-           // the session data model).
+           // Presentation policy: was this win carried mostly by hints? Counts every hint used
+           // (numberOfHints), not the hint cells left on the board, so undoing a hint and typing
+           // its digit back in by hand does not dodge the verdict. Kept here, in the view,
+           // rather than in the session data model.
     private: bool wonMostlyByHints()
     {
         int fillable = (int)this->numberOfCells - this->session->clueCount();
         return fillable > 0
-            && this->session->hintCount() * 100 >= fillable * MostlyHintsThresholdPercent;
+            && (long long)this->session->numberOfHints * 100 >= (long long)fillable * MostlyHintsThresholdPercent;
     }
 
            // Builds the end-of-game message: a headline line, then each per-puzzle statistic on
@@ -4538,6 +4538,5 @@ namespace Sudoku_3_0
             return false;
         }
     }
-    private: System::Void timerLabel_Click(System::Object^ sender, System::EventArgs^ e) {}
     };
 }

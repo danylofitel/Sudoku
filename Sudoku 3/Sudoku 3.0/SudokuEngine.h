@@ -12,7 +12,6 @@
 #include <exception>
 #include <iostream>
 #include <limits>
-#include <time.h>
 
 // Namespace for Sudoku Engine
 namespace SudokuGameEngine
@@ -78,8 +77,10 @@ namespace SudokuGameEngine
             // Make sure the IndexType is big enough
             static_assert(boardSize > sizeFactor && numberOfCells > boardSize, "The IndexType is not big enough");
 
-            // Initialize random number generator
-            srand(static_cast<unsigned int>(time(nullptr)));
+            // Seed the engine's random number generator once, from the OS entropy source. One
+            // generator, reused for every puzzle, never repeats itself the way re-seeding from the
+            // clock does (two puzzles started within the same clock tick got the same sequence).
+            this->_random.seed(std::random_device{}());
 
             // Initialize the board
             this->initialize();
@@ -519,6 +520,9 @@ namespace SudokuGameEngine
         // Current state of the engine
         SudokuEngineState _state;
 
+        // Random number generator for board generation and choosing cells to hide; seeded once
+        std::mt19937 _random;
+
         // Get next cell
         static void makeNextCell(IndexType& row, IndexType& column)
         {
@@ -653,6 +657,9 @@ namespace SudokuGameEngine
 
             // Copy state of the engine
             this->_state = other._state;
+
+            // Copy the random number generator state
+            this->_random = other._random;
 
             return;
         }
@@ -892,7 +899,7 @@ namespace SudokuGameEngine
                     IndexType candidate = 0;
                     do
                     {
-                        candidate = static_cast<IndexType>(rand()) % boardSize + 1;
+                        candidate = static_cast<IndexType>(std::uniform_int_distribution<int>(1, boardSize)(this->_random));
                     } while (this->_tried[currentRow][currentColumn][candidate - 1]);
 
                     // Check if the candidate is in valid range
@@ -1430,7 +1437,7 @@ namespace SudokuGameEngine
             std::shuffle(
                 &(this->_numbersToHide[0]),
                 &(this->_numbersToHide[this->numberOfCells]),
-                std::mt19937(static_cast<unsigned int>(time(nullptr))));
+                this->_random);
 
             // Number of hidden cells
             IndexType hidden(0);

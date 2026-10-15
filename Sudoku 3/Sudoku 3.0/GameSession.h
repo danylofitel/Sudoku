@@ -36,7 +36,9 @@ namespace Sudoku_3_0
         // Number of times the puzzle has been restarted so far
         unsigned int numberOfRestarts;
 
-        // Number of hints used so far
+        // Number of times Hint was used so far - uses, not hinted cells. Every reveal counts,
+        // including one later undone (the player has seen the digit either way), so hinting the
+        // same cell again after an undo counts again. Redo restores a hint without counting it.
         unsigned int numberOfHints;
 
         // Number of times Fix was used so far (> 0 means Fix has been used at least once)
@@ -94,12 +96,6 @@ namespace Sudoku_3_0
             return count;
         }
 
-        // Number of cells currently revealed as hints. Counted from the board (not the hint
-        // counter), so an undone-and-retaken hint is not double-counted.
-        int hintCount()
-        {
-            return (int)this->board->countOfKind(CellKind::Hint);
-        }
 
     private:
         // Resets every per-puzzle field (board and counters) to its initial state for the given

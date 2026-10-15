@@ -571,7 +571,8 @@ namespace Sudoku_3_0
                         L"Натисніть Backspace або Delete, щоб очистити вибрану клітинку\n"
                         L"Натисніть цифрову клавішу для швидкого заповнення клітинки\n\n"
                         L"Усі кнопки мають гарячі клавіші\n"
-                        L"Список гарячих клавіш можна переглянути в головному меню";
+                        L"Список гарячих клавіш можна переглянути в головному меню\n"
+                        L"Повторити можна також клавішами Ctrl+Shift+Z";
                 default:
                     return L"The game has full keyboard support\n\n"
                         L"Press Tab to select cells\n"
@@ -580,7 +581,8 @@ namespace Sudoku_3_0
                         L"Press Backspace or Delete to clear the selected cell\n"
                         L"Press a number key to quickly fill the cell\n\n"
                         L"All buttons have hotkeys\n"
-                        L"You can see the list of hotkeys in the main menu";
+                        L"You can see the list of hotkeys in the main menu\n"
+                        L"Redo also works with Ctrl+Shift+Z";
                 }
 
                 // ---- Notifications ----

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "SavedGame.h"
+#include "ClipboardPuzzleFormatter.h"
 #include "GameMode.h"
 #include "UnsupportedSaveVersionException.h"
 
@@ -81,10 +82,14 @@ namespace Sudoku_3_0
                 writer->WriteLine("gameMode=" + (static_cast<unsigned int>(game->mode)).ToString());
                 writer->WriteLine("gameFinished=" + (game->gameFinished ? 1 : 0).ToString());
                 writer->WriteLine("elapsedSeconds=" + game->elapsedSeconds.ToString());
-                writer->WriteLine("clues=" + EncodeDigits(game->clues));
-                writer->WriteLine("solution=" + EncodeDigits(game->solution));
-                writer->WriteLine("value=" + EncodeDigits(game->values));
-                writer->WriteLine("state=" + EncodeDigits(game->states));
+                // The digit fields use the clipboard's one-digit-per-cell puzzle string, so the
+                // encoder is shared (and a save's clues line pastes straight into Enter Puzzle).
+                // Decoding stays separate (DecodeDigits): the clipboard is lenient with foreign
+                // input, while a save file is validated strictly.
+                writer->WriteLine("clues=" + ClipboardPuzzleFormatter::Encode(game->clues));
+                writer->WriteLine("solution=" + ClipboardPuzzleFormatter::Encode(game->solution));
+                writer->WriteLine("value=" + ClipboardPuzzleFormatter::Encode(game->values));
+                writer->WriteLine("state=" + ClipboardPuzzleFormatter::Encode(game->states));
                 writer->WriteLine("pencilMarks=" + EncodePencilMarks(game->pencilMarks));
                 writer->WriteLine("undo=" + EncodeHistory(game->undoHistory));
                 writer->WriteLine("redo=" + EncodeHistory(game->redoHistory));
@@ -235,15 +240,6 @@ namespace Sudoku_3_0
 
         // Difficulty indices run 0 (VeryEasy) .. 4 (VeryHard), as in Difficulty and Settings.
         static const unsigned int MaxDifficulty = 4;
-
-        // Encodes a 0-9 digit array as a string of ASCII digits.
-        static System::String^ EncodeDigits(array<unsigned char>^ digits)
-        {
-            System::Text::StringBuilder^ sb = gcnew System::Text::StringBuilder(digits->Length);
-            for (int i = 0; i < digits->Length; ++i)
-                sb->Append((wchar_t)(L'0' + digits[i]));
-            return sb->ToString();
-        }
 
         // Decodes a string of ASCII digits into a byte array, validating both its length and
         // that every character lies within [minDigit, maxDigit].

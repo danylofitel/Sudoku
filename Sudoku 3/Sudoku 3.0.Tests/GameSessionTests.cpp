@@ -1,6 +1,6 @@
 // Danylo Fitel 2026
-// Unit tests for GameSession's derived queries: clean-win test, clue count, and the
-// "mostly hints" (barely-better-than-giving-up) threshold.
+// Unit tests for GameSession: per-puzzle state resets (finished flag) and its derived queries
+// (clean-win test, clue count).
 
 #include "GameSession.h"
 
@@ -107,20 +107,6 @@ namespace Sudoku_3_0_Tests
             GameSession^ s = gcnew GameSession(Cells);
             s->startCustomPuzzle(); // Solver mode, no puzzle snapshot yet
             Assert::AreEqual(0, s->clueCount());
-        }
-
-        // ---- hintCount ----
-
-        [TestMethod]
-        void HintCount_CountsRevealedHints()
-        {
-            Assert::AreEqual(5, MakeGameWithHints(30, 5)->hintCount());
-        }
-
-        [TestMethod]
-        void HintCount_ZeroWithNoHints()
-        {
-            Assert::AreEqual(0, MakeGameWithHints(30, 0)->hintCount());
         }
     };
 }

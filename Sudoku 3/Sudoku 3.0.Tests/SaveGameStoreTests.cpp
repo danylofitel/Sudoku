@@ -152,9 +152,64 @@ namespace Sudoku_3_0_Tests
         // rejection message) - so each invariant test proves its own rule, not just any error.
         static void AssertRejected(SavedGame^ g, String^ reason)
         {
+            String^ path = Path::GetTempFileName();
             try
             {
-                SaveAndReload(g);
+                SaveGameStore::Save(path, g);
+                AssertFileRejected(path, reason);
+            }
+            finally
+            {
+                File::Delete(path);
+            }
+        }
+
+        // The same check for a hand-written file.
+        static void AssertTextRejected(String^ text, String^ reason)
+        {
+            String^ path = Path::GetTempFileName();
+            try
+            {
+                File::WriteAllText(path, text);
+                AssertFileRejected(path, reason);
+            }
+            finally
+            {
+                File::Delete(path);
+            }
+        }
+
+        // The same check for a valid save with one line edited: the line for `key` is replaced
+        // by `replacement`, or removed when replacement is nullptr.
+        static void AssertRejectedWithLine(SavedGame^ g, String^ key, String^ replacement, String^ reason)
+        {
+            String^ path = Path::GetTempFileName();
+            try
+            {
+                SaveGameStore::Save(path, g);
+
+                System::Collections::Generic::List<String^>^ lines =
+                    gcnew System::Collections::Generic::List<String^>();
+                for each (String ^ line in File::ReadAllLines(path))
+                {
+                    if (!line->StartsWith(key + "=")) lines->Add(line);
+                    else if (replacement != nullptr) lines->Add(replacement);
+                }
+                File::WriteAllLines(path, lines->ToArray());
+
+                AssertFileRejected(path, reason);
+            }
+            finally
+            {
+                File::Delete(path);
+            }
+        }
+
+        static void AssertFileRejected(String^ path, String^ reason)
+        {
+            try
+            {
+                SaveGameStore::Load(path, Cells);
             }
             catch (UnsupportedSaveVersionException^)
             {
@@ -310,47 +365,26 @@ namespace Sudoku_3_0_Tests
         }
 
         [TestMethod]
-        [ExpectedException(Exception::typeid)]
-            void Load_Throws_WhenNotASaveFile()
+        void Load_Rejects_FileThatIsNotASave()
         {
-            String^ path = Path::GetTempFileName();
-            try
-            {
-                File::WriteAllText(path, "just some random text\nnot a save\n");
-                SaveGameStore::Load(path, Cells);
-            }
-            finally
-            {
-                File::Delete(path);
-            }
+            AssertTextRejected("just some random text\nnot a save\n", "Not a recognized Sudoku save file");
         }
 
         [TestMethod]
-        [ExpectedException(Exception::typeid)]
-            void Load_Throws_OnMissingRequiredField()
+        void Load_Rejects_MissingRequiredField()
         {
             // Recognized header + version, but every other required field is absent.
-            String^ path = Path::GetTempFileName();
-            try
-            {
-                File::WriteAllText(path, "Sudoku3Save=1\n");
-                SaveGameStore::Load(path, Cells);
-            }
-            finally
-            {
-                File::Delete(path);
-            }
+            AssertTextRejected("Sudoku3Save=1\n", "Missing field");
         }
 
         [TestMethod]
-        [ExpectedException(Exception::typeid)]
-            void Load_Throws_WhenGameModeHasNoPuzzle()
+        void Load_Rejects_GameWithoutPuzzle()
         {
             // Game mode requires a solution; strip the puzzle from an otherwise-valid save.
             SavedGame^ g = MakeGameSave();
             g->clues = gcnew array<unsigned char>(0);
             g->solution = gcnew array<unsigned char>(0);
-            SaveAndReload(g); // Save succeeds; Load must reject
+            AssertRejected(g, "A saved game must contain a puzzle solution");
         }
 
         [TestMethod]
@@ -396,84 +430,60 @@ namespace Sudoku_3_0_Tests
         }
 
         [TestMethod]
-        [ExpectedException(Exception::typeid)]
-        void Load_Throws_OnValueStateMismatch()
+        void Load_Rejects_ValueStateMismatch()
         {
             SavedGame^ g = MakeGameSave();
             g->states[0] = 1; // cell 0 holds a value but is marked empty (state 1)
-            SaveAndReload(g);
+            AssertRejected(g, "Mismatched cell value and state");
         }
 
         [TestMethod]
-        [ExpectedException(Exception::typeid)]
-        void Load_Throws_OnSolvedStateInGameMode()
+        void Load_Rejects_SolverFilledCellInGameMode()
         {
             SavedGame^ g = MakeGameSave();
             g->states[0] = 6; // cell 0 is filled; solver state 6 is illegal in Game mode
-            SaveAndReload(g);
+            AssertRejected(g, "cannot occur in this session state");
         }
 
         [TestMethod]
-        [ExpectedException(Exception::typeid)]
-        void Load_Throws_OnGameRevealStateInSolverMode()
+        void Load_Rejects_GameRevealInSolverMode()
         {
             SavedGame^ g = MakeSolverInProgressSave();
             g->states[0] = 3; // 'correct' is a Game reveal, illegal in Solver mode
-            SaveAndReload(g);
+            AssertRejected(g, "cannot occur in this session state");
         }
 
         [TestMethod]
-        [ExpectedException(Exception::typeid)]
-        void Load_Throws_OnClueSolutionMismatch()
+        void Load_Rejects_ClueSolutionMismatch()
         {
             SavedGame^ g = MakeGameSave();
             // Give clue 0 a value that differs from the solution at that cell.
             g->clues[0] = (unsigned char)(g->solution[0] == 9 ? 1 : g->solution[0] + 1);
-            SaveAndReload(g);
+            AssertRejected(g, "Clue/solution mismatch");
         }
 
         [TestMethod]
-        [ExpectedException(Exception::typeid)]
-        void Load_Throws_OnInvalidSolutionDigit()
+        void Load_Rejects_InvalidSolutionDigit()
         {
             SavedGame^ g = MakeGameSave();
             g->solution[0] = 0; // solution digits must be 1-9
-            SaveAndReload(g);
+            AssertRejected(g, "Invalid solution value");
         }
 
         [TestMethod]
-        [ExpectedException(Exception::typeid)]
-        void Load_Throws_OnMissingPencilMarks()
+        void Load_Rejects_MissingPencilMarks()
         {
             // pencilMarks is a required field: a save missing it is rejected, not silently zeroed.
-            SavedGame^ g = MakeGameSave();
-            String^ path = Path::GetTempFileName();
-            try
-            {
-                SaveGameStore::Save(path, g);
-
-                System::Collections::Generic::List<String^>^ kept =
-                    gcnew System::Collections::Generic::List<String^>();
-                for each (String ^ line in File::ReadAllLines(path))
-                    if (!line->StartsWith("pencilMarks=")) kept->Add(line);
-                File::WriteAllLines(path, kept->ToArray());
-
-                SaveGameStore::Load(path, Cells);
-            }
-            finally
-            {
-                File::Delete(path);
-            }
+            AssertRejectedWithLine(MakeGameSave(), "pencilMarks", nullptr, "Missing field: pencilMarks");
         }
 
         [TestMethod]
-        [ExpectedException(Exception::typeid)]
-        void Load_Throws_OnInvalidPencilMarkBit()
+        void Load_Rejects_InvalidPencilMarkBit()
         {
             // Bit 0 is never a valid pencil mark (digits are bits 1-9), so value 1 is rejected.
             SavedGame^ g = MakeGameSave();
             g->pencilMarks[0] = 1; // bit 0 set
-            SaveAndReload(g);
+            AssertRejected(g, "Invalid pencilMarks value");
         }
 
         [TestMethod]
@@ -486,54 +496,17 @@ namespace Sudoku_3_0_Tests
         }
 
         [TestMethod]
-        [ExpectedException(Exception::typeid)]
-        void Load_Throws_OnMissingCandidateAssist()
+        void Load_Rejects_MissingCandidateAssist()
         {
             // candidateAssist is a required field: a save missing it is rejected.
-            SavedGame^ g = MakeGameSave();
-            String^ path = Path::GetTempFileName();
-            try
-            {
-                SaveGameStore::Save(path, g);
-
-                System::Collections::Generic::List<String^>^ kept =
-                    gcnew System::Collections::Generic::List<String^>();
-                for each (String ^ line in File::ReadAllLines(path))
-                    if (!line->StartsWith("candidateAssist=")) kept->Add(line);
-                File::WriteAllLines(path, kept->ToArray());
-
-                SaveGameStore::Load(path, Cells);
-            }
-            finally
-            {
-                File::Delete(path);
-            }
+            AssertRejectedWithLine(MakeGameSave(), "candidateAssist", nullptr, "Missing field: candidateAssist");
         }
 
         [TestMethod]
-        [ExpectedException(Exception::typeid)]
-        void Load_Throws_OnCandidateAssistOutOfRange()
+        void Load_Rejects_CandidateAssistOutOfRange()
         {
-            // Only 0..2 (None/CurrentCell/AllCells) are valid; a save is written by hand here
-            // with an out-of-range level and must be rejected.
-            SavedGame^ g = MakeGameSave();
-            String^ path = Path::GetTempFileName();
-            try
-            {
-                SaveGameStore::Save(path, g);
-
-                System::Collections::Generic::List<String^>^ lines =
-                    gcnew System::Collections::Generic::List<String^>();
-                for each (String ^ line in File::ReadAllLines(path))
-                    lines->Add(line->StartsWith("candidateAssist=") ? "candidateAssist=3" : line);
-                File::WriteAllLines(path, lines->ToArray());
-
-                SaveGameStore::Load(path, Cells);
-            }
-            finally
-            {
-                File::Delete(path);
-            }
+            // Only 0..2 (None/CurrentCell/AllCells) are valid.
+            AssertRejectedWithLine(MakeGameSave(), "candidateAssist", "candidateAssist=3", "Invalid candidateAssist value");
         }
         // ---- Safe writes: the target is either the old save or the complete new one ----
 
@@ -1013,13 +986,12 @@ namespace Sudoku_3_0_Tests
         }
 
         [TestMethod]
-        [ExpectedException(Exception::typeid)]
-        void Load_Throws_OnDifficultyOutOfRange()
+        void Load_Rejects_DifficultyOutOfRange()
         {
             // Only 0..4 are valid; anything else must fail the load before it is applied.
             SavedGame^ g = MakeGameSave();
             g->difficulty = 5;
-            SaveAndReload(g);
+            AssertRejected(g, "Invalid difficulty value");
         }
 
         // ---- Undo/redo history ----
