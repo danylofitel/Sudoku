@@ -58,6 +58,9 @@
     <ClInclude Include="CandidateDisplay.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CellAccessibility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="CellKind.h">
       <Filter>Header Files</Filter>
     </ClInclude>

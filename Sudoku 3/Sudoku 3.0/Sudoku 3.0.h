@@ -3,6 +3,7 @@
 #pragma once
 
 #include "ClipboardPuzzleFormatter.h"
+#include "CellAccessibility.h"
 #include "ConflictDetector.h"
 #include "Difficulty.h"
 #include "GameMode.h"
@@ -257,6 +258,9 @@ namespace Sudoku_3_0
 
            // Undo manager
     private: UndoManager^ undoManager;
+
+           // Localized words for the cells' screen-reader names; rebuilt by setLanguage
+    private: CellNameTexts^ cellNameTexts;
 
            // Conflict detector
     private: ConflictDetector^ conflicts;
@@ -2810,6 +2814,20 @@ namespace Sudoku_3_0
 
         // Numbers form
         this->numbersForm->setLanguage(lang);
+
+        // Screen-reader names for the cells: rebuild the words, then re-render so every cell's
+        // name is announced in the new language
+        this->cellNameTexts = gcnew CellNameTexts();
+        this->cellNameTexts->position = Strings::Get(StringId::CellPosition, lang);
+        this->cellNameTexts->empty = Strings::Get(StringId::CellEmpty, lang);
+        this->cellNameTexts->pencilMarks = Strings::Get(StringId::CellPencilMarks, lang);
+        this->cellNameTexts->clue = Strings::Get(StringId::CellClue, lang);
+        this->cellNameTexts->hint = Strings::Get(StringId::CellHint, lang);
+        this->cellNameTexts->correct = Strings::Get(StringId::CellCorrect, lang);
+        this->cellNameTexts->givenUp = Strings::Get(StringId::CellGivenUp, lang);
+        this->cellNameTexts->solved = Strings::Get(StringId::CellSolved, lang);
+        this->cellNameTexts->conflict = Strings::Get(StringId::CellConflict, lang);
+        this->renderAll();
     }
 
     private: void englishToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
@@ -3012,12 +3030,17 @@ namespace Sudoku_3_0
         System::Windows::Forms::Button^ cell = this->cells[index];
 
         unsigned char value = board->valueAt(index);
+        bool hasConflict = this->conflicts->hasConflict(index);
         cell->Text = value == 0 ? String::Empty : ((int)value).ToString();
         cell->ForeColor = this->colorForKind(board->kindAt(index));
         cell->Enabled = board->isEditable(index);
-        cell->BackColor = this->conflicts->hasConflict(index)
+        cell->BackColor = hasConflict
             ? (board->isEditable(index) ? conflictBackColor : conflictBackColorImmutable)
             : defaultBackColor;
+        // What a screen reader announces: position, digit or pencil marks, kind, conflict.
+        // (The texts exist once setLanguage has run; it re-renders every cell when it does.)
+        if (this->cellNameTexts != nullptr)
+            cell->AccessibleName = CellAccessibility::Describe(board, index, this->boardSize, hasConflict, this->cellNameTexts);
         cell->Invalidate();
     }
 

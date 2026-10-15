@@ -158,6 +158,17 @@ namespace Sudoku_3_0
         FeatureCopyPuzzle,
         FeaturePastePuzzle,
         FeatureCopySolution,
+
+        // ---- Screen reader cell names (see CellAccessibility) ----
+        CellPosition,
+        CellEmpty,
+        CellPencilMarks,
+        CellClue,
+        CellHint,
+        CellCorrect,
+        CellGivenUp,
+        CellSolved,
+        CellConflict,
     };
 
     ref class Strings abstract sealed
@@ -815,6 +826,53 @@ namespace Sudoku_3_0
                 switch (lang) {
                 case Language::Ukrainian: return L"Скопіювати розв'язок — скопіювати розв'язок власної задачі в буфер обміну";
                 default:                 return L"Copy Solution - copy the solution of a solved custom puzzle to the clipboard";
+                }
+
+                // ---- Screen reader cell names ----
+            case StringId::CellPosition:
+                switch (lang) {
+                case Language::Ukrainian: return L"Рядок {0}, стовпець {1}";
+                default:                 return L"Row {0}, column {1}";
+                }
+            case StringId::CellEmpty:
+                switch (lang) {
+                case Language::Ukrainian: return L"порожня";
+                default:                 return L"empty";
+                }
+            case StringId::CellPencilMarks:
+                switch (lang) {
+                case Language::Ukrainian: return L"позначки олівцем {0}";
+                default:                 return L"pencil marks {0}";
+                }
+            case StringId::CellClue:
+                switch (lang) {
+                case Language::Ukrainian: return L"задана";
+                default:                 return L"clue";
+                }
+            case StringId::CellHint:
+                switch (lang) {
+                case Language::Ukrainian: return L"підказка";
+                default:                 return L"hint";
+                }
+            case StringId::CellCorrect:
+                switch (lang) {
+                case Language::Ukrainian: return L"правильна";
+                default:                 return L"correct";
+                }
+            case StringId::CellGivenUp:
+                switch (lang) {
+                case Language::Ukrainian: return L"розкрита";
+                default:                 return L"revealed";
+                }
+            case StringId::CellSolved:
+                switch (lang) {
+                case Language::Ukrainian: return L"розв'язана";
+                default:                 return L"solved";
+                }
+            case StringId::CellConflict:
+                switch (lang) {
+                case Language::Ukrainian: return L"конфлікт";
+                default:                 return L"conflict";
                 }
 
             default:

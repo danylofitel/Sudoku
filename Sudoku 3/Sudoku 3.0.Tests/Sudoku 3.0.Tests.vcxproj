@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BoardTests.cpp" />
+    <ClCompile Include="CellAccessibilityTests.cpp" />
     <ClCompile Include="ClipboardPuzzleFormatterTests.cpp" />
     <ClCompile Include="ConflictDetectorTests.cpp" />
     <ClCompile Include="GameSessionTests.cpp" />

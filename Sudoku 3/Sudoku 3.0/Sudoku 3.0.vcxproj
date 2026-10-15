@@ -106,6 +106,7 @@
   <ItemGroup>
     <ClInclude Include="Board.h" />
     <ClInclude Include="CandidateDisplay.h" />
+    <ClInclude Include="CellAccessibility.h" />
     <ClInclude Include="CellKind.h" />
     <ClInclude Include="ClipboardPuzzleFormatter.h" />
     <ClInclude Include="ConflictDetector.h" />
