@@ -29,13 +29,48 @@ namespace Sudoku_3_0
     {
     public:
         // Writes a SavedGame to the given file path. Throws on I/O error.
+        //
+        // The save is written in full to "<filePath>.tmp" next to the target, flushed to disk,
+        // and only then swapped into place. So the target always holds either its previous
+        // contents or the complete new save - never a partial file - even if the write fails
+        // midway (disk full, a locked file) or power is lost. On failure the temp file is removed
+        // and the target is untouched. Its fixed name means a temp file left behind by a killed
+        // process is simply overwritten by the next save. (Concurrent saves from two running
+        // instances are not coordinated; the last swap wins.)
         static void Save(System::String^ filePath, SavedGame^ game)
         {
+            System::String^ tempPath = filePath + ".tmp";
+            try
+            {
+                WriteTo(tempPath, game);
+
+                // Same folder, so the swap is a rename on one volume. .NET Framework's File::Move
+                // cannot overwrite, hence File::Replace when the target already exists.
+                if (File::Exists(filePath))
+                    File::Replace(tempPath, filePath, nullptr);
+                else
+                    File::Move(tempPath, filePath);
+            }
+            catch (System::Exception^)
+            {
+                try { File::Delete(tempPath); }
+                catch (System::Exception^) { /* best effort; the next save overwrites it */ }
+                throw;
+            }
+        }
+
+    private:
+        // Writes the save to the given path and flushes it to disk before returning, so the
+        // rename in Save can never make a file current whose contents did not reach the disk.
+        static void WriteTo(System::String^ filePath, SavedGame^ game)
+        {
             // Write as UTF-8 text (no BOM), one key=value per line.
+            FileStream^ stream = nullptr;
             StreamWriter^ writer = nullptr;
             try
             {
-                writer = gcnew StreamWriter(filePath, false, gcnew System::Text::UTF8Encoding(false));
+                stream = gcnew FileStream(filePath, FileMode::Create, FileAccess::Write, FileShare::None);
+                writer = gcnew StreamWriter(stream, gcnew System::Text::UTF8Encoding(false));
                 writer->WriteLine("Sudoku3Save=" + FormatVersion.ToString());
                 writer->WriteLine("difficulty=" + game->difficulty.ToString());
                 writer->WriteLine("candidateAssist=" + (static_cast<unsigned int>(game->candidateAssist)).ToString());
@@ -53,13 +88,20 @@ namespace Sudoku_3_0
                 writer->WriteLine("pencilMarks=" + EncodePencilMarks(game->pencilMarks));
                 writer->WriteLine("undo=" + EncodeHistory(game->undoHistory));
                 writer->WriteLine("redo=" + EncodeHistory(game->redoHistory));
+
+                writer->Flush();     // writer buffer -> OS
+                stream->Flush(true); // OS cache -> disk
             }
             finally
             {
+                // Closing the writer also closes its stream; close the stream directly only if
+                // the writer was never created.
                 if (writer != nullptr) writer->Close();
+                else if (stream != nullptr) stream->Close();
             }
         }
 
+    public:
         // Reads and validates a save file, returning a typed SavedGame.
         // Throws UnsupportedSaveVersionException for a newer format, or System::Exception on
         // any other I/O or validation failure.

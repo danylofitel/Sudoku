@@ -535,6 +535,132 @@ namespace Sudoku_3_0_Tests
                 File::Delete(path);
             }
         }
+        // ---- Safe writes: the target is either the old save or the complete new one ----
+
+    private:
+        // A fresh path in the temp folder that does not exist yet.
+        static String^ NewSavePath()
+        {
+            return Path::Combine(Path::GetTempPath(), "SudokuSaveTest-" + Guid::NewGuid().ToString("N") + ".sdk3");
+        }
+
+        static void DeleteSaveFiles(String^ path)
+        {
+            File::Delete(path);
+            File::Delete(path + ".tmp");
+        }
+
+        // A save that throws partway through writing: the header and scalars are written, then
+        // encoding the missing board array fails.
+        static SavedGame^ MakeSaveThatFailsMidWrite()
+        {
+            SavedGame^ g = MakeGameSave();
+            g->values = nullptr;
+            return g;
+        }
+
+    public:
+        [TestMethod]
+        void Save_ToNewPath_CreatesFile_AndLeavesNoTemp()
+        {
+            String^ path = NewSavePath();
+            try
+            {
+                SaveGameStore::Save(path, MakeGameSave());
+                Assert::IsTrue(File::Exists(path));
+                Assert::IsFalse(File::Exists(path + ".tmp"));
+                Assert::AreEqual(3, (int)SaveGameStore::Load(path, Cells)->difficulty);
+            }
+            finally
+            {
+                DeleteSaveFiles(path);
+            }
+        }
+
+        [TestMethod]
+        void Save_OverExistingSave_ReplacesIt_AndLeavesNoTemp()
+        {
+            String^ path = NewSavePath();
+            try
+            {
+                SaveGameStore::Save(path, MakeGameSave());          // difficulty 3
+                SaveGameStore::Save(path, MakeSolvedSolverSave());  // difficulty 2
+
+                Assert::IsFalse(File::Exists(path + ".tmp"));
+                SavedGame^ back = SaveGameStore::Load(path, Cells);
+                Assert::IsTrue(back->mode == GameMode::Solver);
+                Assert::AreEqual(2, (int)back->difficulty);
+            }
+            finally
+            {
+                DeleteSaveFiles(path);
+            }
+        }
+
+        [TestMethod]
+        void Save_FailingMidWrite_LeavesExistingSaveIntact_AndNoTemp()
+        {
+            // The point of writing to a temp file: a failed save never costs the previous one.
+            String^ path = NewSavePath();
+            try
+            {
+                SaveGameStore::Save(path, MakeGameSave());
+                array<Byte>^ before = File::ReadAllBytes(path);
+
+                bool threw = false;
+                try { SaveGameStore::Save(path, MakeSaveThatFailsMidWrite()); }
+                catch (Exception^) { threw = true; }
+
+                Assert::IsTrue(threw, "the save should have failed");
+                CollectionAssert::AreEqual(before, File::ReadAllBytes(path), "the previous save changed");
+                Assert::IsFalse(File::Exists(path + ".tmp"), "the temp file was left behind");
+                SaveGameStore::Load(path, Cells); // and it still loads
+            }
+            finally
+            {
+                DeleteSaveFiles(path);
+            }
+        }
+
+        [TestMethod]
+        void Save_FailingMidWrite_ToNewPath_CreatesNothing()
+        {
+            String^ path = NewSavePath();
+            try
+            {
+                bool threw = false;
+                try { SaveGameStore::Save(path, MakeSaveThatFailsMidWrite()); }
+                catch (Exception^) { threw = true; }
+
+                Assert::IsTrue(threw, "the save should have failed");
+                Assert::IsFalse(File::Exists(path), "a partial save was created");
+                Assert::IsFalse(File::Exists(path + ".tmp"), "the temp file was left behind");
+            }
+            finally
+            {
+                DeleteSaveFiles(path);
+            }
+        }
+
+        [TestMethod]
+        void Save_OverStaleTempFile_Succeeds()
+        {
+            // A temp file left by a process killed mid-save is overwritten, not an obstacle.
+            String^ path = NewSavePath();
+            try
+            {
+                File::WriteAllText(path + ".tmp", "left over from a killed process");
+                SaveGameStore::Save(path, MakeGameSave());
+
+                Assert::IsFalse(File::Exists(path + ".tmp"));
+                SaveGameStore::Load(path, Cells);
+            }
+            finally
+            {
+                DeleteSaveFiles(path);
+            }
+        }
+
         // ---- Board invariants (see SaveGameStore::ValidateBoard) ----
         // Every session state the app can reach loads; each way of breaking an invariant is
         // rejected, and for its own reason.
