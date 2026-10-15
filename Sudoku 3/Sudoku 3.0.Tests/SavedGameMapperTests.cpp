@@ -205,7 +205,7 @@ namespace Sudoku_3_0_Tests
         {
             // What the crash save does: capture the session, then validate it before writing
             GameSession^ s = MakePopulatedSession();
-            SaveGameStore::Validate(SavedGameMapper::Capture(s, nullptr, 10), Cells);
+            GameValidator::Validate(SavedGameMapper::Capture(s, nullptr, 10), Cells);
         }
 
         [TestMethod]
@@ -218,7 +218,7 @@ namespace Sudoku_3_0_Tests
             s->board->reveal(4, s->puzzle->solution[4], CellKind::Hint);
 
             bool rejected = false;
-            try { SaveGameStore::Validate(SavedGameMapper::Capture(s, nullptr, 10), Cells); }
+            try { GameValidator::Validate(SavedGameMapper::Capture(s, nullptr, 10), Cells); }
             catch (Exception^) { rejected = true; }
             Assert::IsTrue(rejected);
         }

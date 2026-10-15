@@ -9,6 +9,7 @@
 #include "Difficulty.h"
 #include "GameMode.h"
 #include "GameSession.h"
+#include "GameValidator.h"
 #include "GameTimer.h"
 #include "Numbers.h"
 #include "PlayerStats.h"
@@ -4575,7 +4576,7 @@ namespace Sudoku_3_0
 
            // Last-chance auto-save when the app is about to close because of an unexpected error
            // (called from main). The error may have struck mid-change, so the game is written only
-           // if it passes the exact checks a load applies (SaveGameStore::Validate): a game that
+           // if it passes the exact checks a load applies (GameValidator::Validate): a game that
            // would be rejected on the next launch is never saved, and the previous auto-save is
            // left as it was. Uses only the session, history and timer - never the controls, which
            // may already be torn down. Returns true if the game was saved; never throws.
@@ -4587,7 +4588,7 @@ namespace Sudoku_3_0
                 return false; // the error happened before the game existed
 
             SavedGame^ game = this->captureGame();
-            SaveGameStore::Validate(game, this->numberOfCells);
+            GameValidator::Validate(game, this->numberOfCells);
 
             System::String^ path = this->autoSavePath();
             System::IO::Directory::CreateDirectory(System::IO::Path::GetDirectoryName(path));

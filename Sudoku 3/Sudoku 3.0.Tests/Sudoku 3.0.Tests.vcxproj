@@ -56,6 +56,7 @@
     <ClCompile Include="ClipboardPuzzleFormatterTests.cpp" />
     <ClCompile Include="ConflictDetectorTests.cpp" />
     <ClCompile Include="GameSessionTests.cpp" />
+    <ClCompile Include="GameValidatorTests.cpp" />
     <ClCompile Include="GameTimerTests.cpp" />
     <ClCompile Include="PlayerStatsTests.cpp" />
     <ClCompile Include="PuzzleTests.cpp" />

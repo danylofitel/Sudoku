@@ -79,6 +79,9 @@
     <ClInclude Include="GameSession.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GameValidator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="GameTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
