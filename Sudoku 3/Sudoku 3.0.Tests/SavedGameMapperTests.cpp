@@ -57,6 +57,7 @@ namespace Sudoku_3_0_Tests
             Assert::AreEqual((int)a->numberOfGiveUps, (int)b->numberOfGiveUps);
             Assert::IsTrue(a->maxCandidateAssist == b->maxCandidateAssist);
             Assert::IsTrue(a->mode == b->mode);
+            Assert::AreEqual(a->finished, b->finished);
 
             for (unsigned int i = 0; i < (unsigned int)Cells; ++i)
             {
@@ -81,14 +82,15 @@ namespace Sudoku_3_0_Tests
         void Capture_CopiesSessionScalarsAndViewValues()
         {
             GameSession^ s = MakePopulatedSession();
-            SavedGame^ g = SavedGameMapper::Capture(s, nullptr, true, 125);
+            s->finished = true;
+            SavedGame^ g = SavedGameMapper::Capture(s, nullptr, 125);
 
             Assert::AreEqual((int)s->difficulty, (int)g->difficulty);
             Assert::AreEqual((int)s->numberOfHints, (int)g->numberOfHints);
             Assert::IsTrue(g->mode == GameMode::Game);
             Assert::IsTrue(g->candidateAssist == CandidateDisplay::CurrentCell);
-            Assert::IsTrue(g->gameFinished);
-            Assert::AreEqual(125, (int)g->elapsedSeconds); // passed-in view value, not from session
+            Assert::IsTrue(g->gameFinished);               // from the session
+            Assert::AreEqual(125, (int)g->elapsedSeconds); // passed-in timer value, not from session
             Assert::AreEqual(Cells, g->values->Length);
             Assert::AreEqual(5, (int)g->values[1]);        // the user-filled cell
         }
@@ -96,8 +98,11 @@ namespace Sudoku_3_0_Tests
         [TestMethod]
         void CaptureThenRestore_PreservesAllGameData()
         {
+            // The mapper copies data as-is (validation is SaveGameStore's job), so the finished
+            // flag round-trips even on this in-progress board.
             GameSession^ src = MakePopulatedSession();
-            SavedGame^ g = SavedGameMapper::Capture(src, nullptr, false, 60);
+            src->finished = true;
+            SavedGame^ g = SavedGameMapper::Capture(src, nullptr, 60);
 
             GameSession^ dst = gcnew GameSession(Cells);
             SavedGameMapper::Restore(g, dst, nullptr);
@@ -108,8 +113,9 @@ namespace Sudoku_3_0_Tests
         [TestMethod]
         void RoundTrip_ThroughStore_PreservesAllGameData()
         {
+            // Unfinished: Load only accepts a finished game whose board actually ended.
             GameSession^ src = MakePopulatedSession();
-            SavedGame^ g = SavedGameMapper::Capture(src, nullptr, true, 300);
+            SavedGame^ g = SavedGameMapper::Capture(src, nullptr, 300);
 
             String^ path = Path::GetTempFileName();
             try
@@ -131,7 +137,7 @@ namespace Sudoku_3_0_Tests
         [TestMethod]
         void Capture_WithoutHistory_WritesEmptyHistory()
         {
-            SavedGame^ g = SavedGameMapper::Capture(MakePopulatedSession(), nullptr, false, 0);
+            SavedGame^ g = SavedGameMapper::Capture(MakePopulatedSession(), nullptr, 0);
             Assert::AreEqual(0, g->undoHistory->Length);
             Assert::AreEqual(0, g->redoHistory->Length);
         }
@@ -161,7 +167,7 @@ namespace Sudoku_3_0_Tests
             String^ path = Path::GetTempFileName();
             try
             {
-                SaveGameStore::Save(path, SavedGameMapper::Capture(src, srcHistory, false, 42));
+                SaveGameStore::Save(path, SavedGameMapper::Capture(src, srcHistory, 42));
                 SavedGame^ loaded = SaveGameStore::Load(path, Cells);
 
                 GameSession^ dst = gcnew GameSession(Cells);
@@ -199,7 +205,7 @@ namespace Sudoku_3_0_Tests
         {
             // Loading a save must not leave the previous game's history behind.
             GameSession^ src = MakePopulatedSession();
-            SavedGame^ g = SavedGameMapper::Capture(src, nullptr, false, 0);
+            SavedGame^ g = SavedGameMapper::Capture(src, nullptr, 0);
 
             GameSession^ dst = gcnew GameSession(Cells);
             UndoManager^ dstHistory = gcnew UndoManager(nullptr);

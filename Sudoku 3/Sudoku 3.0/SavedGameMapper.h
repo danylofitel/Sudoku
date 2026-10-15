@@ -9,17 +9,17 @@
 
 namespace Sudoku_3_0
 {
-    // Translates between the live GameSession/Board and the flat SavedGame DTO. This is the pure
-    // data mapping only, so it is unit-testable without a form: the two values that originate
-    // outside the session - whether the game is finished (from the form's controls) and the
-    // elapsed play time (from the timer) - are passed in on capture, and every UI side-effect of
-    // loading (controls, timer, rendering, clipboard) stays in the form.
+    // Translates between the live GameSession/Board (plus its undo/redo history) and the flat
+    // SavedGame DTO. This is the pure data mapping only, so it is unit-testable without a form:
+    // the elapsed play time, which originates outside the session (in the timer), is passed in
+    // on capture, and every UI side-effect of loading (controls, timer, rendering, clipboard)
+    // stays in the form.
     ref class SavedGameMapper abstract sealed
     {
     public:
         // Builds a SavedGame snapshot from the current session state, its undo/redo history
-        // (nullptr = none), and the two view-derived values the session does not own.
-        static SavedGame^ Capture(GameSession^ session, UndoManager^ history, bool gameFinished, unsigned int elapsedSeconds)
+        // (nullptr = none), and the elapsed play time.
+        static SavedGame^ Capture(GameSession^ session, UndoManager^ history, unsigned int elapsedSeconds)
         {
             SavedGame^ game = gcnew SavedGame();
             game->difficulty = session->difficulty;
@@ -29,7 +29,7 @@ namespace Sudoku_3_0
             game->numberOfGiveUps = session->numberOfGiveUps;
             game->candidateAssist = session->maxCandidateAssist;
             game->mode = session->mode;
-            game->gameFinished = gameFinished;
+            game->gameFinished = session->finished;
             game->elapsedSeconds = elapsedSeconds;
 
             // The board model serializes directly (value + kind-as-state-code + pencil marks).
@@ -64,6 +64,7 @@ namespace Sudoku_3_0
             session->numberOfGiveUps = save->numberOfGiveUps;
             session->maxCandidateAssist = save->candidateAssist;
             session->mode = save->mode;
+            session->finished = save->gameFinished;
 
             // A Solver session saved mid-entry has no solution yet, so the puzzle stays nullptr
             // until solved. (Puzzle defensively copies the arrays, so passing them directly is safe.)

@@ -42,6 +42,33 @@ namespace Sudoku_3_0_Tests
         }
 
     public:
+        // ---- finished ----
+
+        [TestMethod]
+        void New_IsNotFinished()
+        {
+            Assert::IsFalse((gcnew GameSession(Cells))->finished);
+        }
+
+        [TestMethod]
+        void StartNewGame_ClearsFinished()
+        {
+            GameSession^ s = gcnew GameSession(Cells);
+            s->finished = true;
+            s->startNewGame(2);
+            Assert::IsFalse(s->finished);
+        }
+
+        [TestMethod]
+        void StartCustomPuzzle_ClearsFinished()
+        {
+            GameSession^ s = gcnew GameSession(Cells);
+            s->finished = true;
+            s->startCustomPuzzle();
+            Assert::IsFalse(s->finished);
+            Assert::IsTrue(s->mode == GameMode::Solver);
+        }
+
         // ---- isClean ----
 
         [TestMethod]

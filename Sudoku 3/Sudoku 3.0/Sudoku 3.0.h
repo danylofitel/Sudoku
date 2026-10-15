@@ -2574,8 +2574,19 @@ namespace Sudoku_3_0
         MessageBox::Show(message, Strings::Get(StringId::DialogTitleSudoku, this->currentLanguage), MessageBoxButtons::OK, MessageBoxIcon::None);
     }
 
-    private: void setGameControls(bool gameActive, bool restartActive, bool solveActive)
+           // Single source of truth for the game buttons and menu items, derived purely from the
+           // session (mode + finished), so they cannot drift from the actual game state:
+           //   Game, in progress   -> Restart + all play controls (Pencil, Hint, Fix, Give Up)
+           //   Game, finished      -> Restart only
+           //   Solver, entering    -> Solve
+           //   Solver, solved      -> nothing
+    private: void syncGameControls()
     {
+        bool inGame = this->session->mode == GameMode::Game;
+        bool gameActive = inGame && !this->session->finished;
+        bool restartActive = inGame;
+        bool solveActive = !inGame && !this->session->finished;
+
         this->restartButton->Enabled = restartActive;
         this->restartToolStripMenuItem->Enabled = restartActive;
         this->pencilButton->Enabled = gameActive;
@@ -2588,13 +2599,6 @@ namespace Sudoku_3_0
         this->giveUpToolStripMenuItem->Enabled = gameActive;
         this->solveButton->Enabled = solveActive;
         this->solveToolStripMenuItem->Enabled = solveActive;
-    }
-
-    private: bool isGameFinished()
-    {
-        if (this->session->mode == GameMode::Game)   return !this->giveUpButton->Enabled;
-        if (this->session->mode == GameMode::Solver) return !this->solveButton->Enabled;
-        return false;
     }
 
     private: System::String^ difficultyName(unsigned int d)
@@ -2875,7 +2879,7 @@ namespace Sudoku_3_0
            // later setting change cannot retroactively taint a completed game).
     private: void recordCandidateLevel(CandidateDisplay level)
     {
-        if (this->isGameFinished()) return;
+        if (this->session->finished) return;
         if (level > this->session->maxCandidateAssist)
             this->session->maxCandidateAssist = level;
     }
@@ -3098,7 +3102,7 @@ namespace Sudoku_3_0
         this->resetBoardToClues();
         this->undoManager->clear();
         this->gameTimer->restart();
-        this->setGameControls(true, true, false);
+        this->syncGameControls();
         this->recordCandidateLevel(this->candidateDisplay); // this game is played under the current level
         this->updateClipboardControls();
 
@@ -3140,7 +3144,8 @@ namespace Sudoku_3_0
         this->renderAll();
 
         this->clearActiveModes();
-        this->setGameControls(false, true, false);
+        this->session->finished = true;
+        this->syncGameControls();
         this->undoManager->clear();
 
         // Freeze the play time before the win message reads it
@@ -3665,15 +3670,11 @@ namespace Sudoku_3_0
             MessageBoxButtons::YesNoCancel,
             MessageBoxIcon::Question);
 
+        // "Yes" proceeds only if the game was actually saved: cancelling the file dialog
+        // must not silently discard the game the user just asked to keep.
         if (result == System::Windows::Forms::DialogResult::Yes)
-        {
-            this->showSaveGameDialog();
-        }
-        else if (result == System::Windows::Forms::DialogResult::Cancel)
-        {
-            return false;
-        }
-        return true;
+            return this->showSaveGameDialog();
+        return result == System::Windows::Forms::DialogResult::No;
     }
 
            // Close the numbers form if it is open
@@ -3723,7 +3724,8 @@ namespace Sudoku_3_0
         // Restore the board to its initial clue state (re-renders and re-highlights).
         this->resetBoardToClues();
 
-        this->setGameControls(true, true, false);
+        this->session->finished = false;
+        this->syncGameControls();
         // numberOfGiveUps is intentionally NOT reset: once the user has seen the solution,
         // no re-prompt is needed and a win after restart still counts as a post-give-up win.
     }
@@ -3807,7 +3809,8 @@ namespace Sudoku_3_0
         }
         this->renderAll();
 
-        this->setGameControls(false, true, false);
+        this->session->finished = true;
+        this->syncGameControls();
         this->undoManager->clear();
         this->gameTimer->stop();
 
@@ -3893,17 +3896,29 @@ namespace Sudoku_3_0
             return;
         }
 
+        this->closeHelperForms();
         this->engine->clear();
-        this->session->board->clearToEmpty();
-        this->undoManager->clear();
         this->gameTimer->restart();
         this->session->puzzle = nullptr;  // no valid puzzle until Solve succeeds
 
+        // Replace the entered puzzle as one undoable step, so pasting over cells the user
+        // typed is never destructive (no confirmation needed). The result is every cell as an
+        // editable user cell holding the pasted digit, with no pencil marks; cells already in
+        // exactly that state are skipped, so pasting the same puzzle again records nothing.
+        Board^ board = this->session->board;
+        this->undoManager->beginBatch();
         for (unsigned int i = 0; i < this->numberOfCells; ++i)
         {
-            if (digits[i] >= 1 && digits[i] <= 9)
-                this->session->board->setUserValue(i, digits[i]);
+            if (board->isEditable(i) && board->valueAt(i) == digits[i] && board->pencilMarksAt(i) == 0)
+                continue;
+
+            this->undoManager->record(board, i);
+            if (digits[i] == 0)
+                board->setEmpty(i);
+            else
+                board->setUserValue(i, digits[i]);
         }
+        this->undoManager->endBatch();
 
         this->renderAll();
     }
@@ -3949,7 +3964,7 @@ namespace Sudoku_3_0
 
         this->undoManager->clear();
         this->gameTimer->restart();
-        this->setGameControls(false, false, true);
+        this->syncGameControls();
         this->recordCandidateLevel(this->candidateDisplay); // this session is played under the current level
         this->updateClipboardControls();
     }
@@ -3987,8 +4002,8 @@ namespace Sudoku_3_0
             }
             this->renderAll();
 
-            this->solveButton->Enabled = false;
-            this->solveToolStripMenuItem->Enabled = false;
+            this->session->finished = true;
+            this->syncGameControls();
             // The puzzle now has a solution, so the clipboard offers Copy Solution instead of Paste.
             this->updateClipboardControls();
             this->undoManager->clear();
@@ -4018,10 +4033,12 @@ namespace Sudoku_3_0
            // Shows the save dialog with a fresh date-and-time-based file name suggestion.
            // Local time on purpose (file names should match the user's clock), and with '-'
            // in the time part since ':' is not allowed in Windows file names.
-    private: void showSaveGameDialog()
+           // Returns true only if the game was saved: a failed write keeps the dialog open (see
+           // saveGameDialog_FileOk), so the dialog returns OK exactly when the file was written.
+    private: bool showSaveGameDialog()
     {
         this->saveGameDialog->FileName = "Sudoku " + System::DateTime::Now.ToString("yyyy-MM-dd HH-mm");
-        this->saveGameDialog->ShowDialog();
+        return this->saveGameDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK;
     }
 
     private: void saveToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
@@ -4251,7 +4268,7 @@ namespace Sudoku_3_0
 
         if (this->WindowState == FormWindowState::Minimized)
             this->gameTimer->stop();
-        else if (this->WindowState == FormWindowState::Normal && !this->isGameFinished())
+        else if (this->WindowState == FormWindowState::Normal && !this->session->finished)
             this->gameTimer->resume();
     }
 
@@ -4376,10 +4393,10 @@ namespace Sudoku_3_0
            // Returns true on success, false on any failure - reporting is up to the caller.
     private: bool saveGameToFile(System::String^ path)
     {
-        // Besides the session, the snapshot takes the undo/redo history, gameFinished (from the
-        // controls), and elapsedSeconds (from the timer); the mapper builds the rest.
+        // Besides the session, the snapshot takes the undo/redo history and elapsedSeconds
+        // (from the timer); the mapper builds the rest.
         SavedGame^ game = SavedGameMapper::Capture(
-            this->session, this->undoManager, this->isGameFinished(), (unsigned int)this->gameTimer->Elapsed.TotalSeconds);
+            this->session, this->undoManager, (unsigned int)this->gameTimer->Elapsed.TotalSeconds);
 
         try
         {
@@ -4397,6 +4414,9 @@ namespace Sudoku_3_0
         if (!this->saveGameToFile(this->saveGameDialog->FileName))
         {
             this->showNotification(Strings::Get(StringId::NotifyFileSaveError, this->currentLanguage));
+            // Keep the dialog open so the user can pick another location or cancel; the
+            // dialog then never reports OK for a file that was not written.
+            e->Cancel = true;
         }
     }
 
@@ -4452,10 +4472,7 @@ namespace Sudoku_3_0
 
         // Everything below is UI that follows from the restored state.
         this->difficultyComboBox->SelectedIndex = save->difficulty;
-        this->setGameControls(
-            this->session->mode == GameMode::Game && !save->gameFinished,
-            this->session->mode == GameMode::Game,
-            this->session->mode == GameMode::Solver && !save->gameFinished);
+        this->syncGameControls();
 
         // Resuming an unfinished game means continuing to play it under the current setting,
         // so that level counts too (recordCandidateLevel is a no-op once the game is finished).
@@ -4469,7 +4486,7 @@ namespace Sudoku_3_0
 
         // Restore the play time; it only keeps ticking while the game is still playable.
         this->gameTimer->restore(System::TimeSpan::FromSeconds((double)save->elapsedSeconds));
-        if (!save->gameFinished)
+        if (!this->session->finished)
             this->gameTimer->resume();
     }
 

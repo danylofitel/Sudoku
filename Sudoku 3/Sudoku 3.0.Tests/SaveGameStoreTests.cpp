@@ -77,16 +77,18 @@ namespace Sudoku_3_0_Tests
             return g;
         }
 
-        // A finished Game-mode save whose cells exercise every game state code: 0 (clue),
-        // 2 (user-filled), 3 (correct), 4 (hint), 5 (give-up). Fully solved, so no empties.
-        static SavedGame^ MakeFinishedGameSave()
+        // A finished Game-mode save, ended either by a win (every cell the player had to fill
+        // locked as Correct) or by giving up (every such cell revealed as GivenUp). Cells 0, 3,
+        // 6, ... are clues as in MakeGameSave; cells 2, 11, 20, ... (i % 9 == 2) were revealed
+        // as hints, and numberOfHints counts them.
+        static SavedGame^ MakeFinishedGameSave(CellKind ending)
         {
             SavedGame^ g = gcnew SavedGame();
             g->difficulty = 4;
             g->numberOfRestarts = 0;
-            g->numberOfHints = 3;
+            g->numberOfHints = 9;
             g->numberOfFixes = 1;
-            g->numberOfGiveUps = 1;
+            g->numberOfGiveUps = ending == CellKind::GivenUp ? 1 : 0;
             g->mode = GameMode::Game;
             g->gameFinished = true;
             g->elapsedSeconds = 600;
@@ -100,22 +102,19 @@ namespace Sudoku_3_0_Tests
             {
                 unsigned char sol = (unsigned char)(1 + (i % 9));
                 g->solution[i] = sol;
-                g->values[i] = sol; // fully solved: every cell filled
-                unsigned char state;
-                switch (i % 5)
-                {
-                case 0:  state = 0; break; // clue
-                case 1:  state = 2; break; // user-filled
-                case 2:  state = 3; break; // correct
-                case 3:  state = 4; break; // hint
-                default: state = 5; break; // give-up
-                }
-                g->states[i] = state;
-                g->clues[i] = (state == 0) ? sol : (unsigned char)0;
+                g->values[i] = sol; // finished: every cell holds its solution
+                CellKind kind = (i % 3 == 0) ? CellKind::Clue
+                    : (i % 9 == 2) ? CellKind::Hint
+                    : ending;
+                g->states[i] = static_cast<unsigned char>(kind);
+                g->clues[i] = (kind == CellKind::Clue) ? sol : (unsigned char)0;
                 g->pencilMarks[i] = 0;
             }
             return g;
         }
+
+        static SavedGame^ MakeWonGameSave() { return MakeFinishedGameSave(CellKind::Correct); }
+        static SavedGame^ MakeGivenUpGameSave() { return MakeFinishedGameSave(CellKind::GivenUp); }
 
         // A solved Solver-mode save: pre-filled cells are clues (state 0), the rest were filled
         // by the solver (state 6). Has a full puzzle snapshot.
@@ -147,6 +146,27 @@ namespace Sudoku_3_0_Tests
                 g->pencilMarks[i] = 0;
             }
             return g;
+        }
+
+        // Asserts that loading g fails, and fails for the stated reason (a fragment of the
+        // rejection message) - so each invariant test proves its own rule, not just any error.
+        static void AssertRejected(SavedGame^ g, String^ reason)
+        {
+            try
+            {
+                SaveAndReload(g);
+            }
+            catch (UnsupportedSaveVersionException^)
+            {
+                throw;
+            }
+            catch (Exception^ ex)
+            {
+                Assert::IsTrue(ex->Message->Contains(reason),
+                    "Expected rejection '" + reason + "' but got: " + ex->Message);
+                return;
+            }
+            Assert::Fail("Load accepted an invalid save; expected rejection: " + reason);
         }
 
         static SavedGame^ SaveAndReload(SavedGame^ g)
@@ -342,16 +362,25 @@ namespace Sudoku_3_0_Tests
         }
 
         [TestMethod]
-        void RoundTrip_FinishedGame_PreservesEveryGameStateCode()
+        void RoundTrip_WonGame_PreservesStates()
         {
-            SavedGame^ back = SaveAndReload(MakeFinishedGameSave());
+            SavedGame^ back = SaveAndReload(MakeWonGameSave());
 
             Assert::IsTrue(back->gameFinished);
             Assert::AreEqual(0, (int)back->states[0]); // clue
-            Assert::AreEqual(2, (int)back->states[1]); // user-filled
-            Assert::AreEqual(3, (int)back->states[2]); // correct
-            Assert::AreEqual(4, (int)back->states[3]); // hint
-            Assert::AreEqual(5, (int)back->states[4]); // give-up
+            Assert::AreEqual(3, (int)back->states[1]); // correct
+            Assert::AreEqual(4, (int)back->states[2]); // hint
+        }
+
+        [TestMethod]
+        void RoundTrip_GivenUpGame_PreservesStates()
+        {
+            SavedGame^ back = SaveAndReload(MakeGivenUpGameSave());
+
+            Assert::IsTrue(back->gameFinished);
+            Assert::AreEqual(0, (int)back->states[0]); // clue
+            Assert::AreEqual(5, (int)back->states[1]); // given up
+            Assert::AreEqual(4, (int)back->states[2]); // hint
         }
 
         [TestMethod]
@@ -506,6 +535,367 @@ namespace Sudoku_3_0_Tests
                 File::Delete(path);
             }
         }
+        // ---- Board invariants (see SaveGameStore::ValidateBoard) ----
+        // Every session state the app can reach loads; each way of breaking an invariant is
+        // rejected, and for its own reason.
+
+        [TestMethod]
+        void Load_AcceptsEveryReachableSessionState()
+        {
+            SaveAndReload(MakeGameSave());            // game in progress
+            SaveAndReload(MakeWonGameSave());         // game won
+            SaveAndReload(MakeGivenUpGameSave());     // game given up
+            SaveAndReload(MakeSolverInProgressSave()); // entering a custom puzzle
+            SaveAndReload(MakeSolvedSolverSave());    // custom puzzle solved
+        }
+
+        // -- Every state --
+
+        [TestMethod]
+        void Load_Rejects_PencilMarksOnFilledCell()
+        {
+            SavedGame^ g = MakeGameSave();
+            g->pencilMarks[0] = 1 << 4; // cell 0 is a clue
+            AssertRejected(g, "Pencil marks on a filled cell");
+        }
+
+        [TestMethod]
+        void Load_Rejects_ClueCellWherePuzzleHasNoClue()
+        {
+            SavedGame^ g = MakeGameSave();
+            g->values[1] = g->solution[1]; // cell 1 is not a clue in the puzzle
+            g->states[1] = 0;
+            g->pencilMarks[1] = 0;
+            AssertRejected(g, "Clue cell does not match the puzzle's clues");
+        }
+
+        [TestMethod]
+        void Load_Rejects_PuzzleClueNotLockedAsClue()
+        {
+            SavedGame^ g = MakeGameSave();
+            g->states[0] = 2; // cell 0 is a clue, but marked user-filled with the same digit
+            AssertRejected(g, "Clue cell does not match the puzzle's clues");
+        }
+
+        [TestMethod]
+        void Load_Rejects_ClueCellWithWrongDigit()
+        {
+            SavedGame^ g = MakeGameSave();
+            g->values[0] = (unsigned char)(g->solution[0] % 9 + 1);
+            AssertRejected(g, "Locked cell does not hold its solution digit");
+        }
+
+        // -- Game in progress: clues, empty, user-filled, and hint cells --
+
+        [TestMethod]
+        void Load_InProgress_AcceptsWrongGuessesAndHints()
+        {
+            SavedGame^ g = MakeGameSave();
+            g->values[1] = (unsigned char)(g->solution[1] % 9 + 1); // a wrong guess is fine
+            g->states[1] = 2;
+            g->pencilMarks[1] = 0;
+            g->values[2] = g->solution[2];                          // and so is a hint
+            g->states[2] = 4;
+            g->pencilMarks[2] = 0;
+            SaveAndReload(g);
+        }
+
+        [TestMethod]
+        void Load_InProgress_Rejects_CorrectCell()
+        {
+            SavedGame^ g = MakeGameSave();
+            g->values[1] = g->solution[1];
+            g->states[1] = 3;
+            g->pencilMarks[1] = 0;
+            AssertRejected(g, "cannot occur in this session state");
+        }
+
+        [TestMethod]
+        void Load_InProgress_Rejects_GivenUpCell()
+        {
+            SavedGame^ g = MakeGameSave();
+            g->values[1] = g->solution[1];
+            g->states[1] = 5;
+            g->pencilMarks[1] = 0;
+            AssertRejected(g, "cannot occur in this session state");
+        }
+
+        [TestMethod]
+        void Load_InProgress_Rejects_SolverFilledCell()
+        {
+            SavedGame^ g = MakeGameSave();
+            g->values[1] = g->solution[1];
+            g->states[1] = 6;
+            g->pencilMarks[1] = 0;
+            AssertRejected(g, "cannot occur in this session state");
+        }
+
+        [TestMethod]
+        void Load_InProgress_Rejects_HintWithWrongDigit()
+        {
+            SavedGame^ g = MakeGameSave();
+            g->values[1] = (unsigned char)(g->solution[1] % 9 + 1);
+            g->states[1] = 4;
+            g->pencilMarks[1] = 0;
+            AssertRejected(g, "Locked cell does not hold its solution digit");
+        }
+
+        [TestMethod]
+        void Load_InProgress_Rejects_FewerHintsCountedThanHintCells()
+        {
+            // Hint cells with numberOfHints == 0 would pass for a clean win.
+            SavedGame^ g = MakeGameSave();
+            g->numberOfHints = 0;
+            g->values[1] = g->solution[1];
+            g->states[1] = 4;
+            g->pencilMarks[1] = 0;
+            AssertRejected(g, "numberOfHints is below the number of hint cells");
+        }
+
+        [TestMethod]
+        void Load_InProgress_Rejects_AlreadySolvedBoard()
+        {
+            // Filling the last cell correctly wins on the spot, so this state is never saved.
+            SavedGame^ g = MakeGameSave();
+            for (int i = 0; i < Cells; ++i)
+            {
+                if (g->states[i] != 1) continue;
+                g->values[i] = g->solution[i];
+                g->states[i] = 2;
+                g->pencilMarks[i] = 0;
+            }
+            AssertRejected(g, "An unfinished game cannot already be solved");
+        }
+
+        [TestMethod]
+        void Load_InProgress_AcceptsFullBoardWithAWrongDigit()
+        {
+            SavedGame^ g = MakeGameSave();
+            for (int i = 0; i < Cells; ++i)
+            {
+                if (g->states[i] != 1) continue;
+                g->values[i] = g->solution[i];
+                g->states[i] = 2;
+                g->pencilMarks[i] = 0;
+            }
+            g->values[1] = (unsigned char)(g->solution[1] % 9 + 1);
+            SaveAndReload(g);
+        }
+
+        // -- Game won: clues, correct, and hint cells --
+
+        [TestMethod]
+        void Load_Won_Rejects_EmptyCell()
+        {
+            SavedGame^ g = MakeWonGameSave();
+            g->values[1] = 0;
+            g->states[1] = 1;
+            AssertRejected(g, "cannot occur in this session state");
+        }
+
+        [TestMethod]
+        void Load_Won_Rejects_UserFilledCell()
+        {
+            SavedGame^ g = MakeWonGameSave();
+            g->states[1] = 2; // a win locks every user cell as Correct
+            AssertRejected(g, "cannot occur in this session state");
+        }
+
+        [TestMethod]
+        void Load_Won_Rejects_CorrectCellWithWrongDigit()
+        {
+            SavedGame^ g = MakeWonGameSave();
+            g->values[1] = (unsigned char)(g->solution[1] % 9 + 1);
+            AssertRejected(g, "Locked cell does not hold its solution digit");
+        }
+
+        [TestMethod]
+        void Load_Finished_Rejects_BothWonAndGivenUp()
+        {
+            SavedGame^ g = MakeWonGameSave();
+            g->numberOfGiveUps = 1;
+            g->states[1] = 5;
+            AssertRejected(g, "A game cannot be both won and given up");
+        }
+
+        [TestMethod]
+        void Load_Finished_Rejects_PencilMarks()
+        {
+            SavedGame^ g = MakeWonGameSave();
+            g->pencilMarks[1] = 1 << 3;
+            AssertRejected(g, "Pencil marks on a filled cell");
+        }
+
+        // -- Game given up: clues, given-up, and hint cells --
+
+        [TestMethod]
+        void Load_GivenUp_Rejects_UncountedGiveUp()
+        {
+            SavedGame^ g = MakeGivenUpGameSave();
+            g->numberOfGiveUps = 0;
+            AssertRejected(g, "A given-up game must count the give-up");
+        }
+
+        [TestMethod]
+        void Load_GivenUp_Rejects_UserFilledCell()
+        {
+            SavedGame^ g = MakeGivenUpGameSave();
+            g->states[1] = 2; // giving up reveals every user cell
+            AssertRejected(g, "cannot occur in this session state");
+        }
+
+        [TestMethod]
+        void Load_GivenUp_Rejects_RevealWithWrongDigit()
+        {
+            SavedGame^ g = MakeGivenUpGameSave();
+            g->values[1] = (unsigned char)(g->solution[1] % 9 + 1);
+            AssertRejected(g, "Locked cell does not hold its solution digit");
+        }
+
+        // -- Entering a custom puzzle: empty and user-filled cells only, nothing else --
+
+        [TestMethod]
+        void Load_Entering_Rejects_ClueCell()
+        {
+            // Cells lock only when Solve succeeds; an unsolved custom puzzle has no clues.
+            SavedGame^ g = MakeSolverInProgressSave();
+            g->states[0] = 0; // cell 0 holds a value, so only the lock is wrong
+            AssertRejected(g, "cannot occur in this session state");
+        }
+
+        [TestMethod]
+        void Load_Entering_Rejects_SolverFilledCell()
+        {
+            SavedGame^ g = MakeSolverInProgressSave();
+            g->states[0] = 6;
+            AssertRejected(g, "cannot occur in this session state");
+        }
+
+        [TestMethod]
+        void Load_Entering_Rejects_GameOnlyCells()
+        {
+            for each (unsigned char state in gcnew array<unsigned char>{ 3, 4, 5 }) // correct, hint, given up
+            {
+                SavedGame^ g = MakeSolverInProgressSave();
+                g->states[0] = state;
+                AssertRejected(g, "cannot occur in this session state");
+            }
+        }
+
+        [TestMethod]
+        void Load_Entering_Rejects_Solution()
+        {
+            // Solve both captures the solution and finishes; an unfinished entry cannot have it.
+            SavedGame^ g = MakeSolvedSolverSave();
+            g->gameFinished = false;
+            for (int i = 0; i < Cells; ++i)
+                g->states[i] = 2; // every cell editable, so only the snapshot is wrong
+            AssertRejected(g, "cannot have a solution");
+        }
+
+        [TestMethod]
+        void Load_Entering_Rejects_PencilMarks()
+        {
+            SavedGame^ g = MakeSolverInProgressSave();
+            g->pencilMarks[80] = 1 << 5; // cell 80 is empty, but Pencil is game-only
+            AssertRejected(g, "Pencil marks in Solver mode");
+        }
+
+        [TestMethod]
+        void Load_Entering_Rejects_GameCounters()
+        {
+            for (int counter = 0; counter < 4; ++counter)
+            {
+                SavedGame^ g = MakeSolverInProgressSave();
+                switch (counter)
+                {
+                case 0:  g->numberOfHints = 1; break;
+                case 1:  g->numberOfFixes = 1; break;
+                case 2:  g->numberOfGiveUps = 1; break;
+                default: g->numberOfRestarts = 1; break;
+                }
+                AssertRejected(g, "Solver sessions have no hint, fix, give-up or restart counts");
+            }
+        }
+
+        // -- Custom puzzle solved: clues where entered, solver-filled everywhere else --
+
+        [TestMethod]
+        void Load_Solved_Rejects_MissingSolution()
+        {
+            // "Finished" in Solver mode means solved; without a solution it never happened.
+            SavedGame^ g = MakeSolverInProgressSave();
+            g->gameFinished = true;
+            AssertRejected(g, "must contain its solution");
+        }
+
+        [TestMethod]
+        void Load_Solved_Rejects_EmptyCell()
+        {
+            SavedGame^ g = MakeSolvedSolverSave();
+            g->values[1] = 0; // cell 1 is solver-filled in the fixture
+            g->states[1] = 1;
+            AssertRejected(g, "cannot occur in this session state");
+        }
+
+        [TestMethod]
+        void Load_Solved_Rejects_UserFilledCell()
+        {
+            SavedGame^ g = MakeSolvedSolverSave();
+            g->states[1] = 2;
+            AssertRejected(g, "cannot occur in this session state");
+        }
+
+        [TestMethod]
+        void Load_Solved_Rejects_CellNotMatchingSolution()
+        {
+            SavedGame^ g = MakeSolvedSolverSave();
+            g->values[1] = (unsigned char)(g->solution[1] % 9 + 1);
+            AssertRejected(g, "Locked cell does not hold its solution digit");
+        }
+
+        [TestMethod]
+        void Load_Solved_Rejects_ClueMarkedAsSolverFilled()
+        {
+            SavedGame^ g = MakeSolvedSolverSave();
+            g->states[0] = 6; // cell 0 is a clue in the fixture
+            AssertRejected(g, "Clue cell does not match the puzzle's clues");
+        }
+
+        [TestMethod]
+        void Load_Solved_Rejects_SolverCellMarkedAsClue()
+        {
+            SavedGame^ g = MakeSolvedSolverSave();
+            g->states[1] = 0; // cell 1 was filled by the solver, not entered
+            AssertRejected(g, "Clue cell does not match the puzzle's clues");
+        }
+
+        [TestMethod]
+        void Load_Solved_Rejects_GameCounters()
+        {
+            SavedGame^ g = MakeSolvedSolverSave();
+            g->numberOfHints = 1;
+            AssertRejected(g, "Solver sessions have no hint, fix, give-up or restart counts");
+        }
+
+        [TestMethod]
+        void RoundTrip_PreservesHighestDifficulty()
+        {
+            SavedGame^ g = MakeGameSave();
+            g->difficulty = 4;
+            Assert::AreEqual(4, (int)SaveAndReload(g)->difficulty);
+        }
+
+        [TestMethod]
+        [ExpectedException(Exception::typeid)]
+        void Load_Throws_OnDifficultyOutOfRange()
+        {
+            // Only 0..4 are valid; anything else must fail the load before it is applied.
+            SavedGame^ g = MakeGameSave();
+            g->difficulty = 5;
+            SaveAndReload(g);
+        }
+
         // ---- Undo/redo history ----
 
         [TestMethod]
@@ -690,8 +1080,9 @@ namespace Sudoku_3_0_Tests
         [TestMethod]
         void Load_FinishedGameWithHistory_IsDropped()
         {
-            // Cell 1 of the finished save is user-filled, so the entry is otherwise valid.
-            AssertHistoryDropped(MakeFinishedGameSave(), "1:0:1:0", "");
+            // Cell 2 of the won save is a hint, which a history may touch, so the entry is
+            // otherwise valid: only "finished games have no history" rejects it.
+            AssertHistoryDropped(MakeWonGameSave(), "2:0:1:0", "");
         }
     };
 }

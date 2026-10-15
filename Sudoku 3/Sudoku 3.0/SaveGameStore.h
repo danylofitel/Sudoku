@@ -97,7 +97,12 @@ namespace Sudoku_3_0
                 throw gcnew UnsupportedSaveVersionException(fileVersion, FormatVersion);
 
             SavedGame^ game = gcnew SavedGame();
+            // Validate everything here, before the caller applies anything: a value the form
+            // cannot take (e.g. a combo index past VeryHard) must fail the load up front, not
+            // halfway through applying it.
             game->difficulty = RequireUInt(fields, "difficulty");
+            if (game->difficulty > MaxDifficulty)
+                throw gcnew System::Exception("Invalid difficulty value " + game->difficulty.ToString());
 
             unsigned int candidateAssist = RequireUInt(fields, "candidateAssist");
             if (candidateAssist > static_cast<unsigned int>(CandidateDisplay::AllCells))
@@ -133,6 +138,13 @@ namespace Sudoku_3_0
             if (game->mode == GameMode::Game && !hasPuzzle)
                 throw gcnew System::Exception("A saved game must contain a puzzle solution.");
 
+            // In Solver mode the snapshot exists exactly when the puzzle is solved: Solve both
+            // captures it and finishes the session, and nothing else does either.
+            if (game->mode == GameMode::Solver && hasPuzzle != game->gameFinished)
+                throw gcnew System::Exception(game->gameFinished
+                    ? "A solved custom puzzle must contain its solution."
+                    : "A custom puzzle still being entered cannot have a solution.");
+
             if (hasPuzzle)
             {
                 game->clues = DecodeDigits(cluesStr, expectedNumberOfCells, L'0', L'9', "clue");
@@ -147,23 +159,9 @@ namespace Sudoku_3_0
                 game->solution = gcnew array<unsigned char>(0);
             }
 
-            // Per-cell cross-field validation
-            for (unsigned int i = 0; i < expectedNumberOfCells; ++i)
-            {
-                unsigned char v = game->values[i];
-                unsigned char s = game->states[i];
-
-                // state 1 means an empty cell, so value must be 0 and vice versa
-                if ((v == 0) != (s == 1))
-                    throw gcnew System::Exception("Mismatched cell value and state at index " + i.ToString());
-
-                if (game->mode == GameMode::Game && s == 6)
-                    throw gcnew System::Exception("Invalid state 6 in game mode at index " + i.ToString());
-                if (game->mode == GameMode::Solver && (s == 3 || s == 4 || s == 5))
-                    throw gcnew System::Exception("Invalid state " + s.ToString() + " in solver mode at index " + i.ToString());
-            }
-
             game->pencilMarks = DecodePencilMarks(RequireStr(fields, "pencilMarks"), expectedNumberOfCells);
+
+            ValidateBoard(game);
 
             // The undo/redo history is always written, but it is non-essential: the game is fully
             // playable without it. So unlike every field above, a history that cannot be used -
@@ -192,6 +190,9 @@ namespace Sudoku_3_0
     private:
         // Bumped whenever the on-disk format changes in a breaking way.
         static const unsigned int FormatVersion = 1;
+
+        // Difficulty indices run 0 (VeryEasy) .. 4 (VeryHard), as in Difficulty and Settings.
+        static const unsigned int MaxDifficulty = 4;
 
         // Encodes a 0-9 digit array as a string of ASCII digits.
         static System::String^ EncodeDigits(array<unsigned char>^ digits)
@@ -257,6 +258,110 @@ namespace Sudoku_3_0
                 marks[i] = m;
             }
             return marks;
+        }
+
+        // Checks that the board and counters form a state the app can actually reach, so a loaded
+        // game is never in a situation play could not produce. The reachable session states:
+        //
+        //   Session state       Cell kinds allowed                  Also required
+        //   ------------------  ----------------------------------  -------------------------------
+        //   Game, in progress   Clue, UserEmpty, UserFilled, Hint   board not already solved
+        //   Game, won           Clue, Correct, Hint                 -
+        //   Game, given up      Clue, GivenUp, Hint                 numberOfGiveUps >= 1
+        //   Solver, entering    UserEmpty, UserFilled               no solution; pencil marks and
+        //                                                           all counters are zero
+        //   Solver, solved      Clue, Solved                        solution present; counters zero
+        //
+        // and for every cell, in every state:
+        //   - empty (value 0) exactly when its kind is UserEmpty
+        //   - a Clue exactly where the puzzle has a clue, holding that clue
+        //   - a Correct, Hint, GivenUp, or Solved cell holds its solution digit
+        //   - pencil marks only on an empty cell
+        // plus: numberOfHints is at least the number of Hint cells (Undo can revert a hint
+        // reveal, but never uncounts it), so a file cannot claim hint cells as a clean win.
+        // (Solver mode has no puzzle, and therefore no clues, until it is solved; the game-only
+        // kinds Correct, Hint and GivenUp never appear in it.)
+        static void ValidateBoard(SavedGame^ game)
+        {
+            bool inGame = game->mode == GameMode::Game;
+            bool hasPuzzle = game->solution->Length > 0;
+            int count = game->values->Length;
+
+            // Kinds present on the board, to check the per-state rules after the cell loop.
+            unsigned int hintCells = 0;
+            bool anyCorrect = false, anyGivenUp = false, anyEmpty = false;
+            bool allEditableSolved = true; // every UserFilled cell holds its solution digit
+
+            for (int i = 0; i < count; ++i)
+            {
+                unsigned char value = game->values[i];
+                CellKind kind = static_cast<CellKind>(game->states[i]);
+                System::String^ where = " at index " + i.ToString();
+
+                if ((value == 0) != (kind == CellKind::UserEmpty))
+                    throw gcnew System::Exception("Mismatched cell value and state" + where);
+
+                if (game->pencilMarks[i] != 0 && kind != CellKind::UserEmpty)
+                    throw gcnew System::Exception("Pencil marks on a filled cell" + where);
+                if (game->pencilMarks[i] != 0 && !inGame)
+                    throw gcnew System::Exception("Pencil marks in Solver mode" + where); // Pencil is game-only
+
+                // Cell kinds allowed in this session state
+                bool allowed;
+                if (inGame && !game->gameFinished)
+                    allowed = kind == CellKind::Clue || kind == CellKind::UserEmpty
+                        || kind == CellKind::UserFilled || kind == CellKind::Hint;
+                else if (inGame)
+                    allowed = kind == CellKind::Clue || kind == CellKind::Correct
+                        || kind == CellKind::Hint || kind == CellKind::GivenUp;
+                else if (!game->gameFinished)
+                    allowed = kind == CellKind::UserEmpty || kind == CellKind::UserFilled;
+                else
+                    allowed = kind == CellKind::Clue || kind == CellKind::Solved;
+                if (!allowed)
+                    throw gcnew System::Exception("Cell state " + game->states[i].ToString()
+                        + " cannot occur in this session state" + where);
+
+                // Clues: exactly where the puzzle has one, holding it
+                if (hasPuzzle && (kind == CellKind::Clue) != (game->clues[i] != 0))
+                    throw gcnew System::Exception("Clue cell does not match the puzzle's clues" + where);
+
+                // Locked reveals hold the solution (clues are covered by clue == solution)
+                bool revealsSolution = kind == CellKind::Correct || kind == CellKind::Hint
+                    || kind == CellKind::GivenUp || kind == CellKind::Solved;
+                if ((kind == CellKind::Clue || revealsSolution) && value != game->solution[i])
+                    throw gcnew System::Exception("Locked cell does not hold its solution digit" + where);
+
+                if (kind == CellKind::Hint) ++hintCells;
+                if (kind == CellKind::Correct) anyCorrect = true;
+                if (kind == CellKind::GivenUp) anyGivenUp = true;
+                if (kind == CellKind::UserEmpty) anyEmpty = true;
+                if (kind == CellKind::UserFilled && hasPuzzle && value != game->solution[i])
+                    allEditableSolved = false;
+            }
+
+            if (inGame)
+            {
+                if (game->numberOfHints < hintCells)
+                    throw gcnew System::Exception("numberOfHints is below the number of hint cells.");
+
+                // A game whose board is complete and correct was won the moment it got there
+                if (!game->gameFinished && !anyEmpty && allEditableSolved)
+                    throw gcnew System::Exception("An unfinished game cannot already be solved.");
+
+                // A finished game ended exactly one way: won (Correct) or given up (GivenUp)
+                if (anyCorrect && anyGivenUp)
+                    throw gcnew System::Exception("A game cannot be both won and given up.");
+                if (anyGivenUp && game->numberOfGiveUps == 0)
+                    throw gcnew System::Exception("A given-up game must count the give-up.");
+            }
+            else
+            {
+                // Hints, Fix, Give Up and Restart do not exist in Solver mode
+                if (game->numberOfHints != 0 || game->numberOfFixes != 0
+                    || game->numberOfGiveUps != 0 || game->numberOfRestarts != 0)
+                    throw gcnew System::Exception("Solver sessions have no hint, fix, give-up or restart counts.");
+            }
         }
 
         // Encodes a history as operations separated by ';', each a ','-separated list of cell

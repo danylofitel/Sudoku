@@ -16,6 +16,11 @@ namespace Sudoku_3_0
         // Active game mode
         GameMode mode;
 
+        // Whether the puzzle is over: won or given up (Game), or solved (Solver). A finished
+        // session is not playable until Restart (Game) or a new puzzle; the form derives its
+        // controls from this flag.
+        bool finished;
+
         // Immutable snapshot of the current puzzle (clues + solution).
         // Always set in Game mode. In Solver mode it is nullptr until Solve succeeds,
         // so a custom puzzle can be entered (and saved) before it has a known solution.
@@ -102,6 +107,7 @@ namespace Sudoku_3_0
         void reset(GameMode mode)
         {
             this->mode = mode;
+            this->finished = false;
             this->puzzle = nullptr;
             this->board->clearToEmpty();
             this->numberOfRestarts = 0;
