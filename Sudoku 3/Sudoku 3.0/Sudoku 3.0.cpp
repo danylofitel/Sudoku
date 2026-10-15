@@ -21,16 +21,25 @@ int main(array<System::String^>^ args)
     // is the first real argument.
     System::String^ startupFile = (args != nullptr && args->Length > 0) ? args[0] : nullptr;
 
+    SudokuForm^ form = nullptr;
     try
     {
         // Create the main window and run it
-        Application::Run(gcnew SudokuForm(startupFile));
+        form = gcnew SudokuForm(startupFile);
+        Application::Run(form);
     }
     catch (System::Exception^ ex)
     {
+        // Auto-save normally runs only on a clean exit, so try to keep the game first. The form
+        // saves only a game that passes the load checks; otherwise the last auto-save stands.
+        bool saved = form != nullptr && form->trySaveAfterCrash();
+
         Language lang = Settings::LoadLanguage();
+        System::String^ message = Strings::Get(StringId::NotifyUnexpectedError, lang);
+        if (saved)
+            message += Strings::Get(StringId::NotifyGameSavedAfterError, lang);
         MessageBox::Show(
-            Strings::Get(StringId::NotifyUnexpectedError, lang) + ex->Message,
+            message + ex->Message,
             Strings::Get(StringId::WindowTitle, lang),
             MessageBoxButtons::OK,
             MessageBoxIcon::Error);

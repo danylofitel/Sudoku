@@ -634,6 +634,109 @@ namespace Sudoku_3_0_Tests
             }
         }
 
+        // ---- Validate: the same rules as Load, on an in-memory game (used by the crash save) ----
+
+    private:
+        // The message Validate throws for g, or nullptr if it accepts it.
+        static String^ ValidateMessage(SavedGame^ g)
+        {
+            try
+            {
+                SaveGameStore::Validate(g, Cells);
+                return nullptr;
+            }
+            catch (Exception^ ex)
+            {
+                return ex->Message;
+            }
+        }
+
+        // The message Load throws after saving g, or nullptr if it loads.
+        static String^ LoadMessage(SavedGame^ g)
+        {
+            try
+            {
+                SaveAndReload(g);
+                return nullptr;
+            }
+            catch (Exception^ ex)
+            {
+                return ex->Message;
+            }
+        }
+
+        // A spread of broken games, one per kind of rule.
+        static array<SavedGame^>^ InvalidGames()
+        {
+            System::Collections::Generic::List<SavedGame^>^ games = gcnew System::Collections::Generic::List<SavedGame^>();
+            SavedGame^ g;
+
+            g = MakeGameSave(); g->difficulty = 5; games->Add(g);                         // range
+            g = MakeGameSave(); g->states[0] = 1; games->Add(g);                          // value/state
+            g = MakeGameSave(); g->solution[0] = 0; games->Add(g);                        // solution digit
+            g = MakeGameSave(); g->pencilMarks[0] = 1; games->Add(g);                     // pencil bits
+            g = MakeGameSave(); g->clues = gcnew array<unsigned char>(0);
+                                g->solution = gcnew array<unsigned char>(0); games->Add(g); // no puzzle
+            g = MakeSolverInProgressSave(); g->gameFinished = true; games->Add(g);        // snapshot
+            g = MakeWonGameSave(); g->states[1] = 2; games->Add(g);                       // session state
+            g = MakeGivenUpGameSave(); g->numberOfGiveUps = 0; games->Add(g);             // counters
+            return games->ToArray();
+        }
+
+    public:
+        [TestMethod]
+        void Validate_AcceptsEveryReachableSessionState()
+        {
+            Assert::IsNull(ValidateMessage(MakeGameSave()));
+            Assert::IsNull(ValidateMessage(MakeWonGameSave()));
+            Assert::IsNull(ValidateMessage(MakeGivenUpGameSave()));
+            Assert::IsNull(ValidateMessage(MakeSolverInProgressSave()));
+            Assert::IsNull(ValidateMessage(MakeSolvedSolverSave()));
+        }
+
+        [TestMethod]
+        void Validate_RejectsExactlyWhatLoadRejects()
+        {
+            // The crash save relies on this: a game Validate accepts always loads again, and one
+            // it rejects would have been rejected on the next launch - for the same reason.
+            for each (SavedGame ^ g in InvalidGames())
+            {
+                String^ validate = ValidateMessage(g);
+                Assert::IsNotNull(validate, "Validate accepted an invalid game");
+                Assert::AreEqual(validate, LoadMessage(g));
+            }
+        }
+
+        [TestMethod]
+        void Validate_Rejects_WrongLengthBoard()
+        {
+            SavedGame^ g = MakeGameSave();
+            g->values = gcnew array<unsigned char>(Cells - 1);
+            Assert::IsTrue(ValidateMessage(g)->Contains("Invalid length for field 'value'"));
+        }
+
+        [TestMethod]
+        void Validate_Rejects_MissingPuzzleArrays()
+        {
+            // Capture always supplies empty arrays for "no puzzle"; nullptr is a bug, not "none"
+            SavedGame^ g = MakeSolverInProgressSave();
+            g->clues = nullptr;
+            Assert::IsTrue(ValidateMessage(g)->Contains("Missing puzzle snapshot"));
+        }
+
+        [TestMethod]
+        void Load_Rejects_NonDigitCharacter()
+        {
+            // A format error, caught while parsing, before Validate sees the game
+            AssertRejectedWithLine(MakeGameSave(), "value", "value=" + gcnew String(L'x', Cells), "Invalid character 'x' in field 'value'");
+        }
+
+        [TestMethod]
+        void Load_Rejects_WrongLengthBoard()
+        {
+            AssertRejectedWithLine(MakeGameSave(), "state", "state=0", "Invalid length for field 'state'");
+        }
+
         // ---- Board invariants (see SaveGameStore::ValidateBoard) ----
         // Every session state the app can reach loads; each way of breaking an invariant is
         // rejected, and for its own reason.

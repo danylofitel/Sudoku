@@ -201,6 +201,29 @@ namespace Sudoku_3_0_Tests
         }
 
         [TestMethod]
+        void Capture_OfALiveSession_PassesValidate()
+        {
+            // What the crash save does: capture the session, then validate it before writing
+            GameSession^ s = MakePopulatedSession();
+            SaveGameStore::Validate(SavedGameMapper::Capture(s, nullptr, 10), Cells);
+        }
+
+        [TestMethod]
+        void Capture_OfAnInconsistentSession_FailsValidate()
+        {
+            // A state play cannot reach (a hint cell nobody counted) - e.g. one left behind by an
+            // error mid-change. The crash save must refuse to write it.
+            GameSession^ s = MakePopulatedSession();
+            s->numberOfHints = 0;
+            s->board->reveal(4, s->puzzle->solution[4], CellKind::Hint);
+
+            bool rejected = false;
+            try { SaveGameStore::Validate(SavedGameMapper::Capture(s, nullptr, 10), Cells); }
+            catch (Exception^) { rejected = true; }
+            Assert::IsTrue(rejected);
+        }
+
+        [TestMethod]
         void Restore_ReplacesExistingHistory()
         {
             // Loading a save must not leave the previous game's history behind.

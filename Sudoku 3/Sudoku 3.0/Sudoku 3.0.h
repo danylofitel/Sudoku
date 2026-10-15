@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "BuildInfo.h" // generated at build time; defines SUDOKU_COPYRIGHT_YEAR_W
 #include "ClipboardPuzzleFormatter.h"
 #include "CellAccessibility.h"
 #include "ConflictDetector.h"
@@ -3892,25 +3893,49 @@ namespace Sudoku_3_0
         this->buttonToolTips->SetToolTip(this->clipboardButton, Strings::Get(buttonTooltip, this->currentLanguage));
     }
 
+           // The clipboard is shared with every other program, and any of them may hold it open
+           // for a moment (clipboard managers, Remote Desktop, Office). The clipboard calls then
+           // throw ExternalException; that must never escape and take the game down with it.
+    private: void copyTextToClipboard(System::String^ text)
+    {
+        try
+        {
+            // copy = true keeps the text after we exit; retry a few times before giving up
+            System::Windows::Forms::Clipboard::SetDataObject(text, true, 5, 100);
+        }
+        catch (System::Runtime::InteropServices::ExternalException^)
+        {
+            this->showNotification(Strings::Get(StringId::NotifyClipboardBusy, this->currentLanguage));
+        }
+    }
+
     private: void copyPuzzleToClipboard()
     {
         // Always copies the original clues, never the solution.
-        System::Windows::Forms::Clipboard::SetText(
-            ClipboardPuzzleFormatter::Encode(this->session->puzzle->clues));
+        this->copyTextToClipboard(ClipboardPuzzleFormatter::Encode(this->session->puzzle->clues));
     }
 
     private: void copySolutionToClipboard()
     {
         // Copies the full solution of a solved custom puzzle.
-        System::Windows::Forms::Clipboard::SetText(
-            ClipboardPuzzleFormatter::Encode(this->session->puzzle->solution));
+        this->copyTextToClipboard(ClipboardPuzzleFormatter::Encode(this->session->puzzle->solution));
     }
 
     private: void pastePuzzleFromClipboard()
     {
-        System::String^ raw = System::Windows::Forms::Clipboard::ContainsText()
-            ? System::Windows::Forms::Clipboard::GetText()
-            : gcnew System::String(L"");
+        System::String^ raw;
+        try
+        {
+            raw = System::Windows::Forms::Clipboard::ContainsText()
+                ? System::Windows::Forms::Clipboard::GetText()
+                : gcnew System::String(L"");
+        }
+        catch (System::Runtime::InteropServices::ExternalException^)
+        {
+            // Busy clipboard (see copyTextToClipboard): nothing was read, nothing changes
+            this->showNotification(Strings::Get(StringId::NotifyClipboardBusy, this->currentLanguage));
+            return;
+        }
 
         array<unsigned char>^ digits = ClipboardPuzzleFormatter::Decode(raw, (int)this->numberOfCells);
         if (digits == nullptr)
@@ -4177,7 +4202,8 @@ namespace Sudoku_3_0
 
     private: void aboutToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
     {
-        System::String^ text = Strings::Get(StringId::DialogAboutText, this->currentLanguage);
+        System::String^ text = System::String::Format(
+            Strings::Get(StringId::DialogAboutText, this->currentLanguage), gcnew System::String(SUDOKU_COPYRIGHT_YEAR_W));
 
         System::String^ build = this->buildStamp();
         if (build->Length > 0)
@@ -4421,20 +4447,23 @@ namespace Sudoku_3_0
            // Returns true on success, false on any failure - reporting is up to the caller.
     private: bool saveGameToFile(System::String^ path)
     {
-        // Besides the session, the snapshot takes the undo/redo history and elapsedSeconds
-        // (from the timer); the mapper builds the rest.
-        SavedGame^ game = SavedGameMapper::Capture(
-            this->session, this->undoManager, (unsigned int)this->gameTimer->Elapsed.TotalSeconds);
-
         try
         {
-            SaveGameStore::Save(path, game);
+            SaveGameStore::Save(path, this->captureGame());
             return true;
         }
         catch (System::Exception^)
         {
             return false;
         }
+    }
+
+           // Snapshot of the current game for saving. Besides the session, it takes the undo/redo
+           // history and elapsedSeconds (from the timer); the mapper builds the rest.
+    private: SavedGame^ captureGame()
+    {
+        return SavedGameMapper::Capture(
+            this->session, this->undoManager, (unsigned int)this->gameTimer->Elapsed.TotalSeconds);
     }
 
     private: void saveGameDialog_FileOk(System::Object^ sender, System::ComponentModel::CancelEventArgs^ e)
@@ -4537,6 +4566,33 @@ namespace Sudoku_3_0
             System::String^ path = this->autoSavePath();
             System::IO::Directory::CreateDirectory(System::IO::Path::GetDirectoryName(path));
             return this->saveGameToFile(path);
+        }
+        catch (System::Exception^)
+        {
+            return false;
+        }
+    }
+
+           // Last-chance auto-save when the app is about to close because of an unexpected error
+           // (called from main). The error may have struck mid-change, so the game is written only
+           // if it passes the exact checks a load applies (SaveGameStore::Validate): a game that
+           // would be rejected on the next launch is never saved, and the previous auto-save is
+           // left as it was. Uses only the session, history and timer - never the controls, which
+           // may already be torn down. Returns true if the game was saved; never throws.
+    public: bool trySaveAfterCrash()
+    {
+        try
+        {
+            if (this->session == nullptr || this->undoManager == nullptr || this->gameTimer == nullptr)
+                return false; // the error happened before the game existed
+
+            SavedGame^ game = this->captureGame();
+            SaveGameStore::Validate(game, this->numberOfCells);
+
+            System::String^ path = this->autoSavePath();
+            System::IO::Directory::CreateDirectory(System::IO::Path::GetDirectoryName(path));
+            SaveGameStore::Save(path, game);
+            return true;
         }
         catch (System::Exception^)
         {

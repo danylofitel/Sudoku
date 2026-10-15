@@ -26,6 +26,10 @@ namespace Sudoku_3_0
 
         void onMouseDown(System::Windows::Forms::MouseEventArgs^ e)
         {
+            // Only the left button drags, as with a normal window's title bar
+            if (e->Button != System::Windows::Forms::MouseButtons::Left)
+                return;
+
             this->dragging = true;
             this->offset = System::Drawing::Point(e->X, e->Y);
         }

@@ -6,7 +6,6 @@
 #pragma once
 
 #include "Language.h"
-#include "BuildInfo.h" // generated at build time; defines SUDOKU_COPYRIGHT_YEAR_W
 
 namespace Sudoku_3_0
 {
@@ -109,6 +108,7 @@ namespace Sudoku_3_0
         NotifyFileLoadError,
         NotifyUnsupportedVersion,
         NotifyUnexpectedError,
+        NotifyGameSavedAfterError,
 
         // ---- File dialogs ----
         FileDialogFilter,
@@ -141,6 +141,7 @@ namespace Sudoku_3_0
         MenuCopyPuzzle,
         MenuCopySolution,
         NotifyInvalidPuzzleString,
+        NotifyClipboardBusy,
 
         // ---- Feature descriptions ----
         // One "Name - what it does" line per action; used as button tooltips and
@@ -169,6 +170,10 @@ namespace Sudoku_3_0
         CellGivenUp,
         CellSolved,
         CellConflict,
+
+        // Number of string IDs. Must stay last; tests use it to check that every ID above
+        // has text in every language.
+        Count,
     };
 
     ref class Strings abstract sealed
@@ -515,9 +520,10 @@ namespace Sudoku_3_0
                 default:                 return L"Showing candidates counts as assistance. Any puzzle you solve while it is on will not count as a clean win, and your clean win streak will reset.\n\nEnable candidate display?";
                 }
             case StringId::DialogAboutText:
+                // {0} = the copyright end year, filled in by the caller from the build stamp
                 switch (lang) {
-                case Language::Ukrainian: return L"Судоку 3.0\n\n© 2013–" SUDOKU_COPYRIGHT_YEAR_W L" Фітель Данило\nУсі права захищені";
-                default:                 return L"Sudoku 3.0\n\n© 2013–" SUDOKU_COPYRIGHT_YEAR_W L" Danylo Fitel\nAll rights reserved";
+                case Language::Ukrainian: return L"Судоку 3.0\n\n© 2013–{0} Фітель Данило\nУсі права захищені";
+                default:                 return L"Sudoku 3.0\n\n© 2013–{0} Danylo Fitel\nAll rights reserved";
                 }
             case StringId::DialogBuildLabel:
                 switch (lang) {
@@ -631,6 +637,12 @@ namespace Sudoku_3_0
                 switch (lang) {
                 case Language::Ukrainian: return L"Сталася неочікувана помилка, і застосунок буде закрито.\n\n";
                 default:                 return L"An unexpected error occurred and the application must close.\n\n";
+                }
+            case StringId::NotifyGameSavedAfterError:
+                // Shown after NotifyUnexpectedError, before the error details
+                switch (lang) {
+                case Language::Ukrainian: return L"Вашу гру збережено, і вона продовжиться під час наступного запуску.\n\n";
+                default:                 return L"Your game was saved and will continue the next time you start the app.\n\n";
                 }
 
                 // ---- File dialogs ----
@@ -759,6 +771,11 @@ namespace Sudoku_3_0
                 switch (lang) {
                 case Language::Ukrainian: return L"Неправильний рядок! Потрібно 81 цифру (1-9 або 0/крапка для порожніх).";
                 default:                 return L"Invalid puzzle string! Expected 81 digits (1-9 or 0/dot for empty cells).";
+                }
+            case StringId::NotifyClipboardBusy:
+                switch (lang) {
+                case Language::Ukrainian: return L"Буфер обміну зараз використовує інша програма. Спробуйте ще раз.";
+                default:                 return L"The clipboard is in use by another program. Please try again.";
                 }
 
                 // ---- Feature descriptions (Features dialog lines & button tooltips) ----

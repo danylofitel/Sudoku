@@ -143,72 +143,27 @@ namespace Sudoku_3_0
             if (fileVersion > FormatVersion)
                 throw gcnew UnsupportedSaveVersionException(fileVersion, FormatVersion);
 
+            // Parse: everything below only reads the text format (required keys, numbers that
+            // parse, digit strings made of digits). Every rule about the values lives in
+            // Validate, which runs before the caller applies anything - so a value the form cannot
+            // take fails the load up front, not halfway through applying it.
             SavedGame^ game = gcnew SavedGame();
-            // Validate everything here, before the caller applies anything: a value the form
-            // cannot take (e.g. a combo index past VeryHard) must fail the load up front, not
-            // halfway through applying it.
             game->difficulty = RequireUInt(fields, "difficulty");
-            if (game->difficulty > MaxDifficulty)
-                throw gcnew System::Exception("Invalid difficulty value " + game->difficulty.ToString());
-
-            unsigned int candidateAssist = RequireUInt(fields, "candidateAssist");
-            if (candidateAssist > static_cast<unsigned int>(CandidateDisplay::AllCells))
-                throw gcnew System::Exception("Invalid candidateAssist value " + candidateAssist.ToString());
-            game->candidateAssist = static_cast<CandidateDisplay>(candidateAssist);
-
+            game->candidateAssist = static_cast<CandidateDisplay>(RequireUInt(fields, "candidateAssist"));
             game->numberOfRestarts = RequireUInt(fields, "numberOfRestarts");
             game->numberOfHints = RequireUInt(fields, "numberOfHints");
             game->numberOfFixes = RequireUInt(fields, "numberOfFixes");
             game->numberOfGiveUps = RequireUInt(fields, "numberOfGiveUps");
             game->gameFinished = RequireUInt(fields, "gameFinished") != 0;
             game->elapsedSeconds = RequireUInt(fields, "elapsedSeconds");
+            game->mode = static_cast<GameMode>(RequireUInt(fields, "gameMode"));
+            game->values = DecodeDigits(RequireStr(fields, "value"), "value");
+            game->states = DecodeDigits(RequireStr(fields, "state"), "state");
+            game->clues = DecodeDigits(RequireStr(fields, "clues"), "clue");
+            game->solution = DecodeDigits(RequireStr(fields, "solution"), "solution");
+            game->pencilMarks = DecodePencilMarks(RequireStr(fields, "pencilMarks"));
 
-            unsigned int gameMode = RequireUInt(fields, "gameMode");
-            if (gameMode != static_cast<unsigned int>(GameMode::Game) &&
-                gameMode != static_cast<unsigned int>(GameMode::Solver))
-            {
-                throw gcnew System::Exception("Invalid gameMode value " + gameMode.ToString());
-            }
-            game->mode = static_cast<GameMode>(gameMode);
-
-            // Board state is always present and full-length.
-            game->values = DecodeDigits(RequireStr(fields, "value"), expectedNumberOfCells, L'0', L'9', "value");
-            game->states = DecodeDigits(RequireStr(fields, "state"), expectedNumberOfCells, L'0', L'6', "state");
-
-            // The puzzle snapshot (clues + solution) is optional: a Solver session that has not
-            // been solved yet has no known solution, so both fields are empty. When present, both
-            // must be full-length and consistent. Game mode always requires a solution.
-            System::String^ cluesStr = RequireStr(fields, "clues");
-            System::String^ solutionStr = RequireStr(fields, "solution");
-            bool hasPuzzle = cluesStr->Length > 0 || solutionStr->Length > 0;
-
-            if (game->mode == GameMode::Game && !hasPuzzle)
-                throw gcnew System::Exception("A saved game must contain a puzzle solution.");
-
-            // In Solver mode the snapshot exists exactly when the puzzle is solved: Solve both
-            // captures it and finishes the session, and nothing else does either.
-            if (game->mode == GameMode::Solver && hasPuzzle != game->gameFinished)
-                throw gcnew System::Exception(game->gameFinished
-                    ? "A solved custom puzzle must contain its solution."
-                    : "A custom puzzle still being entered cannot have a solution.");
-
-            if (hasPuzzle)
-            {
-                game->clues = DecodeDigits(cluesStr, expectedNumberOfCells, L'0', L'9', "clue");
-                game->solution = DecodeDigits(solutionStr, expectedNumberOfCells, L'1', L'9', "solution");
-                for (unsigned int i = 0; i < expectedNumberOfCells; ++i)
-                    if (game->clues[i] != 0 && game->clues[i] != game->solution[i])
-                        throw gcnew System::Exception("Clue/solution mismatch at index " + i.ToString());
-            }
-            else
-            {
-                game->clues = gcnew array<unsigned char>(0);
-                game->solution = gcnew array<unsigned char>(0);
-            }
-
-            game->pencilMarks = DecodePencilMarks(RequireStr(fields, "pencilMarks"), expectedNumberOfCells);
-
-            ValidateBoard(game);
+            Validate(game, expectedNumberOfCells);
 
             // The undo/redo history is always written, but it is non-essential: the game is fully
             // playable without it. So unlike every field above, a history that cannot be used -
@@ -234,6 +189,65 @@ namespace Sudoku_3_0
             return game;
         }
 
+        // Checks every rule a saved game must satisfy: value ranges, array lengths, the puzzle
+        // snapshot, and the board invariants (ValidateBoard). Throws System::Exception naming
+        // the first rule broken. Load runs it on every file it reads; the form runs it before an
+        // emergency save after a crash, so that save can never write a game Load would reject.
+        // The undo/redo history is not checked here: it is non-essential, and Load drops an
+        // unusable one rather than rejecting the game.
+        static void Validate(SavedGame^ game, unsigned int expectedNumberOfCells)
+        {
+            if (game->difficulty > MaxDifficulty)
+                throw gcnew System::Exception("Invalid difficulty value " + game->difficulty.ToString());
+
+            unsigned int candidateAssist = static_cast<unsigned int>(game->candidateAssist);
+            if (candidateAssist > static_cast<unsigned int>(CandidateDisplay::AllCells))
+                throw gcnew System::Exception("Invalid candidateAssist value " + candidateAssist.ToString());
+
+            if (game->mode != GameMode::Game && game->mode != GameMode::Solver)
+                throw gcnew System::Exception("Invalid gameMode value " + (static_cast<unsigned int>(game->mode)).ToString());
+
+            // Board state is always present and full-length.
+            RequireDigits(game->values, expectedNumberOfCells, 0, 9, "value");
+            RequireDigits(game->states, expectedNumberOfCells, 0, 6, "state");
+
+            // The puzzle snapshot (clues + solution) is optional: a Solver session that has not
+            // been solved yet has no known solution, so both are empty. When present, both must
+            // be full-length and consistent. Game mode always requires a solution.
+            if (game->clues == nullptr || game->solution == nullptr)
+                throw gcnew System::Exception("Missing puzzle snapshot (use empty arrays for none).");
+            bool hasPuzzle = game->clues->Length > 0 || game->solution->Length > 0;
+
+            if (game->mode == GameMode::Game && !hasPuzzle)
+                throw gcnew System::Exception("A saved game must contain a puzzle solution.");
+
+            // In Solver mode the snapshot exists exactly when the puzzle is solved: Solve both
+            // captures it and finishes the session, and nothing else does either.
+            if (game->mode == GameMode::Solver && hasPuzzle != game->gameFinished)
+                throw gcnew System::Exception(game->gameFinished
+                    ? "A solved custom puzzle must contain its solution."
+                    : "A custom puzzle still being entered cannot have a solution.");
+
+            if (hasPuzzle)
+            {
+                RequireDigits(game->clues, expectedNumberOfCells, 0, 9, "clue");
+                RequireDigits(game->solution, expectedNumberOfCells, 1, 9, "solution");
+                for (unsigned int i = 0; i < expectedNumberOfCells; ++i)
+                    if (game->clues[i] != 0 && game->clues[i] != game->solution[i])
+                        throw gcnew System::Exception("Clue/solution mismatch at index " + i.ToString());
+            }
+
+            // Pencil marks: one bitmask per cell, using only bits 1-9 (the digits)
+            if (game->pencilMarks == nullptr || (unsigned int)game->pencilMarks->Length != expectedNumberOfCells)
+                throw gcnew System::Exception("Invalid length for field 'pencilMarks'");
+            const int validBits = 0x3FE; // bits 1..9
+            for (unsigned int i = 0; i < expectedNumberOfCells; ++i)
+                if ((game->pencilMarks[i] & ~validBits) != 0)
+                    throw gcnew System::Exception("Invalid pencilMarks value " + game->pencilMarks[i].ToString() + " at index " + i.ToString());
+
+            ValidateBoard(game);
+        }
+
     private:
         // Bumped whenever the on-disk format changes in a breaking way.
         static const unsigned int FormatVersion = 1;
@@ -241,24 +255,31 @@ namespace Sudoku_3_0
         // Difficulty indices run 0 (VeryEasy) .. 4 (VeryHard), as in Difficulty and Settings.
         static const unsigned int MaxDifficulty = 4;
 
-        // Decodes a string of ASCII digits into a byte array, validating both its length and
-        // that every character lies within [minDigit, maxDigit].
-        static array<unsigned char>^ DecodeDigits(
-            System::String^ text, unsigned int expectedLength,
-            wchar_t minDigit, wchar_t maxDigit, System::String^ fieldName)
+        // Decodes a string of ASCII digits into a byte array. Format only: every character must
+        // be a digit; the length and the allowed range are Validate's job (RequireDigits).
+        static array<unsigned char>^ DecodeDigits(System::String^ text, System::String^ fieldName)
         {
-            if ((unsigned int)text->Length != expectedLength)
-                throw gcnew System::Exception("Invalid length for field '" + fieldName + "'");
-
             array<unsigned char>^ result = gcnew array<unsigned char>(text->Length);
             for (int i = 0; i < text->Length; ++i)
             {
                 wchar_t c = text[i];
-                if (c < minDigit || c > maxDigit)
-                    throw gcnew System::Exception("Invalid " + fieldName + " value '" + c.ToString() + "' at index " + i.ToString());
+                if (c < L'0' || c > L'9')
+                    throw gcnew System::Exception("Invalid character '" + c.ToString() + "' in field '" + fieldName + "' at index " + i.ToString());
                 result[i] = (unsigned char)(c - L'0');
             }
             return result;
+        }
+
+        // Validate's check for a digit field: exactly expectedLength entries, each within
+        // [minDigit, maxDigit].
+        static void RequireDigits(array<unsigned char>^ digits, unsigned int expectedLength,
+            unsigned char minDigit, unsigned char maxDigit, System::String^ fieldName)
+        {
+            if (digits == nullptr || (unsigned int)digits->Length != expectedLength)
+                throw gcnew System::Exception("Invalid length for field '" + fieldName + "'");
+            for (int i = 0; i < digits->Length; ++i)
+                if (digits[i] < minDigit || digits[i] > maxDigit)
+                    throw gcnew System::Exception("Invalid " + fieldName + " value " + digits[i].ToString() + " at index " + i.ToString());
         }
 
         // Encodes pencil-mark bitmasks as space-separated integers.
@@ -273,27 +294,19 @@ namespace Sudoku_3_0
             return sb->ToString();
         }
 
-        // Decodes space-separated pencil-mark bitmasks into an array. Strict, like the digit
-        // fields: there must be exactly expectedLength entries, each a valid bitmask (only bits
-        // 1-9 may be set, matching what the game writes).
-        static array<int>^ DecodePencilMarks(System::String^ text, unsigned int expectedLength)
+        // Decodes space-separated pencil-mark bitmasks into an array. Format only: every entry
+        // must be an integer; the count and the allowed bits are Validate's job.
+        static array<int>^ DecodePencilMarks(System::String^ text)
         {
-            // A full board always writes expectedLength space-separated tokens (all-zero cells
-            // included), so an empty value is only well-formed when no cells are expected.
             array<System::String^>^ parts = text->Length == 0
                 ? gcnew array<System::String^>(0)
                 : text->Split(' ');
-            if ((unsigned int)parts->Length != expectedLength)
-                throw gcnew System::Exception("Invalid length for field 'pencilMarks'");
 
-            const int validBits = 0x3FE; // bits 1..9
-            array<int>^ marks = gcnew array<int>(expectedLength);
-            for (unsigned int i = 0; i < expectedLength; ++i)
+            array<int>^ marks = gcnew array<int>(parts->Length);
+            for (int i = 0; i < parts->Length; ++i)
             {
-                int m = 0;
-                if (!System::Int32::TryParse(parts[i], m) || m < 0 || (m & ~validBits) != 0)
+                if (!System::Int32::TryParse(parts[i], marks[i]))
                     throw gcnew System::Exception("Invalid pencilMarks value '" + parts[i] + "' at index " + i.ToString());
-                marks[i] = m;
             }
             return marks;
         }
