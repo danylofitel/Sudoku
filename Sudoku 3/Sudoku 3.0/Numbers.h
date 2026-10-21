@@ -319,8 +319,8 @@ namespace Sudoku_3_0
                // 
                // Numbers
                // 
-               this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
-               this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+               this->AutoScaleDimensions = System::Drawing::SizeF(96, 96);
+               this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Dpi;
                this->CancelButton = this->buttonCancel;
                this->ClientSize = System::Drawing::Size(150, 200);
                this->Controls->Add(this->buttonCancel);

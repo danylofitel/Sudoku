@@ -2450,8 +2450,8 @@ namespace Sudoku_3_0
                // 
                // SudokuForm
                // 
-               this->AutoScaleDimensions = System::Drawing::SizeF(9, 20);
-               this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+               this->AutoScaleDimensions = System::Drawing::SizeF(144, 144);
+               this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Dpi;
                this->AutoValidate = System::Windows::Forms::AutoValidate::EnablePreventFocusChange;
                this->BackColor = System::Drawing::SystemColors::Menu;
                this->ClientSize = System::Drawing::Size(990, 700);
@@ -3035,7 +3035,7 @@ namespace Sudoku_3_0
 
         unsigned char value = board->valueAt(index);
         bool hasConflict = this->conflicts->hasConflict(index);
-        cell->Text = value == 0 ? String::Empty : ((int)value).ToString();
+        // The digit is painted by cell_Paint (see paintDigit), so the button's own Text stays empty
         cell->ForeColor = this->colorForKind(board->kindAt(index));
         cell->Enabled = board->isEditable(index);
         cell->BackColor = hasConflict
@@ -3482,12 +3482,19 @@ namespace Sudoku_3_0
         this->setPencilMode(!this->pencilMode);
     }
 
-           // Paints pencil marks
+           // Paints a cell's content: its digit, or its pencil marks and candidate hints
     private: void cell_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e)
     {
         System::Windows::Forms::Button^ cell = safe_cast<System::Windows::Forms::Button^>(sender);
         int idx;
-        if (!this->cellIndex->TryGetValue(cell, idx) || cell->Text->Length > 0) return;
+        if (!this->cellIndex->TryGetValue(cell, idx)) return;
+
+        unsigned char value = this->session->board->valueAt(idx);
+        if (value != 0)
+        {
+            this->paintDigit(cell, value, e->Graphics);
+            return;
+        }
 
         // Candidate-ghost visibility is driven purely by the CandidateDisplay level (independent
         // of pencil mode, which only governs input): None never shows, CurrentCell shows on the
@@ -3508,12 +3515,15 @@ namespace Sudoku_3_0
         float ch = (h - 2.0f * pad) / 3.0f;
 
         // Reuse cached rendering resources, rebuilding the font only when the size changes.
-        float fontSize = Math::Max(6.0f, Math::Min(cw, ch) * 0.55f);
+        // Sized in pixels, from the cell's pixel size, so the marks stay in proportion to the
+        // cell at every display scaling. (A size in points would be scaled by the display a
+        // second time, shrinking the marks at lower scalings.)
+        float fontSize = Math::Max(8.0f, Math::Min(cw, ch) * 1.1f);
         if (this->pencilFont == nullptr || this->pencilFontSize != fontSize)
         {
             delete this->pencilFont;
             this->pencilFont = gcnew System::Drawing::Font("Calibri", fontSize,
-                System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point);
+                System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Pixel);
             this->pencilFontSize = fontSize;
         }
         if (this->pencilFormat == nullptr)
@@ -3547,6 +3557,34 @@ namespace Sudoku_3_0
             System::Drawing::RectangleF rect(x, y, cw, ch);
             g->DrawString(d.ToString(), font, brush, rect, sf);
         }
+    }
+
+           // Draws a cell's digit ourselves instead of through the button's Text. A button lays
+           // its text out inside fixed-pixel margins (border and focus area) that do not scale
+           // with the display, so at lower scalings the tall Cambria line no longer fits and the
+           // digit's bottom is cut off. Here it is centered on the whole cell and not clipped, in
+           // the button's own font - which, with DPI auto-scaling, is the same fraction of the
+           // cell at every scaling. Colors match what the button drew: its ForeColor when
+           // enabled; when disabled (locked cells), Windows' disabled text color for the cell's
+           // background. (ForeColor still colors the flat border, which is how locked kinds show.)
+    private: void paintDigit(System::Windows::Forms::Button^ cell, unsigned char value, System::Drawing::Graphics^ g)
+    {
+        System::Drawing::Color color;
+        if (cell->Enabled)
+            color = cell->ForeColor;
+        else if (SystemInformation::HighContrast)
+            color = SystemColors::GrayText;
+        else
+            color = ControlPaint::Dark(cell->BackColor);
+
+        // The button used to draw the digit 5 px below the cell's center in a 62 px cell (its
+        // text area is offset by its margins); keep that look, in proportion to the cell.
+        System::Drawing::Rectangle area = cell->ClientRectangle;
+        area.Offset(0, (int)Math::Round(area.Height * 5.0 / 62.0));
+
+        TextRenderer::DrawText(g, ((int)value).ToString(), cell->Font, area, color,
+            TextFormatFlags::HorizontalCenter | TextFormatFlags::VerticalCenter
+            | TextFormatFlags::SingleLine | TextFormatFlags::NoClipping);
     }
 
            // Navigate focus to the nearest enabled cell in a given direction, wrapping around
@@ -3634,7 +3672,7 @@ namespace Sudoku_3_0
         int idx;
         if (!this->cellIndex->TryGetValue(safe_cast<Button^>(sender), idx)) return;
         this->hoveredCellIndex = idx;
-        if (this->pencilMode && this->cells[idx]->Enabled && this->cells[idx]->Text->Length == 0)
+        if (this->pencilMode && this->cells[idx]->Enabled && this->session->board->isEmpty(idx))
             this->cells[idx]->Invalidate();
     }
 
@@ -3644,7 +3682,7 @@ namespace Sudoku_3_0
         if (!this->cellIndex->TryGetValue(safe_cast<Button^>(sender), idx)) return;
         if (this->hoveredCellIndex == idx)
             this->hoveredCellIndex = -1;
-        if (this->pencilMode && this->cells[idx]->Enabled && this->cells[idx]->Text->Length == 0)
+        if (this->pencilMode && this->cells[idx]->Enabled && this->session->board->isEmpty(idx))
             this->cells[idx]->Invalidate();
     }
 
@@ -3654,7 +3692,8 @@ namespace Sudoku_3_0
     {
         if (!this->pencilMode) return;
         Button^ cell = safe_cast<Button^>(sender);
-        if (cell->Enabled && cell->Text->Length == 0)
+        int idx;
+        if (this->cellIndex->TryGetValue(cell, idx) && cell->Enabled && this->session->board->isEmpty(idx))
             cell->Invalidate();
     }
 
@@ -3665,7 +3704,7 @@ namespace Sudoku_3_0
 
         Button^ cell = safe_cast<Button^>(sender);
         int idx;
-        if (!this->cellIndex->TryGetValue(cell, idx) || !cell->Enabled || cell->Text->Length > 0) return;
+        if (!this->cellIndex->TryGetValue(cell, idx) || !cell->Enabled || !this->session->board->isEmpty(idx)) return;
 
         float w = (float)cell->ClientSize.Width;
         float h = (float)cell->ClientSize.Height;
