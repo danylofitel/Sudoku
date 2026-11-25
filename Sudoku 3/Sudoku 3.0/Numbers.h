@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Fonts.h"
 #include "Strings.h"
 
 namespace Sudoku_3_0
@@ -65,7 +66,7 @@ namespace Sudoku_3_0
            // are toggled by digit, so there is nothing to clear: Clear and its keys are inactive.
     private: bool isPencilMode;
 
-           // Font for the Clear and Cancel labels, sized per language by setLanguage
+           // Font for the Clear and Cancel labels, sized by setLanguage to fit the buttons
     private: System::Drawing::Font^ labelFont;
 
            // All buttons in visual order (see the constructor); a digit button's index + 1 is its
@@ -100,8 +101,7 @@ namespace Sudoku_3_0
                this->button1->BackColor = System::Drawing::SystemColors::Menu;
                this->button1->FlatAppearance->BorderSize = 0;
                this->button1->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(204)));
+               this->button1->Font = Fonts::PadDigit;
                this->button1->Location = System::Drawing::Point(0, 0);
                this->button1->Name = L"button1";
                this->button1->Size = System::Drawing::Size(50, 50);
@@ -120,8 +120,7 @@ namespace Sudoku_3_0
                this->button2->BackColor = System::Drawing::SystemColors::Menu;
                this->button2->FlatAppearance->BorderSize = 0;
                this->button2->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(204)));
+               this->button2->Font = Fonts::PadDigit;
                this->button2->Location = System::Drawing::Point(50, 0);
                this->button2->Name = L"button2";
                this->button2->Size = System::Drawing::Size(50, 50);
@@ -140,8 +139,7 @@ namespace Sudoku_3_0
                this->button3->BackColor = System::Drawing::SystemColors::Menu;
                this->button3->FlatAppearance->BorderSize = 0;
                this->button3->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(204)));
+               this->button3->Font = Fonts::PadDigit;
                this->button3->Location = System::Drawing::Point(100, 0);
                this->button3->Name = L"button3";
                this->button3->Size = System::Drawing::Size(50, 50);
@@ -160,8 +158,7 @@ namespace Sudoku_3_0
                this->button4->BackColor = System::Drawing::SystemColors::Menu;
                this->button4->FlatAppearance->BorderSize = 0;
                this->button4->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button4->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(204)));
+               this->button4->Font = Fonts::PadDigit;
                this->button4->Location = System::Drawing::Point(0, 50);
                this->button4->Name = L"button4";
                this->button4->Size = System::Drawing::Size(50, 50);
@@ -180,8 +177,7 @@ namespace Sudoku_3_0
                this->button5->BackColor = System::Drawing::SystemColors::Menu;
                this->button5->FlatAppearance->BorderSize = 0;
                this->button5->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button5->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(204)));
+               this->button5->Font = Fonts::PadDigit;
                this->button5->Location = System::Drawing::Point(50, 50);
                this->button5->Name = L"button5";
                this->button5->Size = System::Drawing::Size(50, 50);
@@ -200,8 +196,7 @@ namespace Sudoku_3_0
                this->button6->BackColor = System::Drawing::SystemColors::Menu;
                this->button6->FlatAppearance->BorderSize = 0;
                this->button6->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button6->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(204)));
+               this->button6->Font = Fonts::PadDigit;
                this->button6->Location = System::Drawing::Point(100, 50);
                this->button6->Name = L"button6";
                this->button6->Size = System::Drawing::Size(50, 50);
@@ -220,8 +215,7 @@ namespace Sudoku_3_0
                this->button7->BackColor = System::Drawing::SystemColors::Menu;
                this->button7->FlatAppearance->BorderSize = 0;
                this->button7->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button7->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(204)));
+               this->button7->Font = Fonts::PadDigit;
                this->button7->Location = System::Drawing::Point(0, 100);
                this->button7->Name = L"button7";
                this->button7->Size = System::Drawing::Size(50, 50);
@@ -240,8 +234,7 @@ namespace Sudoku_3_0
                this->button8->BackColor = System::Drawing::SystemColors::Menu;
                this->button8->FlatAppearance->BorderSize = 0;
                this->button8->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button8->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(204)));
+               this->button8->Font = Fonts::PadDigit;
                this->button8->Location = System::Drawing::Point(50, 100);
                this->button8->Name = L"button8";
                this->button8->Size = System::Drawing::Size(50, 50);
@@ -260,8 +253,7 @@ namespace Sudoku_3_0
                this->button9->BackColor = System::Drawing::SystemColors::Menu;
                this->button9->FlatAppearance->BorderSize = 0;
                this->button9->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button9->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 24, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(204)));
+               this->button9->Font = Fonts::PadDigit;
                this->button9->Location = System::Drawing::Point(100, 100);
                this->button9->Name = L"button9";
                this->button9->Size = System::Drawing::Size(50, 50);
@@ -281,8 +273,6 @@ namespace Sudoku_3_0
                this->buttonClear->DialogResult = System::Windows::Forms::DialogResult::Cancel;
                this->buttonClear->FlatAppearance->BorderSize = 0;
                this->buttonClear->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->buttonClear->Font = (gcnew System::Drawing::Font(L"Arial Narrow", 14.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
                this->buttonClear->Location = System::Drawing::Point(0, 150);
                this->buttonClear->Name = L"buttonClear";
                this->buttonClear->Size = System::Drawing::Size(67, 50);
@@ -302,8 +292,6 @@ namespace Sudoku_3_0
                this->buttonCancel->DialogResult = System::Windows::Forms::DialogResult::Cancel;
                this->buttonCancel->FlatAppearance->BorderSize = 0;
                this->buttonCancel->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->buttonCancel->Font = (gcnew System::Drawing::Font(L"Arial Narrow", 14.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
                this->buttonCancel->Location = System::Drawing::Point(67, 150);
                this->buttonCancel->Name = L"buttonCancel";
                this->buttonCancel->Size = System::Drawing::Size(83, 50);
@@ -453,19 +441,55 @@ namespace Sudoku_3_0
         this->buttonClear->Text = Strings::Get(StringId::ButtonClear, lang);
         this->buttonCancel->Text = Strings::Get(StringId::ButtonCancel, lang);
 
-        // Ukrainian labels are longer - use a smaller font so they fit the fixed-size buttons
-        float fontSize = (lang == Language::Ukrainian) ? 12.0F : 14.25F;
         System::Drawing::Font^ previous = this->labelFont;
-        this->labelFont = gcnew System::Drawing::Font(
-            L"Arial Narrow", fontSize,
-            System::Drawing::FontStyle::Bold,
-            System::Drawing::GraphicsUnit::Point,
-            static_cast<System::Byte>(0));
+        this->labelFont = this->createFittingLabelFont();
         this->buttonClear->Font = this->labelFont;
         this->buttonCancel->Font = this->labelFont;
 
         // Release the replaced font's GDI handle now that no button uses it
         delete previous;
+    }
+
+          // The largest label font, up to Fonts::PadLabelMaxSize, at which Clear and Cancel each
+          // fit their normal-mode buttons on one line. A label that does not fit wraps inside the
+          // button, and its second line is clipped away, leaving e.g. "Clea" above center. A
+          // fixed size per language is not enough, since a label's width depends on the display
+          // scaling and on the font actually used (were the text font ever missing, Windows would
+          // substitute a wider one, which this fitting also absorbs).
+    private: System::Drawing::Font^ createFittingLabelFont()
+    {
+        const float minimumSize = 8.0F;
+        const float step = 0.25F;
+        // The button's own text margins (border, focus area, layout padding), in device
+        // pixels; these do not grow with the font
+        const int margin = 12;
+
+        int clearW = this->normalClearWidth();
+        int cancelW = this->ClientSize.Width - clearW;
+
+        for (float size = Fonts::PadLabelMaxSize; ; size -= step)
+        {
+            System::Drawing::Font^ font = Fonts::Text(size);
+            if (size - step < minimumSize
+                || (labelFits(this->buttonClear->Text, font, clearW - margin)
+                    && labelFits(this->buttonCancel->Text, font, cancelW - margin)))
+                return font;
+            delete font;
+        }
+    }
+
+    private: static bool labelFits(System::String^ text, System::Drawing::Font^ font, int width)
+    {
+        System::Drawing::Size size = System::Windows::Forms::TextRenderer::MeasureText(text, font,
+            System::Drawing::Size(System::Int32::MaxValue, System::Int32::MaxValue),
+            System::Windows::Forms::TextFormatFlags::SingleLine);
+        return size.Width <= width;
+    }
+
+          // Width of Clear when it shares the bottom row with Cancel (in the designer's 67:83 split)
+    private: int normalClearWidth()
+    {
+        return this->ClientSize.Width * 67 / 150;
     }
 
           // Switch between normal mode (Clear + Cancel) and pencil mode (Cancel only)
@@ -484,7 +508,7 @@ namespace Sudoku_3_0
         else
         {
             this->buttonClear->Visible = true;
-            int clearW = w * 67 / 150;
+            int clearW = this->normalClearWidth();
             this->buttonClear->Location = System::Drawing::Point(0, y);
             this->buttonClear->Size = System::Drawing::Size(clearW, h);
             this->buttonCancel->Location = System::Drawing::Point(clearW, y);

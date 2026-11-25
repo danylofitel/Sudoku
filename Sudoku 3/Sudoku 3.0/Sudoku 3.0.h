@@ -7,6 +7,7 @@
 #include "CellAccessibility.h"
 #include "ConflictDetector.h"
 #include "Difficulty.h"
+#include "Fonts.h"
 #include "GameMode.h"
 #include "GameSession.h"
 #include "GameValidator.h"
@@ -457,8 +458,7 @@ namespace Sudoku_3_0
                // 
                this->button1->BackColor = System::Drawing::SystemColors::Menu;
                this->button1->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button1->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button1->Font = Fonts::CellDigit;
                this->button1->Location = System::Drawing::Point(48, 54);
                this->button1->Margin = System::Windows::Forms::Padding(4);
                this->button1->Name = L"button1";
@@ -474,8 +474,7 @@ namespace Sudoku_3_0
                // 
                this->button2->BackColor = System::Drawing::SystemColors::Menu;
                this->button2->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button2->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button2->Font = Fonts::CellDigit;
                this->button2->Location = System::Drawing::Point(114, 54);
                this->button2->Margin = System::Windows::Forms::Padding(4);
                this->button2->Name = L"button2";
@@ -491,8 +490,7 @@ namespace Sudoku_3_0
                // 
                this->button3->BackColor = System::Drawing::SystemColors::Menu;
                this->button3->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button3->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button3->Font = Fonts::CellDigit;
                this->button3->Location = System::Drawing::Point(180, 54);
                this->button3->Margin = System::Windows::Forms::Padding(4);
                this->button3->Name = L"button3";
@@ -508,8 +506,7 @@ namespace Sudoku_3_0
                // 
                this->button4->BackColor = System::Drawing::SystemColors::Menu;
                this->button4->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button4->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button4->Font = Fonts::CellDigit;
                this->button4->Location = System::Drawing::Point(254, 54);
                this->button4->Margin = System::Windows::Forms::Padding(4);
                this->button4->Name = L"button4";
@@ -525,8 +522,7 @@ namespace Sudoku_3_0
                // 
                this->button5->BackColor = System::Drawing::SystemColors::Menu;
                this->button5->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button5->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button5->Font = Fonts::CellDigit;
                this->button5->Location = System::Drawing::Point(320, 54);
                this->button5->Margin = System::Windows::Forms::Padding(4);
                this->button5->Name = L"button5";
@@ -542,8 +538,7 @@ namespace Sudoku_3_0
                // 
                this->button6->BackColor = System::Drawing::SystemColors::Menu;
                this->button6->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button6->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button6->Font = Fonts::CellDigit;
                this->button6->Location = System::Drawing::Point(386, 54);
                this->button6->Margin = System::Windows::Forms::Padding(4);
                this->button6->Name = L"button6";
@@ -559,8 +554,7 @@ namespace Sudoku_3_0
                // 
                this->button7->BackColor = System::Drawing::SystemColors::Menu;
                this->button7->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button7->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button7->Font = Fonts::CellDigit;
                this->button7->Location = System::Drawing::Point(460, 54);
                this->button7->Margin = System::Windows::Forms::Padding(4);
                this->button7->Name = L"button7";
@@ -576,8 +570,7 @@ namespace Sudoku_3_0
                // 
                this->button8->BackColor = System::Drawing::SystemColors::Menu;
                this->button8->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button8->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button8->Font = Fonts::CellDigit;
                this->button8->Location = System::Drawing::Point(526, 54);
                this->button8->Margin = System::Windows::Forms::Padding(4);
                this->button8->Name = L"button8";
@@ -593,8 +586,7 @@ namespace Sudoku_3_0
                // 
                this->button9->BackColor = System::Drawing::SystemColors::Menu;
                this->button9->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button9->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button9->Font = Fonts::CellDigit;
                this->button9->Location = System::Drawing::Point(592, 54);
                this->button9->Margin = System::Windows::Forms::Padding(4);
                this->button9->Name = L"button9";
@@ -610,8 +602,7 @@ namespace Sudoku_3_0
                // 
                this->button10->BackColor = System::Drawing::SystemColors::Menu;
                this->button10->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button10->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button10->Font = Fonts::CellDigit;
                this->button10->Location = System::Drawing::Point(48, 120);
                this->button10->Margin = System::Windows::Forms::Padding(4);
                this->button10->Name = L"button10";
@@ -627,8 +618,7 @@ namespace Sudoku_3_0
                // 
                this->button11->BackColor = System::Drawing::SystemColors::Menu;
                this->button11->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button11->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button11->Font = Fonts::CellDigit;
                this->button11->Location = System::Drawing::Point(114, 120);
                this->button11->Margin = System::Windows::Forms::Padding(4);
                this->button11->Name = L"button11";
@@ -644,8 +634,7 @@ namespace Sudoku_3_0
                // 
                this->button12->BackColor = System::Drawing::SystemColors::Menu;
                this->button12->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button12->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button12->Font = Fonts::CellDigit;
                this->button12->Location = System::Drawing::Point(180, 120);
                this->button12->Margin = System::Windows::Forms::Padding(4);
                this->button12->Name = L"button12";
@@ -661,8 +650,7 @@ namespace Sudoku_3_0
                // 
                this->button13->BackColor = System::Drawing::SystemColors::Menu;
                this->button13->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button13->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button13->Font = Fonts::CellDigit;
                this->button13->Location = System::Drawing::Point(254, 120);
                this->button13->Margin = System::Windows::Forms::Padding(4);
                this->button13->Name = L"button13";
@@ -678,8 +666,7 @@ namespace Sudoku_3_0
                // 
                this->button14->BackColor = System::Drawing::SystemColors::Menu;
                this->button14->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button14->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button14->Font = Fonts::CellDigit;
                this->button14->Location = System::Drawing::Point(320, 120);
                this->button14->Margin = System::Windows::Forms::Padding(4);
                this->button14->Name = L"button14";
@@ -695,8 +682,7 @@ namespace Sudoku_3_0
                // 
                this->button15->BackColor = System::Drawing::SystemColors::Menu;
                this->button15->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button15->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button15->Font = Fonts::CellDigit;
                this->button15->Location = System::Drawing::Point(386, 120);
                this->button15->Margin = System::Windows::Forms::Padding(4);
                this->button15->Name = L"button15";
@@ -712,8 +698,7 @@ namespace Sudoku_3_0
                // 
                this->button16->BackColor = System::Drawing::SystemColors::Menu;
                this->button16->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button16->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button16->Font = Fonts::CellDigit;
                this->button16->Location = System::Drawing::Point(460, 120);
                this->button16->Margin = System::Windows::Forms::Padding(4);
                this->button16->Name = L"button16";
@@ -729,8 +714,7 @@ namespace Sudoku_3_0
                // 
                this->button17->BackColor = System::Drawing::SystemColors::Menu;
                this->button17->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button17->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button17->Font = Fonts::CellDigit;
                this->button17->Location = System::Drawing::Point(526, 120);
                this->button17->Margin = System::Windows::Forms::Padding(4);
                this->button17->Name = L"button17";
@@ -746,8 +730,7 @@ namespace Sudoku_3_0
                // 
                this->button18->BackColor = System::Drawing::SystemColors::Menu;
                this->button18->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button18->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button18->Font = Fonts::CellDigit;
                this->button18->Location = System::Drawing::Point(592, 120);
                this->button18->Margin = System::Windows::Forms::Padding(4);
                this->button18->Name = L"button18";
@@ -763,8 +746,7 @@ namespace Sudoku_3_0
                // 
                this->button19->BackColor = System::Drawing::SystemColors::Menu;
                this->button19->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button19->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button19->Font = Fonts::CellDigit;
                this->button19->Location = System::Drawing::Point(48, 186);
                this->button19->Margin = System::Windows::Forms::Padding(4);
                this->button19->Name = L"button19";
@@ -780,8 +762,7 @@ namespace Sudoku_3_0
                // 
                this->button20->BackColor = System::Drawing::SystemColors::Menu;
                this->button20->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button20->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button20->Font = Fonts::CellDigit;
                this->button20->Location = System::Drawing::Point(114, 186);
                this->button20->Margin = System::Windows::Forms::Padding(4);
                this->button20->Name = L"button20";
@@ -797,8 +778,7 @@ namespace Sudoku_3_0
                // 
                this->button21->BackColor = System::Drawing::SystemColors::Menu;
                this->button21->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button21->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button21->Font = Fonts::CellDigit;
                this->button21->Location = System::Drawing::Point(180, 186);
                this->button21->Margin = System::Windows::Forms::Padding(4);
                this->button21->Name = L"button21";
@@ -814,8 +794,7 @@ namespace Sudoku_3_0
                // 
                this->button22->BackColor = System::Drawing::SystemColors::Menu;
                this->button22->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button22->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button22->Font = Fonts::CellDigit;
                this->button22->Location = System::Drawing::Point(254, 186);
                this->button22->Margin = System::Windows::Forms::Padding(4);
                this->button22->Name = L"button22";
@@ -831,8 +810,7 @@ namespace Sudoku_3_0
                // 
                this->button23->BackColor = System::Drawing::SystemColors::Menu;
                this->button23->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button23->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button23->Font = Fonts::CellDigit;
                this->button23->Location = System::Drawing::Point(320, 186);
                this->button23->Margin = System::Windows::Forms::Padding(4);
                this->button23->Name = L"button23";
@@ -848,8 +826,7 @@ namespace Sudoku_3_0
                // 
                this->button24->BackColor = System::Drawing::SystemColors::Menu;
                this->button24->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button24->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button24->Font = Fonts::CellDigit;
                this->button24->Location = System::Drawing::Point(386, 186);
                this->button24->Margin = System::Windows::Forms::Padding(4);
                this->button24->Name = L"button24";
@@ -865,8 +842,7 @@ namespace Sudoku_3_0
                // 
                this->button25->BackColor = System::Drawing::SystemColors::Menu;
                this->button25->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button25->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button25->Font = Fonts::CellDigit;
                this->button25->Location = System::Drawing::Point(460, 186);
                this->button25->Margin = System::Windows::Forms::Padding(4);
                this->button25->Name = L"button25";
@@ -882,8 +858,7 @@ namespace Sudoku_3_0
                // 
                this->button26->BackColor = System::Drawing::SystemColors::Menu;
                this->button26->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button26->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button26->Font = Fonts::CellDigit;
                this->button26->Location = System::Drawing::Point(526, 186);
                this->button26->Margin = System::Windows::Forms::Padding(4);
                this->button26->Name = L"button26";
@@ -899,8 +874,7 @@ namespace Sudoku_3_0
                // 
                this->button27->BackColor = System::Drawing::SystemColors::Menu;
                this->button27->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button27->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button27->Font = Fonts::CellDigit;
                this->button27->Location = System::Drawing::Point(592, 186);
                this->button27->Margin = System::Windows::Forms::Padding(4);
                this->button27->Name = L"button27";
@@ -916,8 +890,7 @@ namespace Sudoku_3_0
                // 
                this->button28->BackColor = System::Drawing::SystemColors::Menu;
                this->button28->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button28->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button28->Font = Fonts::CellDigit;
                this->button28->Location = System::Drawing::Point(48, 262);
                this->button28->Margin = System::Windows::Forms::Padding(4);
                this->button28->Name = L"button28";
@@ -933,8 +906,7 @@ namespace Sudoku_3_0
                // 
                this->button29->BackColor = System::Drawing::SystemColors::Menu;
                this->button29->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button29->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button29->Font = Fonts::CellDigit;
                this->button29->Location = System::Drawing::Point(114, 262);
                this->button29->Margin = System::Windows::Forms::Padding(4);
                this->button29->Name = L"button29";
@@ -950,8 +922,7 @@ namespace Sudoku_3_0
                // 
                this->button30->BackColor = System::Drawing::SystemColors::Menu;
                this->button30->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button30->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button30->Font = Fonts::CellDigit;
                this->button30->Location = System::Drawing::Point(180, 262);
                this->button30->Margin = System::Windows::Forms::Padding(4);
                this->button30->Name = L"button30";
@@ -967,8 +938,7 @@ namespace Sudoku_3_0
                // 
                this->button31->BackColor = System::Drawing::SystemColors::Menu;
                this->button31->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button31->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button31->Font = Fonts::CellDigit;
                this->button31->Location = System::Drawing::Point(254, 262);
                this->button31->Margin = System::Windows::Forms::Padding(4);
                this->button31->Name = L"button31";
@@ -984,8 +954,7 @@ namespace Sudoku_3_0
                // 
                this->button32->BackColor = System::Drawing::SystemColors::Menu;
                this->button32->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button32->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button32->Font = Fonts::CellDigit;
                this->button32->Location = System::Drawing::Point(320, 262);
                this->button32->Margin = System::Windows::Forms::Padding(4);
                this->button32->Name = L"button32";
@@ -1001,8 +970,7 @@ namespace Sudoku_3_0
                // 
                this->button33->BackColor = System::Drawing::SystemColors::Menu;
                this->button33->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button33->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button33->Font = Fonts::CellDigit;
                this->button33->Location = System::Drawing::Point(386, 262);
                this->button33->Margin = System::Windows::Forms::Padding(4);
                this->button33->Name = L"button33";
@@ -1018,8 +986,7 @@ namespace Sudoku_3_0
                // 
                this->button34->BackColor = System::Drawing::SystemColors::Menu;
                this->button34->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button34->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button34->Font = Fonts::CellDigit;
                this->button34->Location = System::Drawing::Point(460, 262);
                this->button34->Margin = System::Windows::Forms::Padding(4);
                this->button34->Name = L"button34";
@@ -1035,8 +1002,7 @@ namespace Sudoku_3_0
                // 
                this->button35->BackColor = System::Drawing::SystemColors::Menu;
                this->button35->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button35->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button35->Font = Fonts::CellDigit;
                this->button35->Location = System::Drawing::Point(526, 262);
                this->button35->Margin = System::Windows::Forms::Padding(4);
                this->button35->Name = L"button35";
@@ -1052,8 +1018,7 @@ namespace Sudoku_3_0
                // 
                this->button36->BackColor = System::Drawing::SystemColors::Menu;
                this->button36->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button36->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button36->Font = Fonts::CellDigit;
                this->button36->Location = System::Drawing::Point(592, 262);
                this->button36->Margin = System::Windows::Forms::Padding(4);
                this->button36->Name = L"button36";
@@ -1069,8 +1034,7 @@ namespace Sudoku_3_0
                // 
                this->button37->BackColor = System::Drawing::SystemColors::Menu;
                this->button37->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button37->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button37->Font = Fonts::CellDigit;
                this->button37->Location = System::Drawing::Point(48, 328);
                this->button37->Margin = System::Windows::Forms::Padding(4);
                this->button37->Name = L"button37";
@@ -1086,8 +1050,7 @@ namespace Sudoku_3_0
                // 
                this->button38->BackColor = System::Drawing::SystemColors::Menu;
                this->button38->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button38->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button38->Font = Fonts::CellDigit;
                this->button38->Location = System::Drawing::Point(114, 328);
                this->button38->Margin = System::Windows::Forms::Padding(4);
                this->button38->Name = L"button38";
@@ -1103,8 +1066,7 @@ namespace Sudoku_3_0
                // 
                this->button39->BackColor = System::Drawing::SystemColors::Menu;
                this->button39->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button39->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button39->Font = Fonts::CellDigit;
                this->button39->Location = System::Drawing::Point(180, 328);
                this->button39->Margin = System::Windows::Forms::Padding(4);
                this->button39->Name = L"button39";
@@ -1120,8 +1082,7 @@ namespace Sudoku_3_0
                // 
                this->button40->BackColor = System::Drawing::SystemColors::Menu;
                this->button40->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button40->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button40->Font = Fonts::CellDigit;
                this->button40->Location = System::Drawing::Point(254, 328);
                this->button40->Margin = System::Windows::Forms::Padding(4);
                this->button40->Name = L"button40";
@@ -1137,8 +1098,7 @@ namespace Sudoku_3_0
                // 
                this->button41->BackColor = System::Drawing::SystemColors::Menu;
                this->button41->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button41->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button41->Font = Fonts::CellDigit;
                this->button41->Location = System::Drawing::Point(320, 328);
                this->button41->Margin = System::Windows::Forms::Padding(4);
                this->button41->Name = L"button41";
@@ -1154,8 +1114,7 @@ namespace Sudoku_3_0
                // 
                this->button42->BackColor = System::Drawing::SystemColors::Menu;
                this->button42->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button42->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button42->Font = Fonts::CellDigit;
                this->button42->Location = System::Drawing::Point(386, 328);
                this->button42->Margin = System::Windows::Forms::Padding(4);
                this->button42->Name = L"button42";
@@ -1171,8 +1130,7 @@ namespace Sudoku_3_0
                // 
                this->button43->BackColor = System::Drawing::SystemColors::Menu;
                this->button43->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button43->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button43->Font = Fonts::CellDigit;
                this->button43->Location = System::Drawing::Point(460, 328);
                this->button43->Margin = System::Windows::Forms::Padding(4);
                this->button43->Name = L"button43";
@@ -1188,8 +1146,7 @@ namespace Sudoku_3_0
                // 
                this->button44->BackColor = System::Drawing::SystemColors::Menu;
                this->button44->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button44->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button44->Font = Fonts::CellDigit;
                this->button44->Location = System::Drawing::Point(526, 328);
                this->button44->Margin = System::Windows::Forms::Padding(4);
                this->button44->Name = L"button44";
@@ -1205,8 +1162,7 @@ namespace Sudoku_3_0
                // 
                this->button45->BackColor = System::Drawing::SystemColors::Menu;
                this->button45->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button45->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button45->Font = Fonts::CellDigit;
                this->button45->Location = System::Drawing::Point(592, 328);
                this->button45->Margin = System::Windows::Forms::Padding(4);
                this->button45->Name = L"button45";
@@ -1222,8 +1178,7 @@ namespace Sudoku_3_0
                // 
                this->button46->BackColor = System::Drawing::SystemColors::Menu;
                this->button46->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button46->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button46->Font = Fonts::CellDigit;
                this->button46->Location = System::Drawing::Point(48, 394);
                this->button46->Margin = System::Windows::Forms::Padding(4);
                this->button46->Name = L"button46";
@@ -1239,8 +1194,7 @@ namespace Sudoku_3_0
                // 
                this->button47->BackColor = System::Drawing::SystemColors::Menu;
                this->button47->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button47->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button47->Font = Fonts::CellDigit;
                this->button47->Location = System::Drawing::Point(114, 394);
                this->button47->Margin = System::Windows::Forms::Padding(4);
                this->button47->Name = L"button47";
@@ -1256,8 +1210,7 @@ namespace Sudoku_3_0
                // 
                this->button48->BackColor = System::Drawing::SystemColors::Menu;
                this->button48->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button48->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button48->Font = Fonts::CellDigit;
                this->button48->Location = System::Drawing::Point(180, 394);
                this->button48->Margin = System::Windows::Forms::Padding(4);
                this->button48->Name = L"button48";
@@ -1273,8 +1226,7 @@ namespace Sudoku_3_0
                // 
                this->button49->BackColor = System::Drawing::SystemColors::Menu;
                this->button49->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button49->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button49->Font = Fonts::CellDigit;
                this->button49->Location = System::Drawing::Point(254, 394);
                this->button49->Margin = System::Windows::Forms::Padding(4);
                this->button49->Name = L"button49";
@@ -1290,8 +1242,7 @@ namespace Sudoku_3_0
                // 
                this->button50->BackColor = System::Drawing::SystemColors::Menu;
                this->button50->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button50->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button50->Font = Fonts::CellDigit;
                this->button50->Location = System::Drawing::Point(320, 394);
                this->button50->Margin = System::Windows::Forms::Padding(4);
                this->button50->Name = L"button50";
@@ -1307,8 +1258,7 @@ namespace Sudoku_3_0
                // 
                this->button51->BackColor = System::Drawing::SystemColors::Menu;
                this->button51->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button51->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button51->Font = Fonts::CellDigit;
                this->button51->Location = System::Drawing::Point(386, 394);
                this->button51->Margin = System::Windows::Forms::Padding(4);
                this->button51->Name = L"button51";
@@ -1324,8 +1274,7 @@ namespace Sudoku_3_0
                // 
                this->button52->BackColor = System::Drawing::SystemColors::Menu;
                this->button52->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button52->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button52->Font = Fonts::CellDigit;
                this->button52->Location = System::Drawing::Point(460, 394);
                this->button52->Margin = System::Windows::Forms::Padding(4);
                this->button52->Name = L"button52";
@@ -1341,8 +1290,7 @@ namespace Sudoku_3_0
                // 
                this->button53->BackColor = System::Drawing::SystemColors::Menu;
                this->button53->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button53->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button53->Font = Fonts::CellDigit;
                this->button53->Location = System::Drawing::Point(526, 394);
                this->button53->Margin = System::Windows::Forms::Padding(4);
                this->button53->Name = L"button53";
@@ -1358,8 +1306,7 @@ namespace Sudoku_3_0
                // 
                this->button54->BackColor = System::Drawing::SystemColors::Menu;
                this->button54->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button54->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button54->Font = Fonts::CellDigit;
                this->button54->Location = System::Drawing::Point(592, 394);
                this->button54->Margin = System::Windows::Forms::Padding(4);
                this->button54->Name = L"button54";
@@ -1375,8 +1322,7 @@ namespace Sudoku_3_0
                // 
                this->button55->BackColor = System::Drawing::SystemColors::Menu;
                this->button55->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button55->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button55->Font = Fonts::CellDigit;
                this->button55->Location = System::Drawing::Point(48, 470);
                this->button55->Margin = System::Windows::Forms::Padding(4);
                this->button55->Name = L"button55";
@@ -1392,8 +1338,7 @@ namespace Sudoku_3_0
                // 
                this->button56->BackColor = System::Drawing::SystemColors::Menu;
                this->button56->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button56->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button56->Font = Fonts::CellDigit;
                this->button56->Location = System::Drawing::Point(114, 470);
                this->button56->Margin = System::Windows::Forms::Padding(4);
                this->button56->Name = L"button56";
@@ -1409,8 +1354,7 @@ namespace Sudoku_3_0
                // 
                this->button57->BackColor = System::Drawing::SystemColors::Menu;
                this->button57->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button57->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button57->Font = Fonts::CellDigit;
                this->button57->Location = System::Drawing::Point(180, 470);
                this->button57->Margin = System::Windows::Forms::Padding(4);
                this->button57->Name = L"button57";
@@ -1426,8 +1370,7 @@ namespace Sudoku_3_0
                // 
                this->button58->BackColor = System::Drawing::SystemColors::Menu;
                this->button58->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button58->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button58->Font = Fonts::CellDigit;
                this->button58->Location = System::Drawing::Point(254, 470);
                this->button58->Margin = System::Windows::Forms::Padding(4);
                this->button58->Name = L"button58";
@@ -1443,8 +1386,7 @@ namespace Sudoku_3_0
                // 
                this->button59->BackColor = System::Drawing::SystemColors::Menu;
                this->button59->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button59->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button59->Font = Fonts::CellDigit;
                this->button59->Location = System::Drawing::Point(320, 470);
                this->button59->Margin = System::Windows::Forms::Padding(4);
                this->button59->Name = L"button59";
@@ -1460,8 +1402,7 @@ namespace Sudoku_3_0
                // 
                this->button60->BackColor = System::Drawing::SystemColors::Menu;
                this->button60->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button60->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button60->Font = Fonts::CellDigit;
                this->button60->Location = System::Drawing::Point(386, 470);
                this->button60->Margin = System::Windows::Forms::Padding(4);
                this->button60->Name = L"button60";
@@ -1477,8 +1418,7 @@ namespace Sudoku_3_0
                // 
                this->button61->BackColor = System::Drawing::SystemColors::Menu;
                this->button61->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button61->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button61->Font = Fonts::CellDigit;
                this->button61->Location = System::Drawing::Point(460, 470);
                this->button61->Margin = System::Windows::Forms::Padding(4);
                this->button61->Name = L"button61";
@@ -1494,8 +1434,7 @@ namespace Sudoku_3_0
                // 
                this->button62->BackColor = System::Drawing::SystemColors::Menu;
                this->button62->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button62->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button62->Font = Fonts::CellDigit;
                this->button62->Location = System::Drawing::Point(526, 470);
                this->button62->Margin = System::Windows::Forms::Padding(4);
                this->button62->Name = L"button62";
@@ -1511,8 +1450,7 @@ namespace Sudoku_3_0
                // 
                this->button63->BackColor = System::Drawing::SystemColors::Menu;
                this->button63->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button63->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button63->Font = Fonts::CellDigit;
                this->button63->Location = System::Drawing::Point(592, 470);
                this->button63->Margin = System::Windows::Forms::Padding(4);
                this->button63->Name = L"button63";
@@ -1528,8 +1466,7 @@ namespace Sudoku_3_0
                // 
                this->button64->BackColor = System::Drawing::SystemColors::Menu;
                this->button64->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button64->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button64->Font = Fonts::CellDigit;
                this->button64->Location = System::Drawing::Point(48, 536);
                this->button64->Margin = System::Windows::Forms::Padding(4);
                this->button64->Name = L"button64";
@@ -1545,8 +1482,7 @@ namespace Sudoku_3_0
                // 
                this->button65->BackColor = System::Drawing::SystemColors::Menu;
                this->button65->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button65->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button65->Font = Fonts::CellDigit;
                this->button65->Location = System::Drawing::Point(114, 536);
                this->button65->Margin = System::Windows::Forms::Padding(4);
                this->button65->Name = L"button65";
@@ -1562,8 +1498,7 @@ namespace Sudoku_3_0
                // 
                this->button66->BackColor = System::Drawing::SystemColors::Menu;
                this->button66->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button66->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button66->Font = Fonts::CellDigit;
                this->button66->Location = System::Drawing::Point(180, 536);
                this->button66->Margin = System::Windows::Forms::Padding(4);
                this->button66->Name = L"button66";
@@ -1579,8 +1514,7 @@ namespace Sudoku_3_0
                // 
                this->button67->BackColor = System::Drawing::SystemColors::Menu;
                this->button67->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button67->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button67->Font = Fonts::CellDigit;
                this->button67->Location = System::Drawing::Point(254, 536);
                this->button67->Margin = System::Windows::Forms::Padding(4);
                this->button67->Name = L"button67";
@@ -1596,8 +1530,7 @@ namespace Sudoku_3_0
                // 
                this->button68->BackColor = System::Drawing::SystemColors::Menu;
                this->button68->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button68->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button68->Font = Fonts::CellDigit;
                this->button68->Location = System::Drawing::Point(320, 536);
                this->button68->Margin = System::Windows::Forms::Padding(4);
                this->button68->Name = L"button68";
@@ -1613,8 +1546,7 @@ namespace Sudoku_3_0
                // 
                this->button69->BackColor = System::Drawing::SystemColors::Menu;
                this->button69->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button69->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button69->Font = Fonts::CellDigit;
                this->button69->Location = System::Drawing::Point(386, 536);
                this->button69->Margin = System::Windows::Forms::Padding(4);
                this->button69->Name = L"button69";
@@ -1630,8 +1562,7 @@ namespace Sudoku_3_0
                // 
                this->button70->BackColor = System::Drawing::SystemColors::Menu;
                this->button70->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button70->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button70->Font = Fonts::CellDigit;
                this->button70->Location = System::Drawing::Point(460, 536);
                this->button70->Margin = System::Windows::Forms::Padding(4);
                this->button70->Name = L"button70";
@@ -1647,8 +1578,7 @@ namespace Sudoku_3_0
                // 
                this->button71->BackColor = System::Drawing::SystemColors::Menu;
                this->button71->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button71->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button71->Font = Fonts::CellDigit;
                this->button71->Location = System::Drawing::Point(526, 536);
                this->button71->Margin = System::Windows::Forms::Padding(4);
                this->button71->Name = L"button71";
@@ -1664,8 +1594,7 @@ namespace Sudoku_3_0
                // 
                this->button72->BackColor = System::Drawing::SystemColors::Menu;
                this->button72->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button72->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button72->Font = Fonts::CellDigit;
                this->button72->Location = System::Drawing::Point(592, 536);
                this->button72->Margin = System::Windows::Forms::Padding(4);
                this->button72->Name = L"button72";
@@ -1681,8 +1610,7 @@ namespace Sudoku_3_0
                // 
                this->button73->BackColor = System::Drawing::SystemColors::Menu;
                this->button73->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button73->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button73->Font = Fonts::CellDigit;
                this->button73->Location = System::Drawing::Point(48, 602);
                this->button73->Margin = System::Windows::Forms::Padding(4);
                this->button73->Name = L"button73";
@@ -1698,8 +1626,7 @@ namespace Sudoku_3_0
                // 
                this->button74->BackColor = System::Drawing::SystemColors::Menu;
                this->button74->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button74->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button74->Font = Fonts::CellDigit;
                this->button74->Location = System::Drawing::Point(114, 602);
                this->button74->Margin = System::Windows::Forms::Padding(4);
                this->button74->Name = L"button74";
@@ -1715,8 +1642,7 @@ namespace Sudoku_3_0
                // 
                this->button75->BackColor = System::Drawing::SystemColors::Menu;
                this->button75->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button75->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button75->Font = Fonts::CellDigit;
                this->button75->Location = System::Drawing::Point(180, 602);
                this->button75->Margin = System::Windows::Forms::Padding(4);
                this->button75->Name = L"button75";
@@ -1732,8 +1658,7 @@ namespace Sudoku_3_0
                // 
                this->button76->BackColor = System::Drawing::SystemColors::Menu;
                this->button76->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button76->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button76->Font = Fonts::CellDigit;
                this->button76->Location = System::Drawing::Point(254, 602);
                this->button76->Margin = System::Windows::Forms::Padding(4);
                this->button76->Name = L"button76";
@@ -1749,8 +1674,7 @@ namespace Sudoku_3_0
                // 
                this->button77->BackColor = System::Drawing::SystemColors::Menu;
                this->button77->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button77->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button77->Font = Fonts::CellDigit;
                this->button77->Location = System::Drawing::Point(320, 602);
                this->button77->Margin = System::Windows::Forms::Padding(4);
                this->button77->Name = L"button77";
@@ -1766,8 +1690,7 @@ namespace Sudoku_3_0
                // 
                this->button78->BackColor = System::Drawing::SystemColors::Menu;
                this->button78->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button78->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button78->Font = Fonts::CellDigit;
                this->button78->Location = System::Drawing::Point(386, 602);
                this->button78->Margin = System::Windows::Forms::Padding(4);
                this->button78->Name = L"button78";
@@ -1783,8 +1706,7 @@ namespace Sudoku_3_0
                // 
                this->button79->BackColor = System::Drawing::SystemColors::Menu;
                this->button79->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button79->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button79->Font = Fonts::CellDigit;
                this->button79->Location = System::Drawing::Point(460, 602);
                this->button79->Margin = System::Windows::Forms::Padding(4);
                this->button79->Name = L"button79";
@@ -1800,8 +1722,7 @@ namespace Sudoku_3_0
                // 
                this->button80->BackColor = System::Drawing::SystemColors::Menu;
                this->button80->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button80->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button80->Font = Fonts::CellDigit;
                this->button80->Location = System::Drawing::Point(526, 602);
                this->button80->Margin = System::Windows::Forms::Padding(4);
                this->button80->Name = L"button80";
@@ -1817,8 +1738,7 @@ namespace Sudoku_3_0
                // 
                this->button81->BackColor = System::Drawing::SystemColors::Menu;
                this->button81->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->button81->Font = (gcnew System::Drawing::Font(L"Cambria", 26, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->button81->Font = Fonts::CellDigit;
                this->button81->Location = System::Drawing::Point(592, 602);
                this->button81->Margin = System::Windows::Forms::Padding(4);
                this->button81->Name = L"button81";
@@ -1834,8 +1754,7 @@ namespace Sudoku_3_0
                // 
                this->buttonMinimize->FlatAppearance->BorderSize = 0;
                this->buttonMinimize->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->buttonMinimize->Font = (gcnew System::Drawing::Font(L"Calibri", 20, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->buttonMinimize->Font = Fonts::MinimizeGlyph;
                this->buttonMinimize->Location = System::Drawing::Point(890, 0);
                this->buttonMinimize->Margin = System::Windows::Forms::Padding(0);
                this->buttonMinimize->Name = L"buttonMinimize";
@@ -1851,8 +1770,7 @@ namespace Sudoku_3_0
                // 
                this->buttonClose->FlatAppearance->BorderSize = 0;
                this->buttonClose->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->buttonClose->Font = (gcnew System::Drawing::Font(L"Calibri", 18, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->buttonClose->Font = Fonts::CloseGlyph;
                this->buttonClose->Location = System::Drawing::Point(940, 0);
                this->buttonClose->Margin = System::Windows::Forms::Padding(0);
                this->buttonClose->Name = L"buttonClose";
@@ -1866,8 +1784,7 @@ namespace Sudoku_3_0
                // timerLabel
                // 
                this->timerLabel->BackColor = System::Drawing::SystemColors::Menu;
-               this->timerLabel->Font = (gcnew System::Drawing::Font(L"Calibri", 20, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->timerLabel->Font = Fonts::TimerText;
                this->timerLabel->Location = System::Drawing::Point(701, 54);
                this->timerLabel->Name = L"timerLabel";
                this->timerLabel->Size = System::Drawing::Size(240, 49);
@@ -1889,8 +1806,7 @@ namespace Sudoku_3_0
                this->difficultyComboBox->BackColor = System::Drawing::SystemColors::Menu;
                this->difficultyComboBox->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
                this->difficultyComboBox->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->difficultyComboBox->Font = (gcnew System::Drawing::Font(L"Calibri", 14, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->difficultyComboBox->Font = Fonts::ButtonText;
                this->difficultyComboBox->Items->AddRange(gcnew cli::array< System::Object^  >(5) {
                    L"Very Easy", L"Easy", L"Medium", L"Hard",
                        L"Very Hard"
@@ -1908,8 +1824,7 @@ namespace Sudoku_3_0
                this->newGameButton->BackColor = System::Drawing::SystemColors::Menu;
                this->newGameButton->FlatAppearance->BorderSize = 0;
                this->newGameButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->newGameButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->newGameButton->Font = Fonts::ButtonText;
                this->newGameButton->Location = System::Drawing::Point(701, 162);
                this->newGameButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->newGameButton->Name = L"newGameButton";
@@ -1924,8 +1839,7 @@ namespace Sudoku_3_0
                this->restartButton->BackColor = System::Drawing::SystemColors::Menu;
                this->restartButton->FlatAppearance->BorderSize = 0;
                this->restartButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->restartButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->restartButton->Font = Fonts::ButtonText;
                this->restartButton->Location = System::Drawing::Point(701, 213);
                this->restartButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->restartButton->Name = L"restartButton";
@@ -1940,8 +1854,7 @@ namespace Sudoku_3_0
                this->hintButton->BackColor = System::Drawing::SystemColors::Menu;
                this->hintButton->FlatAppearance->BorderSize = 0;
                this->hintButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->hintButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->hintButton->Font = Fonts::ButtonText;
                this->hintButton->Location = System::Drawing::Point(701, 315);
                this->hintButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->hintButton->Name = L"hintButton";
@@ -1956,8 +1869,7 @@ namespace Sudoku_3_0
                this->fixButton->BackColor = System::Drawing::SystemColors::Menu;
                this->fixButton->FlatAppearance->BorderSize = 0;
                this->fixButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->fixButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->fixButton->Font = Fonts::ButtonText;
                this->fixButton->Location = System::Drawing::Point(701, 366);
                this->fixButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->fixButton->Name = L"fixButton";
@@ -1972,8 +1884,7 @@ namespace Sudoku_3_0
                this->giveUpButton->BackColor = System::Drawing::SystemColors::Menu;
                this->giveUpButton->FlatAppearance->BorderSize = 0;
                this->giveUpButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->giveUpButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->giveUpButton->Font = Fonts::ButtonText;
                this->giveUpButton->Location = System::Drawing::Point(701, 417);
                this->giveUpButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->giveUpButton->Name = L"giveUpButton";
@@ -1988,8 +1899,7 @@ namespace Sudoku_3_0
                this->customPuzzleButton->BackColor = System::Drawing::SystemColors::Menu;
                this->customPuzzleButton->FlatAppearance->BorderSize = 0;
                this->customPuzzleButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->customPuzzleButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->customPuzzleButton->Font = Fonts::ButtonText;
                this->customPuzzleButton->Location = System::Drawing::Point(701, 519);
                this->customPuzzleButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->customPuzzleButton->Name = L"customPuzzleButton";
@@ -2004,8 +1914,7 @@ namespace Sudoku_3_0
                this->solveButton->BackColor = System::Drawing::SystemColors::Menu;
                this->solveButton->FlatAppearance->BorderSize = 0;
                this->solveButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->solveButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->solveButton->Font = Fonts::ButtonText;
                this->solveButton->Location = System::Drawing::Point(701, 570);
                this->solveButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->solveButton->Name = L"solveButton";
@@ -2020,8 +1929,7 @@ namespace Sudoku_3_0
                this->undoButton->BackColor = System::Drawing::SystemColors::Menu;
                this->undoButton->FlatAppearance->BorderSize = 0;
                this->undoButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->undoButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->undoButton->Font = Fonts::ButtonText;
                this->undoButton->Location = System::Drawing::Point(701, 468);
                this->undoButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->undoButton->Name = L"undoButton";
@@ -2036,8 +1944,7 @@ namespace Sudoku_3_0
                this->redoButton->BackColor = System::Drawing::SystemColors::Menu;
                this->redoButton->FlatAppearance->BorderSize = 0;
                this->redoButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->redoButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->redoButton->Font = Fonts::ButtonText;
                this->redoButton->Location = System::Drawing::Point(825, 468);
                this->redoButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->redoButton->Name = L"redoButton";
@@ -2052,8 +1959,7 @@ namespace Sudoku_3_0
                this->pencilButton->BackColor = System::Drawing::SystemColors::Menu;
                this->pencilButton->FlatAppearance->BorderSize = 0;
                this->pencilButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->pencilButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->pencilButton->Font = Fonts::ButtonText;
                this->pencilButton->Location = System::Drawing::Point(701, 264);
                this->pencilButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->pencilButton->Name = L"pencilButton";
@@ -2437,8 +2343,7 @@ namespace Sudoku_3_0
                this->clipboardButton->Enabled = false;
                this->clipboardButton->FlatAppearance->BorderSize = 0;
                this->clipboardButton->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-               this->clipboardButton->Font = (gcnew System::Drawing::Font(L"Calibri", 14, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                   static_cast<System::Byte>(0)));
+               this->clipboardButton->Font = Fonts::ButtonText;
                this->clipboardButton->Location = System::Drawing::Point(701, 621);
                this->clipboardButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
                this->clipboardButton->Name = L"clipboardButton";
@@ -3515,15 +3420,12 @@ namespace Sudoku_3_0
         float ch = (h - 2.0f * pad) / 3.0f;
 
         // Reuse cached rendering resources, rebuilding the font only when the size changes.
-        // Sized in pixels, from the cell's pixel size, so the marks stay in proportion to the
-        // cell at every display scaling. (A size in points would be scaled by the display a
-        // second time, shrinking the marks at lower scalings.)
+        // The size is in pixels, from the cell's pixel size (see Fonts::PencilMark).
         float fontSize = Math::Max(8.0f, Math::Min(cw, ch) * 1.1f);
         if (this->pencilFont == nullptr || this->pencilFontSize != fontSize)
         {
             delete this->pencilFont;
-            this->pencilFont = gcnew System::Drawing::Font("Calibri", fontSize,
-                System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Pixel);
+            this->pencilFont = Fonts::PencilMark(fontSize);
             this->pencilFontSize = fontSize;
         }
         if (this->pencilFormat == nullptr)
